@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .card-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .card-link:hover {
+            opacity: 0.9;
+        }
+
+        .logout-section {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .logout-btn {
+            padding: 0.75rem 2rem;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome, Sponsor! 🎓</h1>
+            <p>Email: <%= email %></p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-icon">➕</div>
+                <h2 class="card-title">Add Scholarship Offer</h2>
+                <p class="card-description">Create a new scholarship opportunity for students</p>
+                <a href="/sponsor/add-offer" class="card-link">Create New Offer</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📋</div>
+                <h2 class="card-title">My Scholarship Offers</h2>
+                <p class="card-description">View and manage all your scholarship listings</p>
+                <a href="/sponsor/offers" class="card-link">View My Offers</a>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">👥</div>
+                <h2 class="card-title">Applicants</h2>
+                <p class="card-description">Review student applications (Coming soon)</p>
+                <a href="#" class="card-link" style="opacity: 0.5; cursor: not-allowed;">Coming Soon</a>
+            </div>
+        </div>
+
+        <div class="logout-section">
+            <form action="/logout" method="POST" style="display: inline;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
