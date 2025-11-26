@@ -3,10 +3,9 @@ const path = require("path");
 const cors = require("cors");
 const session = require("express-session");
 const dotenv = require("dotenv");
-const authRoutes = require("./routes/authRoutes");
-const studentRoutes = require("./routes/studentRoutes"); // Add this
-const sponsorRoutes = require("./routes/sponsorRoutes");
-const expressLayouts = require("express-ejs-layouts");
+const authRoutes = require("./backend/routes/authRoutes");
+const studentRoutes = require("./backend/routes/studentRoutes");
+const sponsorRoutes = require("./backend/routes/sponsorRoutes");
 
 dotenv.config();
 const app = express();
@@ -21,17 +20,16 @@ app.use(session({
   saveUninitialized: false,
 }));
 
-app.use(expressLayouts);
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-app.set("layout", false);
+app.set("views", path.join(__dirname, "frontend/views"));
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve static files from frontend
+app.use(express.static(path.join(__dirname, 'frontend/public')));
+app.use('/uploads', express.static(path.join(__dirname, 'backend/uploads')));
 
 // Routes
 app.use("/", authRoutes);
-app.use("/student", studentRoutes); // Add this line
+app.use("/student", studentRoutes);
 app.use("/sponsor", sponsorRoutes);
 
 const PORT = process.env.PORT || 5000;

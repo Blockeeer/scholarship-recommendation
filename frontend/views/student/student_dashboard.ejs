@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard - Scholarship Portal</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+</head>
+<body>
+  <%- include('../partials/sidebar_student') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Dashboard' }) %>
+
+    <main class="page-content">
+      <div class="container">
+      <div class="dashboard-wrapper">
+        <div class="welcome-banner">
+          <div class="welcome-content">
+            <h1>Welcome, Student! 🎓</h1>
+            <p>Discover scholarship opportunities tailored for you</p>
+            <p style="opacity: 0.9; margin-top: 0.5rem;">📧 <%= email %></p>
+          </div>
+          <div class="welcome-icon">📚</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon">✨</div>
+            </div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Recommended</div>
+            <div class="stat-trend trend-up">Based on profile</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon">📝</div>
+            </div>
+            <div class="stat-value">3</div>
+            <div class="stat-label">Applications</div>
+            <div class="stat-trend">In progress</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon">🎯</div>
+            </div>
+            <div class="stat-value">85%</div>
+            <div class="stat-label">Match Score</div>
+            <div class="stat-trend trend-up">Excellent</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon">🏆</div>
+            </div>
+            <div class="stat-value">150+</div>
+            <div class="stat-label">Available</div>
+            <div class="stat-trend">Scholarships</div>
+          </div>
+        </div>
+
+        <div class="action-grid">
+          <div class="action-card">
+            <div class="action-icon">✨</div>
+            <h2 class="action-title">View Recommendations</h2>
+            <p class="action-description">Personalized scholarship matches based on your profile</p>
+            <a href="/student/recommendations" class="btn btn-primary">See Recommendations</a>
+          </div>
+
+          <div class="action-card">
+            <div class="action-icon">🔍</div>
+            <h2 class="action-title">Search Scholarships</h2>
+            <p class="action-description">Browse all available scholarship opportunities</p>
+            <a href="/student/search" class="btn btn-primary">Search Now</a>
+          </div>
+
+          <div class="action-card">
+            <div class="action-icon">📋</div>
+            <h2 class="action-title">My Applications</h2>
+            <p class="action-description">Track your scholarship application status</p>
+            <a href="/student/applications" class="btn btn-primary">View Applications</a>
+          </div>
+        </div>
+
+        <div class="recent-activity">
+          <h2 class="section-title">Recent Activity</h2>
+          <div class="empty-state">
+            <div class="empty-state-icon">📊</div>
+            <p>Your recent activity will appear here</p>
+            <div class="quick-actions">
+              <a href="/student/recommendations" class="quick-action-btn">Explore Recommendations</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+</body>
+</html>

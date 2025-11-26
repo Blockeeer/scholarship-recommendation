@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= scholarship.scholarshipName %> - Details</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-link {
+      color: #667eea;
+      text-decoration: none;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #667eea;
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      color: #667eea;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 1rem;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #555;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .status-open { background: #d4edda; color: #155724; }
+    .status-closed { background: #f8d7da; color: #721c24; }
+
+    .actions {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary { background: #667eea; color: white; }
+    .btn-success { background: #27ae60; color: white; }
+    .btn-danger { background: #e74c3c; color: white; }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_sponsor') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Scholarship Details' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <a href="/sponsor/offers" class="back-link">← Back to My Offers</a>
+    
+    <h1><%= scholarship.scholarshipName %></h1>
+    <p class="subtitle"><%= scholarship.organizationName %></p>
+
+    <div class="section">
+      <h2 class="section-title">Scholarship Information</h2>
+      <div class="detail-grid">
+        <span class="detail-label">Scholarship
+          <span class="detail-label">Status:</span>
+    <span class="status-badge <%= scholarship.status === 'Open' ? 'status-open' : 'status-closed' %>">
+      <%= scholarship.status %>
+    </span>
+  </div>
+</div>
+
+<div class="section">
+  <h2 class="section-title">Qualification Criteria</h2>
+  <div class="detail-grid">
+    <span class="detail-label">Minimum GPA:</span>
+    <span><%= scholarship.minGPA %></span>
+    
+    <span class="detail-label">Eligible Courses:</span>
+    <span>
+      <% if (scholarship.eligibleCourses && scholarship.eligibleCourses.length > 0) { %>
+        <%= scholarship.eligibleCourses.join(', ') %>
+      <% } else { %>
+        All courses
+      <% } %>
+    </span>
+    
+    <span class="detail-label">Eligible Year Levels:</span>
+    <span>
+      <% if (scholarship.eligibleYearLevels && scholarship.eligibleYearLevels.length > 0) { %>
+        <%= scholarship.eligibleYearLevels.join(', ') %>
+      <% } else { %>
+        All year levels
+      <% } %>
+    </span>
+    
+    <span class="detail-label">Income Limit:</span>
+    <span><%= scholarship.incomeLimit || 'Not applicable' %></span>
+    
+    <span class="detail-label">Required Skills:</span>
+    <span>
+      <% if (scholarship.requiredSkills && scholarship.requiredSkills.length > 0) { %>
+        <%= scholarship.requiredSkills.join(', ') %>
+      <% } else { %>
+        None specified
+      <% } %>
+    </span>
+  </div>
+</div>
+
+<div class="section">
+  <h2 class="section-title">Document Requirements</h2>
+  <div class="detail-grid">
+    <span class="detail-label">Required Documents:</span>
+    <span>
+      <% if (scholarship.requiredDocuments && scholarship.requiredDocuments.length > 0) { %>
+        <%= scholarship.requiredDocuments.join(', ') %>
+      <% } else { %>
+        None specified
+      <% } %>
+    </span>
+  </div>
+</div>
+
+<div class="section">
+  <h2 class="section-title">Capacity & Duration</h2>
+  <div class="detail-grid">
+    <span class="detail-label">Total Slots:</span>
+    <span><%= scholarship.slotsAvailable %></span>
+    
+    <span class="detail-label">Filled Slots:</span>
+    <span><%= scholarship.slotsFilled %></span>
+    
+    <span class="detail-label">Available Slots:</span>
+    <span><%= scholarship.slotsAvailable - scholarship.slotsFilled %></span>
+    
+    <span class="detail-label">Start Date:</span>
+    <span><%= new Date(scholarship.startDate).toLocaleDateString() %></span>
+    
+    <span class="detail-label">End Date:</span>
+    <span><%= new Date(scholarship.endDate).toLocaleDateString() %></span>
+  </div>
+</div>
+
+<div class="section">
+  <h2 class="section-title">Metadata</h2>
+  <div class="detail-grid">
+    <span class="detail-label">Created:</span>
+    <span><%= new Date(scholarship.createdAt).toLocaleString() %></span>
+    
+    <span class="detail-label">Last Updated:</span>
+    <span><%= new Date(scholarship.updatedAt).toLocaleString() %></span>
+  </div>
+</div>
+
+<div class="actions">
+  <a href="/sponsor/offers/<%= scholarship.id %>/applications" class="btn btn-success">View Applications</a>
+
+  <form action="/sponsor/offers/<%= scholarship.id %>/status" method="POST" style="display: inline;">
+    <input type="hidden" name="status" value="<%= scholarship.status === 'Open' ? 'Closed' : 'Open' %>">
+    <button type="submit" class="btn btn-primary">
+      <%= scholarship.status === 'Open' ? 'Close Scholarship' : 'Reopen Scholarship' %>
+    </button>
+  </form>
+
+  <form action="/sponsor/offers/<%= scholarship.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this scholarship? This action cannot be undone.')">
+    <button type="submit" class="btn btn-danger">Delete Scholarship</button>
+  </form>
+</div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+</body>
+</html>

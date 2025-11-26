@@ -1,0 +1,54 @@
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🏢</span>
+      <span class="brand-text">Sponsor Portal</span>
+    </div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">
+      <span>👤</span>
+    </div>
+    <div class="user-info">
+      <div class="user-name">Sponsor</div>
+      <div class="user-email"><%= email %></div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="nav-link" data-tooltip="Dashboard">
+      <span class="nav-icon">📊</span>
+      <span class="nav-text">Dashboard</span>
+    </a>
+    <a href="/sponsor/add-offer" class="nav-link" data-tooltip="Add Scholarship">
+      <span class="nav-icon">➕</span>
+      <span class="nav-text">Add Scholarship</span>
+    </a>
+    <a href="/sponsor/offers" class="nav-link" data-tooltip="My Scholarships">
+      <span class="nav-icon">🎯</span>
+      <span class="nav-text">My Scholarships</span>
+    </a>
+    <a href="/sponsor/applications" class="nav-link" data-tooltip="Applications">
+      <span class="nav-icon">📋</span>
+      <span class="nav-text">Applications</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <form action="/logout" method="POST" id="logoutForm">
+      <button type="button" class="logout-btn" data-tooltip="Logout" onclick="showLogoutModal(event)">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-text">Logout</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- Logout Modal Scripts -->
+<link rel="stylesheet" href="/css/logout-modal.css">
+<script src="/js/logout-modal.js"></script>

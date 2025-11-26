@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Recommendations - Scholarship Portal</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/recommendations.css">
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+  
+  <%- include('../partials/navbar_student') %>
+
+  <main style="flex: 1;">
+    <div class="recommendations-wrapper">
+      
+      <!-- Header -->
+      <div class="recommendations-header">
+        <h1>🤖 AI-Powered Scholarship Recommendations</h1>
+        <p>Personalized matches based on your profile and assessment</p>
+      </div>
+
+      <!-- Statistics -->
+      <div class="stats-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value"><%= categorized.excellent.length %></div>
+          <div class="stat-label">Excellent Matches</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👍</div>
+          <div class="stat-value"><%= categorized.good.length %></div>
+          <div class="stat-label">Good Matches</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-value"><%= categorized.fair.length %></div>
+          <div class="stat-label">Fair Matches</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔍</div>
+          <div class="stat-value"><%= total %></div>
+          <div class="stat-label">Total Available</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label>Search Scholarships</label>
+            <input type="text" id="searchScholarships" placeholder="Search by name or organization..." style="padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 6px;">
+          </div>
+          <div class="filter-group">
+            <label>Sort By</label>
+            <select id="sortBy">
+              <option value="match">Best Match</option>
+              <option value="deadline">Deadline</option>
+              <option value="slots">Available Slots</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Type</label>
+            <select id="filterType">
+              <option value="all">All Types</option>
+              <option value="Merit">Merit-based</option>
+              <option value="Need-based">Need-based</option>
+              <option value="Athletic">Athletic</option>
+              <option value="Leadership">Leadership</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="category-tabs">
+        <button class="tab-btn active" data-category="all">
+          All Scholarships
+          <span class="tab-badge"><%= recommendations.length %></span>
+        </button>
+        <button class="tab-btn" data-category="excellent">
+          🎯 Excellent Match
+          <span class="tab-badge"><%= categorized.excellent.length %></span>
+        </button>
+        <button class="tab-btn" data-category="good">
+          👍 Good Match
+          <span class="tab-badge"><%= categorized.good.length %></span>
+        </button>
+        <button class="tab-btn" data-category="fair">
+          📊 Fair Match
+          <span class="tab-badge"><%= categorized.fair.length %></span>
+        </button>
+      </div>
+
+      <!-- Scholarships Grid -->
+      <% if (recommendations.length === 0) { %>
+        <div class="empty-recommendations">
+          <div class="empty-icon">🔍</div>
+          <h2>No Scholarships Available</h2>
+          <p>Check back later for new opportunities!</p>
+        </div>
+      <% } else { %>
+        <div class="scholarships-grid">
+          <% recommendations.forEach(scholarship => { 
+            let matchClass = 'match-low';
+            let category = 'low';
+            if (scholarship.matchScore >= 80) {
+              matchClass = 'match-excellent';
+              category = 'excellent';
+            } else if (scholarship.matchScore >= 60) {
+              matchClass = 'match-good';
+              category = 'good';
+            } else if (scholarship.matchScore >= 40) {
+              matchClass = 'match-fair';
+              category = 'fair';
+            }
+          %>
+            <div class="scholarship-card" 
+                 data-category="<%= category %>"
+                 data-match="<%= scholarship.matchScore %>"
+                 data-deadline="<%= scholarship.endDate %>"
+                 data-slots="<%= scholarship.slotsAvailable - scholarship.slotsFilled %>">
+              
+              <!-- Match Badge -->
+              <div class="match-badge <%= matchClass %>">
+                ⭐ <%= scholarship.matchScore %>% Match
+              </div>
+
+              <!-- Card Header -->
+              <div class="card-header">
+                <h3 class="card-title"><%= scholarship.scholarshipName %></h3>
+                <p class="card-organization"><%= scholarship.organizationName %></p>
+                <span class="card-type"><%= scholarship.scholarshipType %></span>
+              </div>
+
+              <!-- Match Reasons -->
+              <% if (scholarship.matchReasons && scholarship.matchReasons.length > 0) { %>
+                <div class="match-reasons">
+                  <div class="match-reasons-title">Why this matches you:</div>
+                  <ul>
+                    <% scholarship.matchReasons.forEach(reason => { %>
+                      <li><%= reason %></li>
+                    <% }) %>
+                  </ul>
+                </div>
+              <% } %>
+
+              <!-- Card Details -->
+              <div class="card-details">
+                <div class="detail-item">
+                  <span class="detail-label">Min GPA</span>
+                  <span class="detail-value"><%= scholarship.minGPA %></span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Available Slots</span>
+                  <span class="detail-value"><%= scholarship.slotsAvailable - scholarship.slotsFilled %>/<%= scholarship.slotsAvailable %></span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Application Deadline</span>
+                  <span class="detail-value"><%= new Date(scholarship.endDate).toLocaleDateString() %></span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Status</span>
+                  <span class="detail-value" style="color: #10b981;"><%= scholarship.status %></span>
+                </div>
+              </div>
+
+              <!-- Card Actions -->
+              <div class="card-actions">
+                <a href="/student/scholarship/<%= scholarship.id %>" class="btn-view">
+                  View Details
+                </a>
+                <a href="/student/apply/<%= scholarship.id %>" class="btn-apply">
+                  Apply Now
+                </a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+
+  <script src="/js/navbar.js"></script>
+  <script src="/js/recommendations.js"></script>
+</body>
+</html>

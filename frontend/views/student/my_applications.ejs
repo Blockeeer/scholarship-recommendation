@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale">
+  <title>My Applications - Scholarship Portal</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <style>
+    .applications-wrapper {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }.applications-header {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.applications-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.application-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: center;
+}
+
+.application-info h3 {
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.application-org {
+  color: var(--primary-color);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.application-date {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-approved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.empty-applications {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+  </style>
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+<%- include('../partials/navbar_student') %>
+  <main style="flex: 1; background: var(--bg-light);">
+    <div class="applications-wrapper">
+  <div class="applications-header">
+    <h1>📋 My Applications</h1>
+    <p>Track the status of your scholarship applications</p>
+  </div>
+
+  <div class="applications-list">
+    <!-- Placeholder for applications -->
+    <div class="empty-applications">
+      <div class="empty-icon">📝</div>
+      <h2>No Applications Yet</h2>
+      <p>You haven't applied to any scholarships yet.</p>
+      <a href="/student/recommendations" class="btn btn-primary" style="margin-top: 1rem; display: inline-block;">
+        Browse Scholarships
+      </a>
+    </div>
+
+    <!-- Example application card (will be dynamic later) -->
+    <!-- 
+    <div class="application-card">
+      <div class="application-info">
+        <h3>Excellence Scholarship</h3>
+        <p class="application-org">Tech Foundation</p>
+        <p class="application-date">Applied on: January 15, 2025</p>
+      </div>
+      <div>
+        <span class="status-badge status-pending">Pending Review</span>
+      </div>
+    </div>
+    -->
+  </div>
+
+</div>
+  </main>
+<%- include('../partials/footer') %>
+  <script src="/js/navbar.js"></script>
+</body>
+</html>

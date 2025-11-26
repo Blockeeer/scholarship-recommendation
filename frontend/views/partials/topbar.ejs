@@ -1,0 +1,24 @@
+<!-- Top Navigation Bar -->
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+      <span class="hamburger" id="toggleIcon">☰</span>
+    </button>
+    <div class="page-title">
+      <h1><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Dashboard' %></h1>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <div class="topbar-search">
+      <input type="search" placeholder="Search..." class="search-input">
+      <span class="search-icon">🔍</span>
+    </div>
+    <div class="topbar-notifications">
+      <button class="notification-btn">
+        <span class="bell-icon">🔔</span>
+        <span class="notification-badge">3</span>
+      </button>
+    </div>
+  </div>
+</header>

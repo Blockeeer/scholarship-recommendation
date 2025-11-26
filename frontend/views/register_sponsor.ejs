@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sponsor Registration - Scholarship Portal</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <style>
+    .error-message {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-input-wrapper input {
+      flex: 1;
+      padding-right: 3rem;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.25rem;
+      padding: 0.25rem;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .toggle-password:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-container">
+      <div class="auth-header">
+        <div class="auth-logo">🏢</div>
+        <h1>Sponsor Registration</h1>
+        <p>Create your sponsor account</p>
+      </div>
+
+      <div class="auth-content">
+        <% if (error) { %>
+          <div class="error-message">
+            ⚠️ <%= error %>
+          </div>
+        <% } %>
+
+        <form action="/register/sponsor" method="POST">
+          <div class="form-group">
+            <label class="form-label">Full Name / Organization Name</label>
+            <input type="text" name="fullName" class="form-control" placeholder="Enter your name or organization" value="<%= formData.fullName || '' %>" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-control" placeholder="Enter your email" value="<%= formData.email || '' %>" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" name="password" id="password" class="form-control" placeholder="Create a password (min. 6 characters)" required>
+              <button type="button" class="toggle-password" onclick="togglePassword('password', this)">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+              <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Create Sponsor Account</button>
+        </form>
+      </div>
+
+      <div class="auth-footer">
+        <p>Already have an account? <a href="/login">Login here</a></p>
+        <p style="margin-top: 0.5rem;">
+          Are you a student? <a href="/register/student">Register as Student</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword(inputId, button) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        button.textContent = '👁️';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Dashboard - Scholarship Portal</title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/topbar.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/footer.css">
+</head>
+<body>
+  <%- include('../partials/sidebar_sponsor') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Dashboard' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="dashboard-wrapper">
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div class="welcome-content">
+      <h1>Welcome, Sponsor! 🏢</h1>
+      <p>Manage your scholarship offers and connect with students</p>
+      <p style="opacity: 0.9; margin-top: 0.5rem;">📧 <%= email %></p>
+    </div>
+    <div class="welcome-icon">💼</div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-icon">📋</div>
+      </div>
+      <div class="stat-value">5</div>
+      <div class="stat-label">Active Scholarships</div>
+      <div class="stat-trend trend-up">All published</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-icon">👥</div>
+      </div>
+      <div class="stat-value">28</div>
+      <div class="stat-label">Total Applications</div>
+      <div class="stat-trend trend-up">↑ 8 this week</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-icon">⏳</div>
+      </div>
+      <div class="stat-value">12</div>
+      <div class="stat-label">Pending Reviews</div>
+      <div class="stat-trend">Action required</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <div class="stat-icon">🎓</div>
+      </div>
+      <div class="stat-value">45</div>
+      <div class="stat-label">Available Slots</div>
+      <div class="stat-trend">Across all offers</div>
+    </div>
+  </div>
+
+  <!-- Action Cards -->
+  <div class="action-grid">
+    <div class="action-card">
+      <div class="action-icon">➕</div>
+      <h2 class="action-title">Create New Offer</h2>
+      <p class="action-description">Add a new scholarship opportunity for students</p>
+      <a href="/sponsor/add-offer" class="btn btn-primary">Create Scholarship</a>
+    </div>
+
+    <div class="action-card">
+      <div class="action-icon">📋</div>
+      <h2 class="action-title">Manage Offers</h2>
+      <p class="action-description">View and edit your existing scholarship listings</p>
+      <a href="/sponsor/offers" class="btn btn-primary">View My Offers</a>
+    </div>
+
+    <div class="action-card">
+      <div class="action-icon">👥</div>
+      <h2 class="action-title">Review Applicants</h2>
+      <p class="action-description">Review and approve student applications</p>
+      <a href="#" class="btn btn-primary" style="opacity: 0.6; cursor: not-allowed;">Coming Soon</a>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="recent-activity">
+    <h2 class="section-title">Recent Activity</h2>
+    <div class="empty-state">
+      <div class="empty-state-icon">📊</div>
+      <p>Your recent scholarship activity will appear here</p>
+      <div class="quick-actions">
+        <a href="/sponsor/add-offer" class="quick-action-btn">Create Your First Scholarship</a>
+      </div>
+    </div>
+  </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+</body>
+</html>

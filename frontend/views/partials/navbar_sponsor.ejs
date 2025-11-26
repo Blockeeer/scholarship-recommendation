@@ -1,0 +1,34 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <span class="navbar-logo"><â</span>
+      <span class="navbar-title">Sponsor Portal</span>
+    </div>
+
+    <div class="navbar-menu">
+      <a href="/dashboard" class="navbar-item">
+        <span class="navbar-icon">=Ê</span>
+        Dashboard
+      </a>
+      <a href="/sponsor/add-offer" class="navbar-item">
+        <span class="navbar-icon">•</span>
+        Add Scholarship
+      </a>
+      <a href="/sponsor/offers" class="navbar-item">
+        <span class="navbar-icon"><¯</span>
+        My Scholarships
+      </a>
+      <a href="/sponsor/applications" class="navbar-item">
+        <span class="navbar-icon">=Ë</span>
+        Applications
+      </a>
+    </div>
+
+    <div class="navbar-user">
+      <span class="navbar-email"><%= email %></span>
+      <form action="/logout" method="POST" style="display: inline;">
+        <button type="submit" class="btn-logout">Logout</button>
+      </form>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,75 @@
+<%
+  let matchClass = 'match-low';
+  let category = 'low';
+  if (scholarship.matchScore >= 80) {
+    matchClass = 'match-excellent';
+    category = 'excellent';
+  } else if (scholarship.matchScore >= 60) {
+    matchClass = 'match-good';
+    category = 'good';
+  } else if (scholarship.matchScore >= 40) {
+    matchClass = 'match-fair';
+    category = 'fair';
+  }
+%>
+
+<div class="scholarship-card" 
+     data-category="<%= category %>"
+     data-match="<%= scholarship.matchScore %>"
+     data-deadline="<%= scholarship.endDate %>"
+     data-slots="<%= scholarship.slotsAvailable - scholarship.slotsFilled %>">
+  
+  <!-- Match Badge -->
+  <div class="match-badge <%= matchClass %>">
+    ⭐ <%= scholarship.matchScore %>% Match
+  </div>
+
+  <!-- Card Header -->
+  <div class="card-header">
+    <h3 class="card-title"><%= scholarship.scholarshipName %></h3>
+    <p class="card-organization"><%= scholarship.organizationName %></p>
+    <span class="card-type"><%= scholarship.scholarshipType %></span>
+  </div>
+
+  <!-- Match Reasons -->
+  <% if (scholarship.matchReasons && scholarship.matchReasons.length > 0) { %>
+    <div class="match-reasons">
+      <div class="match-reasons-title">Why this matches you:</div>
+      <ul>
+        <% scholarship.matchReasons.slice(0, 3).forEach(reason => { %>
+          <li><%= reason %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <!-- Card Details -->
+  <div class="card-details">
+    <div class="detail-item">
+      <span class="detail-label">Min GPA</span>
+      <span class="detail-value"><%= scholarship.minGPA %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Available Slots</span>
+      <span class="detail-value"><%= scholarship.slotsAvailable - scholarship.slotsFilled %>/<%= scholarship.slotsAvailable %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Deadline</span>
+      <span class="detail-value"><%= new Date(scholarship.endDate).toLocaleDateString() %></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Status</span>
+      <span class="detail-value" style="color: #10b981;"><%= scholarship.status %></span>
+    </div>
+  </div>
+
+  <!-- Card Actions -->
+  <div class="card-actions">
+    <a href="/student/scholarship/<%= scholarship.id %>" class="btn-view">
+      View Details
+    </a>
+    <a href="/student/apply/<%= scholarship.id %>" class="btn-apply">
+      Apply Now
+    </a>
+  </div>
+</div>

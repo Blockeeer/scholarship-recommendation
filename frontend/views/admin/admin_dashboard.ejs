@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Scholarship Portal</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+</head>
+<body>
+  <%- include('../partials/sidebar_admin') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Admin Dashboard' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="dashboard-wrapper">
+      <div class="welcome-banner">
+        <div class="welcome-content">
+          <h1>Welcome, Admin! 👨‍💼</h1>
+          <p>Manage and oversee the scholarship system</p>
+          <p style="opacity: 0.9; margin-top: 0.5rem;">📧 <%= email %></p>
+        </div>
+        <div class="welcome-icon">🛡️</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon">⏳</div>
+          </div>
+          <div class="stat-value">12</div>
+          <div class="stat-label">Pending Scholarships</div>
+          <div class="stat-trend trend-up">↑ 3 new today</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon">✅</div>
+          </div>
+          <div class="stat-value">45</div>
+          <div class="stat-label">Approved Scholarships</div>
+          <div class="stat-trend trend-up">↑ 5 this week</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon">👥</div>
+          </div>
+          <div class="stat-value">234</div>
+          <div class="stat-label">Total Users</div>
+          <div class="stat-trend trend-up">↑ 15 this month</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon">📊</div>
+          </div>
+          <div class="stat-value">89</div>
+          <div class="stat-label">Active Applications</div>
+          <div class="stat-trend">Updated today</div>
+        </div>
+      </div>
+
+      <div class="action-grid">
+        <div class="action-card">
+          <div class="action-icon">⏳</div>
+          <h2 class="action-title">Review Pending Offers</h2>
+          <p class="action-description">Review and approve scholarship offers submitted by sponsors</p>
+          <a href="/admin/pending-scholarships" class="btn btn-primary">Review Now</a>
+        </div>
+
+        <div class="action-card">
+          <div class="action-icon">✅</div>
+          <h2 class="action-title">Manage Approved Offers</h2>
+          <p class="action-description">View and manage all approved scholarship opportunities</p>
+          <a href="/admin/approved-scholarships" class="btn btn-primary">View Offers</a>
+        </div>
+
+        <div class="action-card">
+          <div class="action-icon">📈</div>
+          <h2 class="action-title">System Analytics</h2>
+          <p class="action-description">View comprehensive reports and system statistics</p>
+          <a href="#" class="btn btn-primary" style="opacity: 0.6; cursor: not-allowed;">Coming Soon</a>
+        </div>
+      </div>
+
+      <div class="recent-activity">
+        <h2 class="section-title">Recent Activity</h2>
+        <ul class="activity-list">
+          <li class="activity-item">
+            <strong>New scholarship offer submitted</strong>
+            <p>Excellence Scholarship by Tech Foundation</p>
+            <span class="activity-time">2 hours ago</span>
+          </li>
+          <li class="activity-item">
+            <strong>Scholarship approved</strong>
+            <p>Leadership Grant has been approved</p>
+            <span class="activity-time">5 hours ago</span>
+          </li>
+          <li class="activity-item">
+            <strong>New sponsor registered</strong>
+            <p>Innovation Corp joined the platform</p>
+            <span class="activity-time">1 day ago</span>
+          </li>
+        </ul>
+      </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+</body>
+</html>
