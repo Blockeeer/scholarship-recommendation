@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="/css/dashboard.css">
     <link rel="stylesheet" href="/css/footer.css">
 </head>
+<%
+  // Default values for variables if not provided
+  const schStats = typeof scholarshipStats !== 'undefined' ? scholarshipStats : { total: 0, open: 0, pending: 0, closed: 0, totalSlots: 0, filledSlots: 0 };
+  const appStats = typeof applicationStats !== 'undefined' ? applicationStats : { total: 0, pending: 0, approved: 0, rejected: 0 };
+%>
 <body>
   <%- include('../partials/sidebar_sponsor') %>
 
@@ -35,25 +40,25 @@
       <div class="stat-header">
         <div class="stat-icon">📋</div>
       </div>
-      <div class="stat-value">5</div>
+      <div class="stat-value"><%= schStats.open %></div>
       <div class="stat-label">Active Scholarships</div>
-      <div class="stat-trend trend-up">All published</div>
+      <div class="stat-trend"><%= schStats.pending %> pending approval</div>
     </div>
 
     <div class="stat-card">
       <div class="stat-header">
         <div class="stat-icon">👥</div>
       </div>
-      <div class="stat-value">28</div>
+      <div class="stat-value"><%= appStats.total %></div>
       <div class="stat-label">Total Applications</div>
-      <div class="stat-trend trend-up">↑ 8 this week</div>
+      <div class="stat-trend"><%= appStats.approved %> approved</div>
     </div>
 
     <div class="stat-card">
       <div class="stat-header">
         <div class="stat-icon">⏳</div>
       </div>
-      <div class="stat-value">12</div>
+      <div class="stat-value"><%= appStats.pending %></div>
       <div class="stat-label">Pending Reviews</div>
       <div class="stat-trend">Action required</div>
     </div>
@@ -62,9 +67,9 @@
       <div class="stat-header">
         <div class="stat-icon">🎓</div>
       </div>
-      <div class="stat-value">45</div>
+      <div class="stat-value"><%= schStats.totalSlots - schStats.filledSlots %></div>
       <div class="stat-label">Available Slots</div>
-      <div class="stat-trend">Across all offers</div>
+      <div class="stat-trend"><%= schStats.filledSlots %> filled</div>
     </div>
   </div>
 
@@ -88,7 +93,7 @@
       <div class="action-icon">👥</div>
       <h2 class="action-title">Review Applicants</h2>
       <p class="action-description">Review and approve student applications</p>
-      <a href="#" class="btn btn-primary" style="opacity: 0.6; cursor: not-allowed;">Coming Soon</a>
+      <a href="/sponsor/offers" class="btn btn-primary">View Applications</a>
     </div>
   </div>
 

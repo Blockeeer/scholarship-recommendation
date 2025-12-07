@@ -1,257 +1,383 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= scholarship.scholarshipName %> - Scholarship Details</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= scholarship.scholarshipName %> - Details</title>
   <link rel="stylesheet" href="/css/global.css">
-  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
   <link rel="stylesheet" href="/css/footer.css">
-  <link rel="stylesheet" href="/css/recommendations.css">
   <style>
-    .details-container {
+    .container {
       max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 2rem;
+      margin: 0 auto;
+      padding: 2rem;
     }
 
-    .details-header {
-      background: white;
+    .back-link {
+      color: #667eea;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .scholarship-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: var(--shadow);
       margin-bottom: 2rem;
       position: relative;
     }
 
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--primary-color);
-      text-decoration: none;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-
-    .details-title {
+    .scholarship-header h1 {
+      margin: 0 0 0.5rem 0;
       font-size: 2rem;
-      color: var(--text-dark);
-      margin-bottom: 0.5rem;
     }
 
-    .details-org {
+    .scholarship-header .org-name {
       font-size: 1.2rem;
-      color: var(--primary-color);
-      font-weight: 600;
+      opacity: 0.9;
       margin-bottom: 1rem;
     }
 
-    .details-section {
+    .scholarship-type {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .status-open {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-closed {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .section {
       background: white;
-      padding: 2rem;
+      padding: 1.5rem;
       border-radius: 12px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       margin-bottom: 1.5rem;
     }
 
     .section-title {
       font-size: 1.3rem;
-      color: var(--text-dark);
+      color: #333;
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--bg-light);
+      border-bottom: 2px solid #e0e0e0;
     }
 
     .info-grid {
       display: grid;
-      grid-template-columns: 200px 1fr;
+      grid-template-columns: 180px 1fr;
       gap: 1rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
 
     .info-label {
       font-weight: 600;
-      color: var(--text-light);
+      color: #555;
     }
 
     .info-value {
-      color: var(--text-dark);
+      color: #333;
     }
 
     .requirements-list {
       list-style: none;
       padding: 0;
+      margin: 0;
     }
 
     .requirements-list li {
       padding: 0.5rem 0;
       padding-left: 1.5rem;
       position: relative;
+      border-bottom: 1px solid #f0f0f0;
     }
 
-    .requirements-list li:before {
+    .requirements-list li:last-child {
+      border-bottom: none;
+    }
+
+    .requirements-list li::before {
       content: "✓";
       position: absolute;
       left: 0;
-      color: var(--primary-color);
+      color: #27ae60;
       font-weight: bold;
     }
 
+    .slots-progress {
+      margin-top: 1rem;
+    }
+
+    .slots-bar {
+      height: 10px;
+      background: #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .slots-filled {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 5px;
+    }
+
+    .slots-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
     .apply-section {
-      background: var(--primary-gradient);
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
       color: white;
       padding: 2rem;
       border-radius: 12px;
       text-align: center;
     }
 
-    .apply-btn-large {
+    .apply-section h2 {
+      margin: 0 0 0.5rem 0;
+    }
+
+    .apply-section p {
+      margin-bottom: 1.5rem;
+      opacity: 0.9;
+    }
+
+    .btn-apply {
       display: inline-block;
       padding: 1rem 3rem;
       background: white;
-      color: var(--primary-color);
+      color: #27ae60;
       text-decoration: none;
       border-radius: 8px;
       font-weight: 700;
       font-size: 1.1rem;
-      margin-top: 1rem;
       transition: transform 0.2s;
     }
 
-    .apply-btn-large:hover {
+    .btn-apply:hover {
       transform: scale(1.05);
+    }
+
+    .btn-apply:disabled,
+    .btn-apply.disabled {
+      background: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .alert {
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .alert-warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+    }
+
+    .alert-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #17a2b8;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+
+    .application-status {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-approved {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-rejected {
+      background: #f8d7da;
+      color: #721c24;
     }
   </style>
 </head>
-<body style="display: flex; flex-direction: column; min-height: 100vh;">
-  
-  <%- include('../partials/navbar_student') %>
+<body>
+  <%- include('../partials/sidebar_student') %>
 
-  <main style="flex: 1; background: var(--bg-light);">
-    <div class="details-container">
-      
-      <a href="/student/recommendations" class="back-link">
-        ← Back to Recommendations
-      </a>
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Scholarship Details' }) %>
 
-      <!-- Header with Match Score -->
-      <div class="details-header">
-        <% 
-          let matchClass = 'match-low';
-          if (scholarship.matchScore >= 80) matchClass = 'match-excellent';
-          else if (scholarship.matchScore >= 60) matchClass = 'match-good';
-          else if (scholarship.matchScore >= 40) matchClass = 'match-fair';
-        %>
-        <div class="match-badge <%= matchClass %>" style="position: absolute; top: 2rem; right: 2rem;">
-          ⭐ <%= scholarship.matchScore %>% Match
+    <main class="page-content">
+      <div class="container">
+        <a href="/student/scholarships" class="back-link">← Back to Scholarships</a>
+
+        <% if (!hasAssessment) { %>
+          <div class="alert alert-warning">
+            <strong>Complete Your Assessment First!</strong>
+            You need to complete your profile assessment before applying for scholarships.
+            <a href="/student/assessment" style="color: inherit; font-weight: bold;">Complete Assessment →</a>
+          </div>
+        <% } %>
+
+        <% if (hasApplied && existingApplication) { %>
+          <div class="alert alert-info">
+            <strong>You've Already Applied!</strong>
+            Your application status:
+            <span class="application-status status-<%= existingApplication.status %>">
+              <%= existingApplication.status.charAt(0).toUpperCase() + existingApplication.status.slice(1).replace('_', ' ') %>
+            </span>
+            <a href="/student/applications/<%= existingApplication.id %>" style="color: inherit; font-weight: bold; margin-left: 1rem;">View Application →</a>
+          </div>
+        <% } %>
+
+        <div class="scholarship-header">
+          <span class="status-badge status-<%= scholarship.status.toLowerCase() %>"><%= scholarship.status %></span>
+          <h1><%= scholarship.scholarshipName %></h1>
+          <p class="org-name"><%= scholarship.organizationName %></p>
+          <span class="scholarship-type"><%= scholarship.scholarshipType %> Scholarship</span>
         </div>
 
-        <h1 class="details-title"><%= scholarship.scholarshipName %></h1>
-        <p class="details-org"><%= scholarship.organizationName %></p>
-        <span class="card-type"><%= scholarship.scholarshipType %> Scholarship</span>
+        <div class="section">
+          <h2 class="section-title">Qualification Criteria</h2>
+          <div class="info-grid">
+            <span class="info-label">Minimum GPA:</span>
+            <span class="info-value"><%= scholarship.minGPA %></span>
+          </div>
+          <div class="info-grid">
+            <span class="info-label">Eligible Courses:</span>
+            <span class="info-value">
+              <% if (scholarship.eligibleCourses && scholarship.eligibleCourses.length > 0) { %>
+                <%= scholarship.eligibleCourses.join(', ') %>
+              <% } else { %>
+                All courses eligible
+              <% } %>
+            </span>
+          </div>
+          <div class="info-grid">
+            <span class="info-label">Year Levels:</span>
+            <span class="info-value">
+              <% if (scholarship.eligibleYearLevels && scholarship.eligibleYearLevels.length > 0) { %>
+                <%= scholarship.eligibleYearLevels.join(', ') %>
+              <% } else { %>
+                All year levels
+              <% } %>
+            </span>
+          </div>
+          <% if (scholarship.incomeLimit) { %>
+            <div class="info-grid">
+              <span class="info-label">Income Limit:</span>
+              <span class="info-value"><%= scholarship.incomeLimit %></span>
+            </div>
+          <% } %>
+          <% if (scholarship.requiredSkills && scholarship.requiredSkills.length > 0) { %>
+            <div class="info-grid">
+              <span class="info-label">Required Skills:</span>
+              <span class="info-value"><%= scholarship.requiredSkills.join(', ') %></span>
+            </div>
+          <% } %>
+        </div>
 
-        <% if (scholarship.matchReasons && scholarship.matchReasons.length > 0) { %>
-          <div class="match-reasons" style="margin-top: 1rem;">
-            <div class="match-reasons-title">Why this matches you:</div>
-            <ul>
-              <% scholarship.matchReasons.forEach(reason => { %>
-                <li><%= reason %></li>
-              <% }) %>
+        <div class="section">
+          <h2 class="section-title">Required Documents</h2>
+          <% if (scholarship.requiredDocuments && scholarship.requiredDocuments.length > 0) { %>
+            <ul class="requirements-list">
+              <% scholarship.requiredDocuments.forEach(doc => { %>
+                <li><%= doc %></li>
+              <% }); %>
             </ul>
-          </div>
-        <% } %>
-      </div>
+          <% } else { %>
+            <p class="info-value">Standard documents required (transcript, enrollment certificate, valid ID)</p>
+          <% } %>
+        </div>
 
-      <!-- Qualification Criteria -->
-      <div class="details-section">
-        <h2 class="section-title">Qualification Criteria</h2>
-        <div class="info-grid">
-          <span class="info-label">Minimum GPA:</span>
-          <span class="info-value"><%= scholarship.minGPA %></span>
-        </div>
-        <div class="info-grid">
-          <span class="info-label">Eligible Courses:</span>
-          <span class="info-value">
-            <% if (scholarship.eligibleCourses && scholarship.eligibleCourses.length > 0) { %>
-              <%= scholarship.eligibleCourses.join(', ') %>
-            <% } else { %>
-              All courses eligible
-            <% } %>
-          </span>
-        </div>
-        <div class="info-grid">
-          <span class="info-label">Year Levels:</span>
-          <span class="info-value">
-            <% if (scholarship.eligibleYearLevels && scholarship.eligibleYearLevels.length > 0) { %>
-              <%= scholarship.eligibleYearLevels.join(', ') %>
-            <% } else { %>
-              All year levels
-            <% } %>
-          </span>
-        </div>
-        <% if (scholarship.incomeLimit) { %>
+        <div class="section">
+          <h2 class="section-title">Availability & Timeline</h2>
           <div class="info-grid">
-            <span class="info-label">Income Limit:</span>
-            <span class="info-value"><%= scholarship.incomeLimit %></span>
+            <span class="info-label">Application Period:</span>
+            <span class="info-value">
+              <%= new Date(scholarship.startDate).toLocaleDateString() %> - <%= new Date(scholarship.endDate).toLocaleDateString() %>
+            </span>
+          </div>
+          <div class="slots-progress">
+            <div class="slots-bar">
+              <div class="slots-filled" style="width: <%= Math.min(((scholarship.slotsFilled || 0) / scholarship.slotsAvailable) * 100, 100) %>%"></div>
+            </div>
+            <div class="slots-text">
+              <span><%= scholarship.slotsFilled || 0 %> slots filled</span>
+              <span><%= scholarship.slotsAvailable - (scholarship.slotsFilled || 0) %> slots remaining</span>
+            </div>
+          </div>
+        </div>
+
+        <% if (scholarship.status === 'Open' && !hasApplied && hasAssessment) { %>
+          <div class="apply-section">
+            <h2>Ready to Apply?</h2>
+            <p>Submit your application now and take the first step towards your scholarship!</p>
+            <a href="/student/scholarships/<%= scholarship.id %>/apply" class="btn-apply">Apply Now</a>
+          </div>
+        <% } else if (!hasAssessment) { %>
+          <div class="apply-section" style="background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);">
+            <h2>Complete Your Assessment First</h2>
+            <p>You need to complete your profile assessment before you can apply for scholarships.</p>
+            <a href="/student/assessment" class="btn-apply" style="color: #e74c3c;">Complete Assessment</a>
+          </div>
+        <% } else if (scholarship.status !== 'Open') { %>
+          <div class="apply-section" style="background: #6c757d;">
+            <h2>Applications Closed</h2>
+            <p>This scholarship is no longer accepting applications.</p>
           </div>
         <% } %>
-        <% if (scholarship.requiredSkills && scholarship.requiredSkills.length > 0) { %>
-          <div class="info-grid">
-            <span class="info-label">Required Skills:</span>
-            <span class="info-value"><%= scholarship.requiredSkills.join(', ') %></span>
-          </div>
-        <% } %>
       </div>
+    </main>
 
-      <!-- Requirements -->
-      <div class="details-section">
-        <h2 class="section-title">Document Requirements</h2>
-        <% if (scholarship.requiredDocuments && scholarship.requiredDocuments.length > 0) { %>
-          <ul class="requirements-list">
-            <% scholarship.requiredDocuments.forEach(doc => { %>
-              <li><%= doc %></li>
-            <% }) %>
-          </ul>
-        <% } else { %>
-          <p class="info-value">Standard documents required (transcript, enrollment certificate, valid ID)</p>
-        <% } %>
-      </div>
+    <%- include('../partials/footer') %>
+  </div>
 
-      <!-- Scholarship Details -->
-      <div class="details-section">
-        <h2 class="section-title">Scholarship Details</h2>
-        <div class="info-grid">
-          <span class="info-label">Available Slots:</span>
-          <span class="info-value"><%= scholarship.slotsAvailable - scholarship.slotsFilled %> out of <%= scholarship.slotsAvailable %></span>
-        </div>
-        <div class="info-grid">
-          <span class="info-label">Application Period:</span>
-          <span class="info-value">
-            <%= new Date(scholarship.startDate).toLocaleDateString() %> - 
-            <%= new Date(scholarship.endDate).toLocaleDateString() %>
-          </span>
-        </div>
-        <div class="info-grid">
-          <span class="info-label">Status:</span>
-          <span class="info-value" style="color: #10b981; font-weight: 600;"><%= scholarship.status %></span>
-        </div>
-      </div>
-
-      <!-- Apply Section -->
-      <div class="apply-section">
-        <h2 style="margin-bottom: 0.5rem;">Ready to Apply?</h2>
-        <p>Submit your application now and increase your chances of getting this scholarship!</p>
-        <a href="/student/apply/<%= scholarship.id %>" class="apply-btn-large">
-          Apply for this Scholarship
-        </a>
-      </div>
-
-    </div>
-  </main>
-
-  <%- include('../partials/footer') %>
-
-  <script src="/js/navbar.js"></script>
+  <script src="/js/sidebar.js"></script>
 </body>
 </html>

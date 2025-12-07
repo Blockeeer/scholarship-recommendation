@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications - Sponsor Portal</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      color: #333;
+      margin: 0;
+    }
+
+    .btn-mark-all {
+      padding: 0.5rem 1rem;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-mark-all:hover {
+      background: #5a6fd6;
+    }
+
+    .notifications-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .notification-item {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      gap: 1rem;
+      transition: transform 0.2s;
+      border-left: 4px solid transparent;
+    }
+
+    .notification-item:hover {
+      transform: translateX(5px);
+    }
+
+    .notification-item.unread {
+      border-left-color: #667eea;
+      background: #f8f9ff;
+    }
+
+    .notification-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+
+    .notification-message {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .notification-time {
+      color: #999;
+      font-size: 0.85rem;
+    }
+
+    .notification-actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-read {
+      padding: 0.5rem 1rem;
+      background: #e0e0e0;
+      color: #333;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .btn-read:hover {
+      background: #d0d0d0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_sponsor') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Notifications' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="page-header">
+          <h1>Notifications</h1>
+          <% if (notifications.length > 0) { %>
+            <button class="btn-mark-all" onclick="markAllRead()">Mark All as Read</button>
+          <% } %>
+        </div>
+
+        <% if (notifications.length > 0) { %>
+          <div class="notifications-list">
+            <% notifications.forEach(notif => {
+              let icon = '🔔';
+              if (notif.type === 'scholarship_approved') icon = '✅';
+              if (notif.type === 'scholarship_update') icon = '📋';
+              if (notif.type === 'application_submitted') icon = '📝';
+              if (notif.type === 'system') icon = '⚙️';
+            %>
+              <div class="notification-item <%= notif.read ? '' : 'unread' %>" data-id="<%= notif.id %>">
+                <div class="notification-icon"><%= icon %></div>
+                <div class="notification-content">
+                  <div class="notification-title"><%= notif.title %></div>
+                  <div class="notification-message"><%= notif.message %></div>
+                  <div class="notification-time"><%= new Date(notif.createdAt).toLocaleString() %></div>
+                </div>
+                <% if (!notif.read) { %>
+                  <div class="notification-actions">
+                    <button class="btn-read" onclick="markRead('<%= notif.id %>')">Mark Read</button>
+                  </div>
+                <% } %>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <div class="icon">🔔</div>
+            <h3>No Notifications</h3>
+            <p>You're all caught up! Check back later for updates.</p>
+          </div>
+        <% } %>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    async function markRead(notificationId) {
+      try {
+        const response = await fetch(`/sponsor/notifications/${notificationId}/read`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+          const item = document.querySelector(`[data-id="${notificationId}"]`);
+          item.classList.remove('unread');
+          const btn = item.querySelector('.btn-read');
+          if (btn) btn.remove();
+        }
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
+
+    async function markAllRead() {
+      try {
+        const response = await fetch('/sponsor/notifications/read-all', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+          document.querySelectorAll('.notification-item.unread').forEach(item => {
+            item.classList.remove('unread');
+            const btn = item.querySelector('.btn-read');
+            if (btn) btn.remove();
+          });
+        }
+      } catch (error) {
+        console.error('Error marking all notifications as read:', error);
+      }
+    }
+  </script>
+</body>
+</html>

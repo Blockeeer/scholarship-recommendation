@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Scholarships</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+      color: #666;
+    }
+
+    .filters-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .filters-form {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .filter-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .scholarships-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .scholarship-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .scholarship-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+    }
+
+    .card-header h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.2rem;
+    }
+
+    .card-header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    .card-detail {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      color: #666;
+    }
+
+    .card-detail strong {
+      color: #333;
+    }
+
+    .scholarship-type {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .type-merit {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .type-need {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .type-athletic {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .type-academic {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .slots-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+
+    .slots-bar {
+      flex: 1;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .slots-filled {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 4px;
+    }
+
+    .card-actions {
+      padding: 1rem 1.5rem;
+      background: #f8f9fa;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .card-actions .btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .btn-view {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-apply {
+      background: #27ae60;
+      color: white;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state h3 {
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: #999;
+    }
+
+    .results-count {
+      margin-bottom: 1rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_student') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Search Scholarships' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="page-header">
+          <h1>Find Scholarships</h1>
+          <p>Browse and search for scholarships that match your profile</p>
+        </div>
+
+        <div class="filters-section">
+          <form class="filters-form" method="GET" action="/student/scholarships">
+            <div class="filter-group">
+              <label for="search">Search</label>
+              <input type="text" id="search" name="search" placeholder="Search by name..." value="<%= filters.search || '' %>">
+            </div>
+
+            <div class="filter-group">
+              <label for="type">Scholarship Type</label>
+              <select id="type" name="type">
+                <option value="all">All Types</option>
+                <% scholarshipTypes.forEach(t => { %>
+                  <option value="<%= t %>" <%= filters.type === t ? 'selected' : '' %>><%= t %></option>
+                <% }); %>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="minGPA">Your GPA</label>
+              <input type="number" id="minGPA" name="minGPA" step="0.01" min="0" max="4" placeholder="e.g., 3.5" value="<%= filters.minGPA || '' %>">
+            </div>
+
+            <div class="filter-group" style="flex: 0;">
+              <label>&nbsp;</label>
+              <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+
+            <div class="filter-group" style="flex: 0;">
+              <label>&nbsp;</label>
+              <a href="/student/scholarships" class="btn btn-secondary">Clear</a>
+            </div>
+          </form>
+        </div>
+
+        <p class="results-count">Found <%= scholarships.length %> scholarship(s)</p>
+
+        <% if (scholarships.length > 0) { %>
+          <div class="scholarships-grid">
+            <% scholarships.forEach(scholarship => { %>
+              <div class="scholarship-card">
+                <div class="card-header">
+                  <h3><%= scholarship.scholarshipName %></h3>
+                  <p><%= scholarship.organizationName %></p>
+                </div>
+                <div class="card-body">
+                  <div class="card-detail">
+                    <span>Type</span>
+                    <span class="scholarship-type type-<%= scholarship.scholarshipType.toLowerCase().replace('-', '') %>">
+                      <%= scholarship.scholarshipType %>
+                    </span>
+                  </div>
+                  <div class="card-detail">
+                    <span>Min GPA</span>
+                    <strong><%= scholarship.minGPA %></strong>
+                  </div>
+                  <div class="card-detail">
+                    <span>Deadline</span>
+                    <strong><%= new Date(scholarship.endDate).toLocaleDateString() %></strong>
+                  </div>
+                  <div class="slots-info">
+                    <span><%= scholarship.slotsAvailable - (scholarship.slotsFilled || 0) %> slots left</span>
+                    <div class="slots-bar">
+                      <div class="slots-filled" style="width: <%= ((scholarship.slotsFilled || 0) / scholarship.slotsAvailable) * 100 %>%"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <a href="/student/scholarships/<%= scholarship.id %>" class="btn btn-view">View Details</a>
+                  <a href="/student/scholarships/<%= scholarship.id %>/apply" class="btn btn-apply">Apply</a>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <h3>No Scholarships Found</h3>
+            <p>Try adjusting your search filters or check back later for new opportunities.</p>
+          </div>
+        <% } %>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+</body>
+</html>

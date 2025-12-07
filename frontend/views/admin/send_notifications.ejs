@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Send Notifications - Admin</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .notification-form {
+      background: var(--card-bg, white);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      max-width: 600px;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--text-primary, #333);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color, #e0e0e0);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary-color, #4f46e5);
+    }
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    .form-group small {
+      display: block;
+      margin-top: 0.25rem;
+      color: var(--text-secondary, #666);
+      font-size: 0.875rem;
+    }
+    .btn-send {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary-color, #4f46e5);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-send:hover {
+      opacity: 0.9;
+    }
+    .btn-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .templates-section {
+      background: var(--card-bg, white);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .templates-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .template-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .template-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--bg-secondary, #f8f9fa);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .template-item:hover {
+      background: var(--border-color, #e0e0e0);
+    }
+    .template-name {
+      font-weight: 500;
+    }
+    .template-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary, #666);
+    }
+    .success-message {
+      display: none;
+      padding: 1rem;
+      background: #d1fae5;
+      color: #065f46;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .success-message.show {
+      display: block;
+    }
+    .error-message {
+      display: none;
+      padding: 1rem;
+      background: #fee2e2;
+      color: #991b1b;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .error-message.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_admin') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Send Notifications' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="dashboard-wrapper">
+          <div class="notification-form">
+            <div id="successMessage" class="success-message"></div>
+            <div id="errorMessage" class="error-message"></div>
+
+            <form id="notificationForm">
+              <div class="form-group">
+                <label for="targetRole">Send To</label>
+                <select id="targetRole" name="targetRole" required>
+                  <option value="">Select recipients...</option>
+                  <option value="all">All Users</option>
+                  <option value="student">All Students</option>
+                  <option value="sponsor">All Sponsors</option>
+                </select>
+                <small>Choose who will receive this notification</small>
+              </div>
+
+              <div class="form-group">
+                <label for="title">Notification Title</label>
+                <input type="text" id="title" name="title" placeholder="Enter notification title..." required maxlength="100">
+                <small>Keep it short and clear (max 100 characters)</small>
+              </div>
+
+              <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" placeholder="Enter your message..." required maxlength="500"></textarea>
+                <small>Maximum 500 characters</small>
+              </div>
+
+              <button type="submit" class="btn-send" id="sendBtn">
+                <span>Send Notification</span>
+              </button>
+            </form>
+          </div>
+
+          <div class="templates-section">
+            <h3 class="templates-title">Quick Templates</h3>
+            <div class="template-list">
+              <div class="template-item" onclick="useTemplate('deadline', 'Application Deadline Reminder', 'This is a reminder that scholarship application deadlines are approaching. Please submit your applications before the deadline to be considered.')">
+                <div>
+                  <div class="template-name">Deadline Reminder</div>
+                  <div class="template-desc">Remind students about upcoming deadlines</div>
+                </div>
+                <span>Use</span>
+              </div>
+              <div class="template-item" onclick="useTemplate('new', 'New Scholarships Available!', 'New scholarship opportunities have been added to the platform. Log in to browse and apply for scholarships that match your profile.')">
+                <div>
+                  <div class="template-name">New Scholarships</div>
+                  <div class="template-desc">Announce new scholarship opportunities</div>
+                </div>
+                <span>Use</span>
+              </div>
+              <div class="template-item" onclick="useTemplate('update', 'Important System Update', 'We have made updates to improve your experience on the platform. Please log in to see the latest changes.')">
+                <div>
+                  <div class="template-name">System Update</div>
+                  <div class="template-desc">Notify about system changes</div>
+                </div>
+                <span>Use</span>
+              </div>
+              <div class="template-item" onclick="useTemplate('results', 'Application Results Available', 'The results for recent scholarship applications are now available. Please log in to check your application status.')">
+                <div>
+                  <div class="template-name">Results Announcement</div>
+                  <div class="template-desc">Notify students about results</div>
+                </div>
+                <span>Use</span>
+              </div>
+              <div class="template-item" onclick="useTemplate('requirements', 'Document Requirements Update', 'Please ensure all required documents are submitted for your scholarship applications. Incomplete applications may not be processed.')">
+                <div>
+                  <div class="template-name">Requirements Reminder</div>
+                  <div class="template-desc">Remind about document requirements</div>
+                </div>
+                <span>Use</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    function useTemplate(type, title, message) {
+      document.getElementById('title').value = title;
+      document.getElementById('message').value = message;
+
+      // Set target based on template type
+      if (type === 'deadline' || type === 'results' || type === 'requirements') {
+        document.getElementById('targetRole').value = 'student';
+      } else {
+        document.getElementById('targetRole').value = 'all';
+      }
+    }
+
+    document.getElementById('notificationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('sendBtn');
+      const successEl = document.getElementById('successMessage');
+      const errorEl = document.getElementById('errorMessage');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>Sending...</span>';
+      successEl.classList.remove('show');
+      errorEl.classList.remove('show');
+
+      const formData = {
+        targetRole: document.getElementById('targetRole').value,
+        title: document.getElementById('title').value,
+        message: document.getElementById('message').value
+      };
+
+      try {
+        const response = await fetch('/admin/notifications/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          successEl.textContent = data.message;
+          successEl.classList.add('show');
+          document.getElementById('notificationForm').reset();
+        } else {
+          errorEl.textContent = data.error || 'Failed to send notification';
+          errorEl.classList.add('show');
+        }
+      } catch (error) {
+        errorEl.textContent = 'An error occurred. Please try again.';
+        errorEl.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Send Notification</span>';
+      }
+    });
+  </script>
+</body>
+</html>

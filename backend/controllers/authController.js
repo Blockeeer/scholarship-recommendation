@@ -96,65 +96,28 @@ function showSponsorRegister(req, res) {
 
 async function showDashboard(req, res) {
   if (!req.session.user) return res.redirect("/login");
-  
+
   const { role, uid, email } = req.session.user;
 
   // ------------------------
-  // ADMIN DASHBOARD
+  // ADMIN DASHBOARD - Redirect to admin route with real data
   // ------------------------
   if (role === "admin") {
-    return res.render("admin/admin_dashboard", {
-      email
-    });
+    return res.redirect("/admin/dashboard");
   }
 
   // ------------------------
-  // STUDENT DASHBOARD
+  // STUDENT DASHBOARD - Redirect to student route with real data
   // ------------------------
   if (role === "student") {
-    try {
-      // Check if student has completed assessment using UID
-      const userDocRef = doc(db, "users", uid);
-      const userDoc = await getDoc(userDocRef);
-      
-      if (!userDoc.exists()) {
-        console.log("❌ User document not found");
-        return res.redirect("/login");
-      }
-
-      const userData = userDoc.data();
-      
-      // Check if assessment is completed
-      if (!userData.hasCompletedAssessment) {
-        console.log("📝 Assessment not completed, redirecting to assessment form");
-        return res.redirect("/student/assessment");
-      }
-
-      // Get assessment data from subcollection
-      const assessmentRef = doc(db, "users", uid, "assessment", "main");
-      const assessmentDoc = await getDoc(assessmentRef);
-      
-      const assessmentData = assessmentDoc.exists() ? assessmentDoc.data() : null;
-
-      console.log("✅ Loading student dashboard for UID:", uid);
-      return res.render("student/student_dashboard", {
-        email,
-        userData,
-        assessmentData
-      });
-    } catch (error) {
-      console.error("Error loading student dashboard:", error);
-      return res.status(500).send("Error loading dashboard");
-    }
+    return res.redirect("/student/dashboard");
   }
 
   // ------------------------
-  // SPONSOR DASHBOARD
+  // SPONSOR DASHBOARD - Redirect to sponsor route with real data
   // ------------------------
   if (role === "sponsor") {
-    return res.render("sponsor/sponsor_dashboard", {
-      email
-    });
+    return res.redirect("/sponsor/dashboard");
   }
 
   res.redirect("/");
@@ -302,7 +265,7 @@ async function login(req, res) {
   }
 
   // Hardcoded Admin
-  if (email === "admin@example.com" && password === "admin123") {
+  if (email === "admin@example.com" && password === "admin123123") {
     req.session.user = { uid: "admin", email, role: "admin" };
     return res.redirect("/dashboard");
   }

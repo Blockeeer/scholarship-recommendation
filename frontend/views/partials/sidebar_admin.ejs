@@ -1,15 +1,15 @@
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <div class="sidebar-brand">
-      <span class="brand-icon">⚙️</span>
-      <span class="brand-text">Admin Portal</span>
-    </div>
+    <a href="/dashboard" class="sidebar-brand">
+      <span class="brand-icon">SP</span>
+      <span class="brand-text">ScholarPath</span>
+    </a>
   </div>
 
   <div class="sidebar-user">
     <div class="user-avatar">
-      <span>👤</span>
+      <span>A</span>
     </div>
     <div class="user-info">
       <div class="user-name">Administrator</div>
@@ -19,31 +19,28 @@
 
   <nav class="sidebar-nav">
     <a href="/dashboard" class="nav-link" data-tooltip="Dashboard">
-      <span class="nav-icon">📊</span>
       <span class="nav-text">Dashboard</span>
     </a>
-    <a href="/admin/pending-scholarships" class="nav-link" data-tooltip="Pending Scholarships">
-      <span class="nav-icon">⏳</span>
-      <span class="nav-text">Pending Scholarships</span>
+    <a href="/admin/scholarships" class="nav-link" data-tooltip="Manage Scholarships">
+      <span class="nav-text">Manage Scholarships</span>
     </a>
-    <a href="/admin/approved-scholarships" class="nav-link" data-tooltip="Approved Scholarships">
-      <span class="nav-icon">✅</span>
-      <span class="nav-text">Approved Scholarships</span>
+    <a href="/admin/applications" class="nav-link" data-tooltip="Review Applications">
+      <span class="nav-text">Review Applications</span>
     </a>
     <a href="/admin/users" class="nav-link" data-tooltip="Manage Users">
-      <span class="nav-icon">👥</span>
       <span class="nav-text">Manage Users</span>
     </a>
-    <a href="/admin/analytics" class="nav-link" data-tooltip="Analytics">
-      <span class="nav-icon">📈</span>
-      <span class="nav-text">Analytics</span>
+    <a href="/admin/reports" class="nav-link" data-tooltip="Reports">
+      <span class="nav-text">Reports</span>
+    </a>
+    <a href="/admin/notifications" class="nav-link" data-tooltip="Send Notifications">
+      <span class="nav-text">Send Notifications</span>
     </a>
   </nav>
 
   <div class="sidebar-footer">
     <form action="/logout" method="POST" id="logoutForm">
       <button type="button" class="logout-btn" data-tooltip="Logout" onclick="showLogoutModal(event)">
-        <span class="nav-icon">🚪</span>
         <span class="nav-text">Logout</span>
       </button>
     </form>

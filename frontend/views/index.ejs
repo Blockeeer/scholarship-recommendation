@@ -3,45 +3,447 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome - Scholarship Portal</title>
+  <title>ScholarPath - Find Your Perfect Scholarship</title>
   <link rel="stylesheet" href="/css/global.css">
-  <link rel="stylesheet" href="/css/auth.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #ffffff;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 2rem;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    .navbar-brand span {
+      color: var(--text-primary);
+    }
+
+    .navbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+
+    .nav-link:hover {
+      color: var(--primary-color);
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 2rem 80px;
+      background: linear-gradient(180deg, var(--primary-50) 0%, #ffffff 100%);
+    }
+
+    .hero-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-content h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      color: var(--text-primary);
+    }
+
+    .hero-content h1 span {
+      color: var(--primary-color);
+    }
+
+    .hero-content p {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-xl);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .hero-card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .hero-card-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .hero-card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+
+    .hero-card-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .hero-stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .hero-stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Features Section */
+    .features {
+      padding: 100px 2rem;
+      background: var(--bg-secondary);
+    }
+
+    .features-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-header p {
+      font-size: 1.125rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      transition: all var(--transition);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--primary-100);
+      color: var(--primary-600);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+      font-size: 0.9375rem;
+    }
+
+    /* CTA Section */
+    .cta {
+      padding: 100px 2rem;
+      background: var(--primary-600);
+      color: white;
+    }
+
+    .cta-container {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .cta h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .cta p {
+      font-size: 1.25rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 2rem;
+    }
+
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .cta .btn-white {
+      background: white;
+      color: var(--primary-600);
+    }
+
+    .cta .btn-white:hover {
+      background: var(--gray-100);
+      transform: translateY(-1px);
+    }
+
+    .cta .btn-outline-white {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+
+    .cta .btn-outline-white:hover {
+      background: white;
+      color: var(--primary-600);
+    }
+
+    /* Footer */
+    .landing-footer {
+      padding: 3rem 2rem;
+      background: var(--gray-900);
+      color: var(--gray-400);
+      text-align: center;
+    }
+
+    .landing-footer p {
+      color: var(--gray-400);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero-content h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero-buttons {
+        justify-content: center;
+      }
+
+      .hero-visual {
+        order: -1;
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 0 1rem;
+      }
+
+      .hero {
+        padding: 100px 1rem 60px;
+      }
+
+      .hero-content h1 {
+        font-size: 2rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header h2,
+      .cta h2 {
+        font-size: 1.75rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="auth-wrapper">
-    <div class="auth-container" style="max-width: 600px;">
-      <div class="auth-header">
-        <div class="auth-logo">🎓</div>
-        <h1>Scholarship Portal</h1>
-        <p>Smart Scholarship Recommendation & Ranking System</p>
-      </div>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">
+      Scholar<span>Path</span>
+    </a>
+    <div class="navbar-nav">
+      <a href="/login" class="btn btn-ghost">Log In</a>
+      <a href="/register/student" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
 
-      <div class="auth-content">
-        <h2 style="text-align: center; margin-bottom: 2rem; color: var(--text-dark);">Get Started</h2>
-        
-        <div style="display: grid; gap: 1rem;">
-          <a href="/login" class="btn btn-primary btn-block" style="text-align: center;">
-            🔐 Login to Your Account
-          </a>
-          
-          <div class="auth-divider">
-            <span>or create new account</span>
-          </div>
-          
-          <a href="/register/student" class="btn btn-block" style="background: #3498db; color: white; text-align: center;">
-            👨‍🎓 Register as Student
-          </a>
-          
-          <a href="/register/sponsor" class="btn btn-block" style="background: #9b59b6; color: white; text-align: center;">
-            🏢 Register as Sponsor
-          </a>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1>Find Your <span>Perfect</span> Scholarship Match</h1>
+        <p>Our AI-powered platform connects students with the right scholarship opportunities. Get personalized recommendations and increase your chances of funding your education.</p>
+        <div class="hero-buttons">
+          <a href="/register/student" class="btn btn-primary btn-lg">Apply as Student</a>
+          <a href="/register/sponsor" class="btn btn-outline btn-lg">Become a Sponsor</a>
         </div>
       </div>
-
-      <div class="auth-footer">
-        <p style="color: var(--text-light);">Empowering students through education opportunities</p>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="hero-card-header">
+            <div class="hero-card-icon">SP</div>
+            <div>
+              <div class="hero-card-title">ScholarPath</div>
+              <div class="hero-card-subtitle">Scholarship Portal</div>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div>
+              <div class="hero-stat-value">500+</div>
+              <div class="hero-stat-label">Scholarships</div>
+            </div>
+            <div>
+              <div class="hero-stat-value">10K+</div>
+              <div class="hero-stat-label">Students</div>
+            </div>
+            <div>
+              <div class="hero-stat-value">95%</div>
+              <div class="hero-stat-label">Match Rate</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="features-container">
+      <div class="section-header">
+        <h2>Why Choose ScholarPath?</h2>
+        <p>We simplify the scholarship search process with smart technology and personalized recommendations.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">AI</div>
+          <h3>AI-Powered Matching</h3>
+          <p>Our intelligent system analyzes your profile and matches you with scholarships that fit your qualifications.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">+</div>
+          <h3>Easy Application</h3>
+          <p>Apply to multiple scholarships with a single profile. No more repetitive form filling.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">$</div>
+          <h3>Track Progress</h3>
+          <p>Monitor your applications in real-time and receive notifications on status updates.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="cta-container">
+      <h2>Ready to Start Your Journey?</h2>
+      <p>Join thousands of students who have found their perfect scholarship match through ScholarPath.</p>
+      <div class="cta-buttons">
+        <a href="/register/student" class="btn btn-white btn-lg">Create Free Account</a>
+        <a href="/login" class="btn btn-outline-white btn-lg">Sign In</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <p>2024 ScholarPath. All rights reserved.</p>
+  </footer>
 </body>
 </html>

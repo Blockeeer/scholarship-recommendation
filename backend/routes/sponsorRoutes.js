@@ -8,9 +8,17 @@ const {
   updateScholarshipStatus,
   deleteScholarship,
   showEditScholarshipForm,
-  updateScholarship,
-  viewScholarshipApplications
+  updateScholarship
 } = require('../controllers/scholarshipController');
+const {
+  getScholarshipApplications,
+  getApplicationDetails,
+  rankApplications,
+  updateApplicationStatus
+} = require('../controllers/applicationController');
+const { getUserNotifications, markAsRead, markAllAsRead, getUnreadCount } = require('../services/notificationService');
+const { db } = require('../config/firebaseConfig');
+const { collection, query, where, getDocs } = require('firebase/firestore');
 
 // Show form to add scholarship
 router.get('/add-offer', showAddScholarshipForm);
@@ -25,7 +33,16 @@ router.get('/offers', viewScholarshipOffers);
 router.get('/offers/:id', viewScholarshipDetails);
 
 // View applications for a scholarship
-router.get('/offers/:id/applications', viewScholarshipApplications);
+router.get('/offers/:id/applications', getScholarshipApplications);
+
+// Rank applications using GPT
+router.post('/offers/:id/applications/rank', rankApplications);
+
+// View single application
+router.get('/applications/:id', getApplicationDetails);
+
+// Update application status (approve/reject)
+router.post('/applications/:id/status', updateApplicationStatus);
 
 // Show edit scholarship form
 router.get('/offers/:id/edit', showEditScholarshipForm);
@@ -38,5 +55,125 @@ router.post('/offers/:id/status', updateScholarshipStatus);
 
 // Delete scholarship
 router.post('/offers/:id/delete', deleteScholarship);
+
+// Sponsor Dashboard with real data
+router.get('/dashboard', async (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'sponsor') {
+    return res.redirect('/login');
+  }
+
+  const sponsorUid = req.session.user.uid;
+
+  try {
+    // Get sponsor's scholarships
+    const scholarshipsRef = collection(db, 'scholarships');
+    const scholarshipQuery = query(scholarshipsRef, where('sponsorUid', '==', sponsorUid));
+    const scholarshipSnapshot = await getDocs(scholarshipQuery);
+
+    let scholarshipStats = {
+      total: 0,
+      open: 0,
+      pending: 0,
+      closed: 0,
+      totalSlots: 0,
+      filledSlots: 0
+    };
+
+    const scholarshipIds = [];
+    scholarshipSnapshot.forEach(doc => {
+      const data = doc.data();
+      scholarshipIds.push(doc.id);
+      scholarshipStats.total++;
+      if (data.status === 'Open') scholarshipStats.open++;
+      else if (data.status === 'Pending') scholarshipStats.pending++;
+      else if (data.status === 'Closed') scholarshipStats.closed++;
+      scholarshipStats.totalSlots += data.slotsAvailable || 0;
+      scholarshipStats.filledSlots += data.slotsFilled || 0;
+    });
+
+    // Get applications for sponsor's scholarships
+    let applicationStats = {
+      total: 0,
+      pending: 0,
+      approved: 0,
+      rejected: 0
+    };
+
+    if (scholarshipIds.length > 0) {
+      const applicationsRef = collection(db, 'applications');
+      const applicationsSnapshot = await getDocs(applicationsRef);
+
+      applicationsSnapshot.forEach(doc => {
+        const app = doc.data();
+        if (scholarshipIds.includes(app.scholarshipId)) {
+          applicationStats.total++;
+          if (app.status === 'pending' || app.status === 'under_review') applicationStats.pending++;
+          else if (app.status === 'approved') applicationStats.approved++;
+          else if (app.status === 'rejected') applicationStats.rejected++;
+        }
+      });
+    }
+
+    // Get unread notifications
+    const unreadNotifications = await getUnreadCount(sponsorUid);
+
+    res.render('sponsor/sponsor_dashboard', {
+      email: req.session.user.email,
+      scholarshipStats,
+      applicationStats,
+      unreadNotifications
+    });
+
+  } catch (error) {
+    console.error('Error loading sponsor dashboard:', error);
+    res.render('sponsor/sponsor_dashboard', {
+      email: req.session.user.email,
+      scholarshipStats: { total: 0, open: 0, pending: 0, closed: 0, totalSlots: 0, filledSlots: 0 },
+      applicationStats: { total: 0, pending: 0, approved: 0, rejected: 0 },
+      unreadNotifications: 0
+    });
+  }
+});
+
+// Notifications for sponsor
+router.get('/notifications', async (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'sponsor') {
+    return res.redirect('/login');
+  }
+  try {
+    const notifications = await getUserNotifications(req.session.user.uid);
+    res.render('sponsor/notifications', {
+      email: req.session.user.email,
+      notifications
+    });
+  } catch (error) {
+    console.error('Error getting notifications:', error);
+    res.status(500).send('Error loading notifications');
+  }
+});
+
+router.post('/notifications/:id/read', async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    await markAsRead(req.params.id, req.session.user.uid);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to mark notification as read' });
+  }
+});
+
+router.post('/notifications/read-all', async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const count = await markAllAsRead(req.session.user.uid);
+    res.json({ success: true, count });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to mark notifications as read' });
+  }
+});
 
 module.exports = router;

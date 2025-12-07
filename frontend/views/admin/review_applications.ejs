@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Review Applications - Admin</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .filter-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      background: var(--card-bg, white);
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .filter-group label {
+      font-size: 0.875rem;
+      color: var(--text-secondary, #666);
+    }
+    .filter-group select,
+    .filter-group input {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-color, #e0e0e0);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      min-width: 150px;
+    }
+    .applications-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg, white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .applications-table th,
+    .applications-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color, #e0e0e0);
+    }
+    .applications-table th {
+      background: var(--bg-secondary, #f8f9fa);
+      font-weight: 600;
+    }
+    .applications-table tr:hover {
+      background: var(--bg-secondary, #f8f9fa);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-under_review { background: #dbeafe; color: #1e40af; }
+    .status-approved { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .action-btns {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-sm {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-view { background: #3b82f6; color: white; }
+    .btn-view:hover { background: #2563eb; }
+    .btn-approve { background: #10b981; color: white; }
+    .btn-approve:hover { background: #059669; }
+    .btn-reject { background: #ef4444; color: white; }
+    .btn-reject:hover { background: #dc2626; }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary, #666);
+    }
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--card-bg, white);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 700px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-title { font-size: 1.25rem; font-weight: 600; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-secondary, #666);
+    }
+    .detail-grid {
+      display: grid;
+      gap: 1rem;
+    }
+    .detail-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 1rem;
+    }
+    .detail-label {
+      font-weight: 600;
+      color: var(--text-secondary, #666);
+    }
+    .documents-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .document-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-secondary, #f8f9fa);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--primary-color, #4f46e5);
+    }
+    .document-link:hover {
+      background: var(--border-color, #e0e0e0);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color, #e0e0e0);
+    }
+    .modal-actions .btn {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_admin') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Review Applications' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="dashboard-wrapper">
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">📝</div>
+              </div>
+              <div class="stat-value"><%= stats.total %></div>
+              <div class="stat-label">Total Applications</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">⏳</div>
+              </div>
+              <div class="stat-value"><%= stats.pending + stats.underReview %></div>
+              <div class="stat-label">Pending Review</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">✅</div>
+              </div>
+              <div class="stat-value"><%= stats.approved %></div>
+              <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">❌</div>
+              </div>
+              <div class="stat-value"><%= stats.rejected %></div>
+              <div class="stat-label">Rejected</div>
+            </div>
+          </div>
+
+          <!-- Filter Bar -->
+          <div class="filter-bar">
+            <div class="filter-group">
+              <label>Status</label>
+              <select id="filterStatus" onchange="filterApplications()">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="under_review">Under Review</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Scholarship</label>
+              <select id="filterScholarship" onchange="filterApplications()">
+                <option value="all">All Scholarships</option>
+                <% const uniqueScholarships = [...new Set(applications.map(a => a.scholarshipName))]; %>
+                <% uniqueScholarships.forEach(name => { %>
+                  <option value="<%= name %>"><%= name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Search</label>
+              <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="filterApplications()">
+            </div>
+          </div>
+
+          <!-- Applications Table -->
+          <% if (applications.length === 0) { %>
+            <div class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              <h3>No Applications</h3>
+              <p>No applications have been submitted yet.</p>
+            </div>
+          <% } else { %>
+            <table class="applications-table" id="applicationsTable">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Scholarship</th>
+                  <th>Course</th>
+                  <th>GPA</th>
+                  <th>Status</th>
+                  <th>Date Applied</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% applications.forEach(app => { %>
+                  <tr data-status="<%= app.status %>" data-scholarship="<%= app.scholarshipName %>" data-name="<%= app.studentName %>">
+                    <td><strong><%= app.studentName %></strong></td>
+                    <td><%= app.scholarshipName %></td>
+                    <td><%= app.course || 'N/A' %></td>
+                    <td><%= app.gpa || 'N/A' %></td>
+                    <td>
+                      <span class="status-badge status-<%= app.status %>">
+                        <%= app.status === 'under_review' ? 'Under Review' : app.status.charAt(0).toUpperCase() + app.status.slice(1) %>
+                      </span>
+                    </td>
+                    <td><%= new Date(app.createdAt).toLocaleDateString() %></td>
+                    <td>
+                      <div class="action-btns">
+                        <button class="btn-sm btn-view" onclick="viewApplication('<%= app.id %>')">View</button>
+                        <% if (app.status === 'pending' || app.status === 'under_review') { %>
+                          <button class="btn-sm btn-approve" onclick="updateStatus('<%= app.id %>', 'approved')">Approve</button>
+                          <button class="btn-sm btn-reject" onclick="updateStatus('<%= app.id %>', 'rejected')">Reject</button>
+                        <% } %>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <!-- Application Details Modal -->
+  <div class="modal" id="applicationModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Application Details</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div id="applicationDetails"></div>
+    </div>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    const applications = <%- JSON.stringify(applications) %>;
+
+    function filterApplications() {
+      const status = document.getElementById('filterStatus').value;
+      const scholarship = document.getElementById('filterScholarship').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+
+      document.querySelectorAll('#applicationsTable tbody tr').forEach(row => {
+        const rowStatus = row.dataset.status;
+        const rowScholarship = row.dataset.scholarship;
+        const rowName = row.dataset.name.toLowerCase();
+
+        const matchStatus = status === 'all' || rowStatus === status;
+        const matchScholarship = scholarship === 'all' || rowScholarship === scholarship;
+        const matchSearch = rowName.includes(search);
+
+        row.style.display = matchStatus && matchScholarship && matchSearch ? '' : 'none';
+      });
+    }
+
+    function viewApplication(id) {
+      const app = applications.find(a => a.id === id);
+      if (!app) return;
+
+      let documentsHtml = '<p>No documents uploaded</p>';
+      if (app.documents && Object.keys(app.documents).length > 0) {
+        documentsHtml = '<div class="documents-list">';
+        for (const [key, value] of Object.entries(app.documents)) {
+          if (value) {
+            documentsHtml += `<a href="${value}" target="_blank" class="document-link">📄 ${key}</a>`;
+          }
+        }
+        documentsHtml += '</div>';
+      }
+
+      document.getElementById('applicationDetails').innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-row">
+            <span class="detail-label">Student Name:</span>
+            <span>${app.studentName}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span>${app.studentEmail || 'N/A'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Scholarship:</span>
+            <span>${app.scholarshipName}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Course:</span>
+            <span>${app.course || 'N/A'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">GPA:</span>
+            <span>${app.gpa || 'N/A'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Year Level:</span>
+            <span>${app.yearLevel || 'N/A'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="status-badge status-${app.status}">${app.status === 'under_review' ? 'Under Review' : app.status.charAt(0).toUpperCase() + app.status.slice(1)}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Applied On:</span>
+            <span>${new Date(app.createdAt).toLocaleDateString()}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Documents:</span>
+            <div>${documentsHtml}</div>
+          </div>
+          ${app.essay ? `
+          <div>
+            <span class="detail-label">Essay/Statement:</span>
+            <p style="margin-top: 0.5rem; white-space: pre-wrap;">${app.essay}</p>
+          </div>
+          ` : ''}
+        </div>
+        ${app.status === 'pending' || app.status === 'under_review' ? `
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="updateStatus('${app.id}', 'approved'); closeModal();">Approve</button>
+          <button class="btn" style="background: #ef4444; color: white;" onclick="updateStatus('${app.id}', 'rejected'); closeModal();">Reject</button>
+        </div>
+        ` : ''}
+      `;
+
+      document.getElementById('applicationModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('applicationModal').classList.remove('active');
+    }
+
+    function updateStatus(id, status) {
+      const action = status === 'approved' ? 'approve' : 'reject';
+      if (!confirm(`Are you sure you want to ${action} this application?`)) return;
+
+      fetch('/admin/applications/' + id + '/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Application ' + status + ' successfully!');
+            location.reload();
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .catch(err => alert('Error updating application'));
+    }
+  </script>
+</body>
+</html>

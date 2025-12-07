@@ -1,42 +1,56 @@
-/* Authentication Pages */
+/* ============================================
+   AUTHENTICATION PAGES STYLES
+   ============================================ */
+
 .auth-wrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-gradient);
+  background: var(--bg-secondary);
   padding: 2rem 1rem;
 }
 
 .auth-container {
   background: white;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
-  max-width: 450px;
+  max-width: 440px;
   width: 100%;
+  border: 1px solid var(--border-color);
 }
 
 .auth-header {
-  background: var(--primary-gradient);
+  background: var(--primary-color);
   color: white;
   padding: 2rem;
   text-align: center;
 }
 
 .auth-header h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   margin-bottom: 0.5rem;
+  color: white;
 }
 
 .auth-header p {
-  opacity: 0.95;
-  font-size: 0.95rem;
+  opacity: 0.9;
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .auth-logo {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .auth-content {
@@ -45,15 +59,21 @@
 
 .auth-footer {
   text-align: center;
-  padding: 1.5rem 2rem;
-  background: #f8f9fa;
-  border-top: 1px solid #e0e0e0;
+  padding: 1.25rem 2rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-footer p {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 .auth-footer a {
   color: var(--primary-color);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .auth-footer a:hover {
@@ -73,13 +93,66 @@
   top: 50%;
   width: 100%;
   height: 1px;
-  background: #e0e0e0;
+  background: var(--border-color);
 }
 
 .auth-divider span {
   background: white;
   padding: 0 1rem;
   position: relative;
-  color: var(--text-light);
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* Error Message */
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+/* Password Toggle */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  flex: 1;
+  padding-right: 3rem;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.toggle-password:hover {
+  color: var(--text-secondary);
+}
+
+/* Back Link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
 }

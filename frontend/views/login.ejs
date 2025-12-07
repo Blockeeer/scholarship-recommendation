@@ -3,61 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Scholarship Portal</title>
+  <title>Log In - ScholarPath</title>
   <link rel="stylesheet" href="/css/global.css">
   <link rel="stylesheet" href="/css/auth.css">
-  <style>
-    .error-message {
-      background: #fee;
-      border: 1px solid #fcc;
-      color: #c33;
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-    }
-
-    .password-input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .password-input-wrapper input {
-      flex: 1;
-      padding-right: 3rem;
-    }
-
-    .toggle-password {
-      position: absolute;
-      right: 0.75rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1.25rem;
-      padding: 0.25rem;
-      opacity: 0.6;
-      transition: opacity 0.2s;
-    }
-
-    .toggle-password:hover {
-      opacity: 1;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="auth-wrapper">
     <div class="auth-container">
       <div class="auth-header">
-        <div class="auth-logo">🔐</div>
+        <div class="auth-logo">SP</div>
         <h1>Welcome Back</h1>
-        <p>Login to access your account</p>
+        <p>Log in to access your account</p>
       </div>
 
       <div class="auth-content">
         <% if (error) { %>
           <div class="error-message">
-            ⚠️ <%= error %>
+            <%= error %>
           </div>
         <% } %>
 
@@ -72,23 +35,21 @@
             <div class="password-input-wrapper">
               <input type="password" name="password" id="loginPassword" class="form-control" placeholder="Enter your password" required>
               <button type="button" class="toggle-password" onclick="togglePassword('loginPassword', this)">
-                👁️
+                Show
               </button>
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block">Login</button>
+          <button type="submit" class="btn btn-primary btn-block">Log In</button>
         </form>
       </div>
 
       <div class="auth-footer">
-        <p>Don't have an account?
-          <a href="/register/student">Register as Student</a> or
-          <a href="/register/sponsor">Register as Sponsor</a>
-        </p>
+        <p>Don't have an account?</p>
         <p style="margin-top: 0.5rem;">
-          <a href="/">← Back to Home</a>
+          <a href="/register/student">Register as Student</a> or <a href="/register/sponsor">Register as Sponsor</a>
         </p>
+        <a href="/" class="back-link">Back to Home</a>
       </div>
     </div>
   </div>
@@ -98,10 +59,10 @@
       const input = document.getElementById(inputId);
       if (input.type === 'password') {
         input.type = 'text';
-        button.textContent = '🙈';
+        button.textContent = 'Hide';
       } else {
         input.type = 'password';
-        button.textContent = '👁️';
+        button.textContent = 'Show';
       }
     }
   </script>

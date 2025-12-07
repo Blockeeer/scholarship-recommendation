@@ -4,6 +4,23 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { showAssessmentForm, submitAssessment } = require('../controllers/assessmentController');
+const {
+  showStudentDashboard,
+  searchScholarships,
+  viewScholarshipDetails,
+  showApplyForm,
+  getRecommendations,
+  getMyApplications,
+  viewApplicationDetails,
+  getNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  getProfile
+} = require('../controllers/studentController');
+const {
+  createApplication,
+  withdrawApplication
+} = require('../controllers/applicationController');
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -50,15 +67,29 @@ router.post('/assessment', upload.fields([
 ]), submitAssessment);
 
 // Student dashboard route
-router.get('/student_dashboard', (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'student') {
-    return res.redirect('/login');
-  }
-  
-  res.render('student/student_dashboard', {
-    layout: 'layouts/student_layout',
-    email: req.session.user.email
-  });
-});
+router.get('/student_dashboard', showStudentDashboard);
+router.get('/dashboard', showStudentDashboard);
+
+// Profile
+router.get('/profile', getProfile);
+
+// Scholarship search and browse
+router.get('/scholarships', searchScholarships);
+router.get('/scholarships/:id', viewScholarshipDetails);
+router.get('/scholarships/:id/apply', showApplyForm);
+
+// Applications
+router.post('/scholarships/:id/apply', createApplication);
+router.get('/applications', getMyApplications);
+router.get('/applications/:id', viewApplicationDetails);
+router.post('/applications/:id/withdraw', withdrawApplication);
+
+// Recommendations (GPT-powered)
+router.get('/recommendations', getRecommendations);
+
+// Notifications
+router.get('/notifications', getNotifications);
+router.post('/notifications/:id/read', markNotificationRead);
+router.post('/notifications/read-all', markAllNotificationsRead);
 
 module.exports = router;

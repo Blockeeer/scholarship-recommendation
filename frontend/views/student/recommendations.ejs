@@ -1,192 +1,445 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Recommendations - Scholarship Portal</title>
   <link rel="stylesheet" href="/css/global.css">
-  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
   <link rel="stylesheet" href="/css/footer.css">
-  <link rel="stylesheet" href="/css/recommendations.css">
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .page-header h1 {
+      margin: 0 0 0.5rem 0;
+    }
+
+    .page-header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .alert {
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .alert-warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .recommendations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .recommendation-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .recommendation-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .match-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .match-excellent {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+      color: white;
+    }
+
+    .match-good {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      color: white;
+    }
+
+    .match-fair {
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      color: white;
+    }
+
+    .match-low {
+      background: #e0e0e0;
+      color: #666;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      padding-right: 100px;
+    }
+
+    .card-header h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.2rem;
+    }
+
+    .card-header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .recommendation-badge {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      background: rgba(255,255,255,0.2);
+      border-radius: 15px;
+      font-size: 0.8rem;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    .match-details {
+      margin-bottom: 1rem;
+    }
+
+    .match-details h4 {
+      margin: 0 0 0.5rem 0;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    .match-criteria {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .criteria-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .criteria-match {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .criteria-no-match {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .explanation {
+      background: #f8f9fa;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1rem;
+      border-left: 3px solid #667eea;
+    }
+
+    .card-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-label {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-view {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-apply {
+      background: #27ae60;
+      color: white;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: #999;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      display: inline-block;
+    }
+  </style>
 </head>
-<body style="display: flex; flex-direction: column; min-height: 100vh;">
-  
-  <%- include('../partials/navbar_student') %>
+<body>
+  <%- include('../partials/sidebar_student') %>
 
-  <main style="flex: 1;">
-    <div class="recommendations-wrapper">
-      
-      <!-- Header -->
-      <div class="recommendations-header">
-        <h1>🤖 AI-Powered Scholarship Recommendations</h1>
-        <p>Personalized matches based on your profile and assessment</p>
-      </div>
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'AI Recommendations' }) %>
 
-      <!-- Statistics -->
-      <div class="stats-grid" style="margin-bottom: 2rem;">
-        <div class="stat-card">
-          <div class="stat-icon">🎯</div>
-          <div class="stat-value"><%= categorized.excellent.length %></div>
-          <div class="stat-label">Excellent Matches</div>
+    <main class="page-content">
+      <div class="container">
+        <div class="page-header">
+          <h1>AI-Powered Scholarship Recommendations</h1>
+          <p>Personalized matches based on your profile and assessment using GPT</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">👍</div>
-          <div class="stat-value"><%= categorized.good.length %></div>
-          <div class="stat-label">Good Matches</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">📊</div>
-          <div class="stat-value"><%= categorized.fair.length %></div>
-          <div class="stat-label">Fair Matches</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">🔍</div>
-          <div class="stat-value"><%= total %></div>
-          <div class="stat-label">Total Available</div>
-        </div>
-      </div>
 
-      <!-- Filters -->
-      <div class="filters-section">
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label>Search Scholarships</label>
-            <input type="text" id="searchScholarships" placeholder="Search by name or organization..." style="padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 6px;">
+        <% if (!hasAssessment) { %>
+          <div class="alert alert-warning">
+            <strong>Complete Your Assessment First!</strong>
+            To get personalized scholarship recommendations, please complete your profile assessment.
+            <a href="/student/assessment" style="color: inherit; font-weight: bold; display: block; margin-top: 0.5rem;">Complete Assessment →</a>
           </div>
-          <div class="filter-group">
-            <label>Sort By</label>
-            <select id="sortBy">
-              <option value="match">Best Match</option>
-              <option value="deadline">Deadline</option>
-              <option value="slots">Available Slots</option>
-            </select>
+        <% } else if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-error">
+            <strong>Notice:</strong> <%= error %>
           </div>
-          <div class="filter-group">
-            <label>Type</label>
-            <select id="filterType">
-              <option value="all">All Types</option>
-              <option value="Merit">Merit-based</option>
-              <option value="Need-based">Need-based</option>
-              <option value="Athletic">Athletic</option>
-              <option value="Leadership">Leadership</option>
-            </select>
-          </div>
-        </div>
-      </div>
+        <% } %>
 
-      <!-- Category Tabs -->
-      <div class="category-tabs">
-        <button class="tab-btn active" data-category="all">
-          All Scholarships
-          <span class="tab-badge"><%= recommendations.length %></span>
-        </button>
-        <button class="tab-btn" data-category="excellent">
-          🎯 Excellent Match
-          <span class="tab-badge"><%= categorized.excellent.length %></span>
-        </button>
-        <button class="tab-btn" data-category="good">
-          👍 Good Match
-          <span class="tab-badge"><%= categorized.good.length %></span>
-        </button>
-        <button class="tab-btn" data-category="fair">
-          📊 Fair Match
-          <span class="tab-badge"><%= categorized.fair.length %></span>
-        </button>
-      </div>
-
-      <!-- Scholarships Grid -->
-      <% if (recommendations.length === 0) { %>
-        <div class="empty-recommendations">
-          <div class="empty-icon">🔍</div>
-          <h2>No Scholarships Available</h2>
-          <p>Check back later for new opportunities!</p>
-        </div>
-      <% } else { %>
-        <div class="scholarships-grid">
-          <% recommendations.forEach(scholarship => { 
-            let matchClass = 'match-low';
-            let category = 'low';
-            if (scholarship.matchScore >= 80) {
-              matchClass = 'match-excellent';
-              category = 'excellent';
-            } else if (scholarship.matchScore >= 60) {
-              matchClass = 'match-good';
-              category = 'good';
-            } else if (scholarship.matchScore >= 40) {
-              matchClass = 'match-fair';
-              category = 'fair';
-            }
+        <% if (hasAssessment && recommendations && recommendations.length > 0) { %>
+          <%
+            const excellent = recommendations.filter(r => r.matchScore >= 80);
+            const good = recommendations.filter(r => r.matchScore >= 60 && r.matchScore < 80);
+            const fair = recommendations.filter(r => r.matchScore >= 40 && r.matchScore < 60);
           %>
-            <div class="scholarship-card" 
-                 data-category="<%= category %>"
-                 data-match="<%= scholarship.matchScore %>"
-                 data-deadline="<%= scholarship.endDate %>"
-                 data-slots="<%= scholarship.slotsAvailable - scholarship.slotsFilled %>">
-              
-              <!-- Match Badge -->
-              <div class="match-badge <%= matchClass %>">
-                ⭐ <%= scholarship.matchScore %>% Match
-              </div>
 
-              <!-- Card Header -->
-              <div class="card-header">
-                <h3 class="card-title"><%= scholarship.scholarshipName %></h3>
-                <p class="card-organization"><%= scholarship.organizationName %></p>
-                <span class="card-type"><%= scholarship.scholarshipType %></span>
-              </div>
-
-              <!-- Match Reasons -->
-              <% if (scholarship.matchReasons && scholarship.matchReasons.length > 0) { %>
-                <div class="match-reasons">
-                  <div class="match-reasons-title">Why this matches you:</div>
-                  <ul>
-                    <% scholarship.matchReasons.forEach(reason => { %>
-                      <li><%= reason %></li>
-                    <% }) %>
-                  </ul>
-                </div>
-              <% } %>
-
-              <!-- Card Details -->
-              <div class="card-details">
-                <div class="detail-item">
-                  <span class="detail-label">Min GPA</span>
-                  <span class="detail-value"><%= scholarship.minGPA %></span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Available Slots</span>
-                  <span class="detail-value"><%= scholarship.slotsAvailable - scholarship.slotsFilled %>/<%= scholarship.slotsAvailable %></span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Application Deadline</span>
-                  <span class="detail-value"><%= new Date(scholarship.endDate).toLocaleDateString() %></span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Status</span>
-                  <span class="detail-value" style="color: #10b981;"><%= scholarship.status %></span>
-                </div>
-              </div>
-
-              <!-- Card Actions -->
-              <div class="card-actions">
-                <a href="/student/scholarship/<%= scholarship.id %>" class="btn-view">
-                  View Details
-                </a>
-                <a href="/student/apply/<%= scholarship.id %>" class="btn-apply">
-                  Apply Now
-                </a>
-              </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-value"><%= excellent.length %></div>
+              <div class="stat-label">Excellent Matches (80%+)</div>
             </div>
-          <% }) %>
-        </div>
-      <% } %>
+            <div class="stat-card">
+              <div class="stat-icon">👍</div>
+              <div class="stat-value"><%= good.length %></div>
+              <div class="stat-label">Good Matches (60-79%)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📊</div>
+              <div class="stat-value"><%= fair.length %></div>
+              <div class="stat-label">Fair Matches (40-59%)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🔍</div>
+              <div class="stat-value"><%= recommendations.length %></div>
+              <div class="stat-label">Total Recommendations</div>
+            </div>
+          </div>
 
-    </div>
-  </main>
+          <div class="recommendations-grid">
+            <% recommendations.forEach(rec => {
+              let matchClass = 'match-low';
+              if (rec.matchScore >= 80) matchClass = 'match-excellent';
+              else if (rec.matchScore >= 60) matchClass = 'match-good';
+              else if (rec.matchScore >= 40) matchClass = 'match-fair';
+            %>
+              <div class="recommendation-card">
+                <div class="match-badge <%= matchClass %>">
+                  <%= rec.matchScore %>% Match
+                </div>
 
-  <%- include('../partials/footer') %>
+                <div class="card-header">
+                  <h3><%= rec.scholarship ? rec.scholarship.scholarshipName : rec.scholarshipName %></h3>
+                  <p><%= rec.scholarship ? rec.scholarship.organizationName : '' %></p>
+                  <span class="recommendation-badge"><%= rec.recommendation %></span>
+                </div>
 
-  <script src="/js/navbar.js"></script>
-  <script src="/js/recommendations.js"></script>
+                <div class="card-body">
+                  <% if (rec.matchDetails) { %>
+                    <div class="match-details">
+                      <h4>Eligibility Match:</h4>
+                      <div class="match-criteria">
+                        <span class="criteria-badge <%= rec.matchDetails.gpaMatch ? 'criteria-match' : 'criteria-no-match' %>">
+                          <%= rec.matchDetails.gpaMatch ? '✓' : '✗' %> GPA
+                        </span>
+                        <span class="criteria-badge <%= rec.matchDetails.courseMatch ? 'criteria-match' : 'criteria-no-match' %>">
+                          <%= rec.matchDetails.courseMatch ? '✓' : '✗' %> Course
+                        </span>
+                        <span class="criteria-badge <%= rec.matchDetails.yearLevelMatch ? 'criteria-match' : 'criteria-no-match' %>">
+                          <%= rec.matchDetails.yearLevelMatch ? '✓' : '✗' %> Year Level
+                        </span>
+                        <% if (rec.matchDetails.incomeMatch !== undefined) { %>
+                          <span class="criteria-badge <%= rec.matchDetails.incomeMatch ? 'criteria-match' : 'criteria-no-match' %>">
+                            <%= rec.matchDetails.incomeMatch ? '✓' : '✗' %> Income
+                          </span>
+                        <% } %>
+                      </div>
+                    </div>
+                  <% } %>
+
+                  <% if (rec.explanation) { %>
+                    <div class="explanation">
+                      <%= rec.explanation %>
+                    </div>
+                  <% } %>
+
+                  <% if (rec.scholarship) { %>
+                    <div class="card-details">
+                      <div class="detail-item">
+                        <span class="detail-label">Type</span>
+                        <span class="detail-value"><%= rec.scholarship.scholarshipType %></span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Min GPA</span>
+                        <span class="detail-value"><%= rec.scholarship.minGPA %></span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Available Slots</span>
+                        <span class="detail-value"><%= rec.scholarship.slotsAvailable - (rec.scholarship.slotsFilled || 0) %></span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Deadline</span>
+                        <span class="detail-value"><%= new Date(rec.scholarship.endDate).toLocaleDateString() %></span>
+                      </div>
+                    </div>
+
+                    <div class="card-actions">
+                      <a href="/student/scholarships/<%= rec.scholarshipId %>" class="btn btn-view">View Details</a>
+                      <a href="/student/scholarships/<%= rec.scholarshipId %>/apply" class="btn btn-apply">Apply Now</a>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else if (hasAssessment) { %>
+          <div class="empty-state">
+            <div class="icon">🔍</div>
+            <h3>No Recommendations Available</h3>
+            <p>There are currently no scholarships matching your profile. Check back later for new opportunities!</p>
+            <a href="/student/scholarships" class="btn btn-primary">Browse All Scholarships</a>
+          </div>
+        <% } %>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
 </body>
 </html>

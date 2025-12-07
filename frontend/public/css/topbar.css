@@ -2,73 +2,71 @@
 .topbar {
   position: fixed;
   top: 0;
-  left: 280px;
+  left: 260px;
   right: 0;
-  height: 70px;
+  height: 64px;
   background: white;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
   z-index: 100;
   transition: left 0.3s ease;
 }
 
 .sidebar.closed ~ .main-wrapper .topbar {
-  left: 80px;
+  left: 0;
 }
 
 .topbar-left {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .menu-toggle {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2563eb;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   cursor: pointer;
-  padding: 0.6rem 0.85rem;
+  padding: 0.5rem 0.75rem;
   color: white;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  min-width: 45px;
-  min-height: 45px;
+  min-width: 42px;
+  min-height: 42px;
 }
 
 .menu-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: #1d4ed8;
 }
 
 .menu-toggle:active {
-  transform: translateY(0);
+  transform: scale(0.95);
 }
 
 .hamburger {
   display: block;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: bold;
   line-height: 1;
 }
 
 .page-title h1 {
-  font-size: 1.5rem;
+  font-size: 1.375rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #111827;
   margin: 0;
 }
 
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 /* Search */
@@ -79,25 +77,28 @@
 }
 
 .search-input {
-  width: 300px;
-  padding: 0.625rem 2.5rem 0.625rem 1rem;
+  width: 280px;
+  padding: 0.5rem 2.25rem 0.5rem 1rem;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   font-size: 0.875rem;
   transition: all 0.2s;
+  background: #f9fafb;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background: white;
 }
 
 .search-icon {
   position: absolute;
-  right: 1rem;
+  right: 0.75rem;
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.4;
+  font-size: 0.875rem;
 }
 
 /* Notifications */
@@ -108,28 +109,29 @@
 .notification-btn {
   background: transparent;
   border: none;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   cursor: pointer;
   padding: 0.5rem;
   position: relative;
   transition: opacity 0.2s;
+  border-radius: 8px;
 }
 
 .notification-btn:hover {
-  opacity: 0.7;
+  background: #f3f4f6;
 }
 
 .notification-badge {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 2px;
+  right: 2px;
   background: #ef4444;
   color: white;
-  font-size: 0.7rem;
+  font-size: 0.625rem;
   padding: 0.125rem 0.375rem;
   border-radius: 10px;
   font-weight: 600;
-  min-width: 18px;
+  min-width: 16px;
   text-align: center;
 }
 
@@ -155,6 +157,6 @@
   }
 
   .page-title h1 {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
   }
 }

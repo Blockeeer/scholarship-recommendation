@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Scholarships - Admin</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border-color, #e0e0e0);
+    }
+    .tab-btn {
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-secondary, #666);
+      position: relative;
+      transition: all 0.3s;
+    }
+    .tab-btn:hover {
+      color: var(--primary-color, #4f46e5);
+    }
+    .tab-btn.active {
+      color: var(--primary-color, #4f46e5);
+    }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary-color, #4f46e5);
+    }
+    .tab-badge {
+      background: var(--danger-color, #ef4444);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.5rem;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .scholarship-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg, white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .scholarship-table th,
+    .scholarship-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color, #e0e0e0);
+    }
+    .scholarship-table th {
+      background: var(--bg-secondary, #f8f9fa);
+      font-weight: 600;
+      color: var(--text-primary, #333);
+    }
+    .scholarship-table tr:hover {
+      background: var(--bg-secondary, #f8f9fa);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-open { background: #d1fae5; color: #065f46; }
+    .status-closed { background: #e5e7eb; color: #374151; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .action-btns {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-sm {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-approve { background: #10b981; color: white; }
+    .btn-approve:hover { background: #059669; }
+    .btn-reject { background: #ef4444; color: white; }
+    .btn-reject:hover { background: #dc2626; }
+    .btn-view { background: #3b82f6; color: white; }
+    .btn-view:hover { background: #2563eb; }
+    .btn-edit { background: #8b5cf6; color: white; }
+    .btn-edit:hover { background: #7c3aed; }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary, #666);
+    }
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--card-bg, white);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-title { font-size: 1.25rem; font-weight: 600; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-secondary, #666);
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color, #e0e0e0);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_admin') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Manage Scholarships' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="dashboard-wrapper">
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">⏳</div>
+              </div>
+              <div class="stat-value"><%= stats.pending %></div>
+              <div class="stat-label">Pending Review</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">✅</div>
+              </div>
+              <div class="stat-value"><%= stats.open %></div>
+              <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">🔒</div>
+              </div>
+              <div class="stat-value"><%= stats.closed %></div>
+              <div class="stat-label">Closed</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">📋</div>
+              </div>
+              <div class="stat-value"><%= stats.total %></div>
+              <div class="stat-label">Total</div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('pending')">
+              Pending <% if (pendingScholarships.length > 0) { %><span class="tab-badge"><%= pendingScholarships.length %></span><% } %>
+            </button>
+            <button class="tab-btn" onclick="showTab('approved')">Approved</button>
+            <button class="tab-btn" onclick="showTab('all')">All Scholarships</button>
+          </div>
+
+          <!-- Pending Tab -->
+          <div id="tab-pending" class="tab-content active">
+            <% if (pendingScholarships.length === 0) { %>
+              <div class="empty-state">
+                <div class="empty-state-icon">✅</div>
+                <h3>No Pending Scholarships</h3>
+                <p>All scholarship submissions have been reviewed.</p>
+              </div>
+            <% } else { %>
+              <table class="scholarship-table">
+                <thead>
+                  <tr>
+                    <th>Scholarship Name</th>
+                    <th>Organization</th>
+                    <th>Type</th>
+                    <th>Slots</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% pendingScholarships.forEach(s => { %>
+                    <tr>
+                      <td><strong><%= s.scholarshipName %></strong></td>
+                      <td><%= s.organizationName %></td>
+                      <td><%= s.scholarshipType %></td>
+                      <td><%= s.slotsAvailable %></td>
+                      <td><%= new Date(s.deadline).toLocaleDateString() %></td>
+                      <td>
+                        <div class="action-btns">
+                          <button class="btn-sm btn-view" onclick="viewScholarship('<%= s.id %>')">View</button>
+                          <button class="btn-sm btn-approve" onclick="approveScholarship('<%= s.id %>')">Approve</button>
+                          <button class="btn-sm btn-reject" onclick="showRejectModal('<%= s.id %>')">Reject</button>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } %>
+          </div>
+
+          <!-- Approved Tab -->
+          <div id="tab-approved" class="tab-content">
+            <% const approvedScholarships = scholarships.filter(s => s.status === 'Open' || s.status === 'Closed'); %>
+            <% if (approvedScholarships.length === 0) { %>
+              <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>No Approved Scholarships</h3>
+                <p>Approved scholarships will appear here.</p>
+              </div>
+            <% } else { %>
+              <table class="scholarship-table">
+                <thead>
+                  <tr>
+                    <th>Scholarship Name</th>
+                    <th>Organization</th>
+                    <th>Status</th>
+                    <th>Applications</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% approvedScholarships.forEach(s => { %>
+                    <tr>
+                      <td><strong><%= s.scholarshipName %></strong></td>
+                      <td><%= s.organizationName %></td>
+                      <td>
+                        <span class="status-badge status-<%= s.status.toLowerCase() %>"><%= s.status %></span>
+                      </td>
+                      <td><%= s.slotsFilled || 0 %>/<%= s.slotsAvailable %></td>
+                      <td><%= new Date(s.deadline).toLocaleDateString() %></td>
+                      <td>
+                        <div class="action-btns">
+                          <button class="btn-sm btn-view" onclick="viewScholarship('<%= s.id %>')">View</button>
+                          <button class="btn-sm btn-edit" onclick="editScholarship('<%= s.id %>')">Edit</button>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } %>
+          </div>
+
+          <!-- All Tab -->
+          <div id="tab-all" class="tab-content">
+            <% if (scholarships.length === 0) { %>
+              <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>No Scholarships</h3>
+                <p>No scholarships have been created yet.</p>
+              </div>
+            <% } else { %>
+              <table class="scholarship-table">
+                <thead>
+                  <tr>
+                    <th>Scholarship Name</th>
+                    <th>Organization</th>
+                    <th>Status</th>
+                    <th>Type</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% scholarships.forEach(s => { %>
+                    <tr>
+                      <td><strong><%= s.scholarshipName %></strong></td>
+                      <td><%= s.organizationName %></td>
+                      <td>
+                        <span class="status-badge status-<%= s.status.toLowerCase() %>"><%= s.status %></span>
+                      </td>
+                      <td><%= s.scholarshipType %></td>
+                      <td><%= new Date(s.createdAt).toLocaleDateString() %></td>
+                      <td>
+                        <div class="action-btns">
+                          <button class="btn-sm btn-view" onclick="viewScholarship('<%= s.id %>')">View</button>
+                          <% if (s.status === 'Pending') { %>
+                            <button class="btn-sm btn-approve" onclick="approveScholarship('<%= s.id %>')">Approve</button>
+                          <% } %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <!-- Reject Modal -->
+  <div class="modal" id="rejectModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Reject Scholarship</h3>
+        <button class="modal-close" onclick="closeRejectModal()">&times;</button>
+      </div>
+      <form id="rejectForm">
+        <input type="hidden" id="rejectScholarshipId">
+        <div class="form-group">
+          <label for="rejectReason">Reason for Rejection</label>
+          <textarea id="rejectReason" placeholder="Please provide a reason for rejection..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Rejection</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Modal -->
+  <div class="modal" id="viewModal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Scholarship Details</h3>
+        <button class="modal-close" onclick="closeViewModal()">&times;</button>
+      </div>
+      <div id="scholarshipDetails"></div>
+    </div>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('tab-' + tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function approveScholarship(id) {
+      if (!confirm('Are you sure you want to approve this scholarship?')) return;
+
+      fetch('/admin/scholarships/' + id + '/approve', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Scholarship approved successfully!');
+            location.reload();
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .catch(err => alert('Error approving scholarship'));
+    }
+
+    function showRejectModal(id) {
+      document.getElementById('rejectScholarshipId').value = id;
+      document.getElementById('rejectModal').classList.add('active');
+    }
+
+    function closeRejectModal() {
+      document.getElementById('rejectModal').classList.remove('active');
+    }
+
+    document.getElementById('rejectForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('rejectScholarshipId').value;
+      const reason = document.getElementById('rejectReason').value;
+
+      fetch('/admin/scholarships/' + id + '/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Scholarship rejected.');
+            location.reload();
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .catch(err => alert('Error rejecting scholarship'));
+    });
+
+    function viewScholarship(id) {
+      fetch('/admin/scholarships/' + id + '/details')
+        .then(res => res.json())
+        .then(data => {
+          if (data.scholarship) {
+            const s = data.scholarship;
+            document.getElementById('scholarshipDetails').innerHTML = `
+              <div style="display: grid; gap: 1rem;">
+                <div><strong>Name:</strong> ${s.scholarshipName}</div>
+                <div><strong>Organization:</strong> ${s.organizationName}</div>
+                <div><strong>Type:</strong> ${s.scholarshipType}</div>
+                <div><strong>Status:</strong> <span class="status-badge status-${s.status.toLowerCase()}">${s.status}</span></div>
+                <div><strong>Slots:</strong> ${s.slotsAvailable}</div>
+                <div><strong>Deadline:</strong> ${new Date(s.deadline).toLocaleDateString()}</div>
+                <div><strong>Min GPA:</strong> ${s.minGPA || 'Not specified'}</div>
+                <div><strong>Description:</strong><br>${s.description || 'No description'}</div>
+                <div><strong>Requirements:</strong><br>${s.requirements || 'No requirements specified'}</div>
+              </div>
+            `;
+            document.getElementById('viewModal').classList.add('active');
+          }
+        })
+        .catch(err => alert('Error loading scholarship details'));
+    }
+
+    function closeViewModal() {
+      document.getElementById('viewModal').classList.remove('active');
+    }
+
+    function editScholarship(id) {
+      window.location.href = '/admin/scholarships/' + id + '/edit';
+    }
+  </script>
+</body>
+</html>

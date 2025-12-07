@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports - Admin</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .report-section {
+      background: var(--card-bg, white);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .report-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color, #e0e0e0);
+    }
+    .report-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .filter-group label {
+      font-size: 0.875rem;
+      color: var(--text-secondary, #666);
+    }
+    .filter-group select,
+    .filter-group input {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-color, #e0e0e0);
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+    .btn-export {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--primary-color, #4f46e5);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .btn-export:hover {
+      opacity: 0.9;
+    }
+    .btn-print {
+      background: #6b7280;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .summary-item {
+      background: var(--bg-secondary, #f8f9fa);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .summary-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color, #4f46e5);
+    }
+    .summary-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary, #666);
+    }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .report-table th,
+    .report-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color, #e0e0e0);
+    }
+    .report-table th {
+      background: var(--bg-secondary, #f8f9fa);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    .report-table tr:hover {
+      background: var(--bg-secondary, #f8f9fa);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-approved { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-open { background: #d1fae5; color: #065f46; }
+    .status-closed { background: #e5e7eb; color: #374151; }
+    .chart-container {
+      height: 200px;
+      display: flex;
+      align-items: flex-end;
+      gap: 0.5rem;
+      padding: 1rem 0;
+    }
+    .chart-bar {
+      flex: 1;
+      background: var(--primary-color, #4f46e5);
+      border-radius: 4px 4px 0 0;
+      position: relative;
+      min-height: 20px;
+    }
+    .chart-bar-label {
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+    .chart-bar-value {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    @media print {
+      .sidebar, .topbar, .sidebar-overlay, .btn-export, .btn-print, .filter-bar {
+        display: none !important;
+      }
+      .main-wrapper {
+        margin-left: 0 !important;
+      }
+      .report-section {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_admin') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Reports & Analytics' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="dashboard-wrapper">
+          <!-- Overview Stats -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">👥</div>
+              </div>
+              <div class="stat-value"><%= analytics.users.total %></div>
+              <div class="stat-label">Total Users</div>
+              <div class="stat-trend"><%= analytics.users.newThisMonth %> new this month</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">🎓</div>
+              </div>
+              <div class="stat-value"><%= analytics.scholarships.total %></div>
+              <div class="stat-label">Total Scholarships</div>
+              <div class="stat-trend"><%= analytics.scholarships.open %> active</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">📝</div>
+              </div>
+              <div class="stat-value"><%= analytics.applications.total %></div>
+              <div class="stat-label">Total Applications</div>
+              <div class="stat-trend"><%= analytics.applications.approvalRate %>% approval rate</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">🎯</div>
+              </div>
+              <div class="stat-value"><%= analytics.scholarships.filledSlots %></div>
+              <div class="stat-label">Slots Filled</div>
+              <div class="stat-trend">of <%= analytics.scholarships.totalSlots %> total</div>
+            </div>
+          </div>
+
+          <!-- Applications Report -->
+          <div class="report-section">
+            <div class="report-header">
+              <h2 class="report-title">Applications Report</h2>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn-export" onclick="exportTable('applicationsTable')">Export CSV</button>
+                <button class="btn-export btn-print" onclick="window.print()">Print</button>
+              </div>
+            </div>
+
+            <div class="filter-bar">
+              <div class="filter-group">
+                <label>Status</label>
+                <select id="appStatusFilter" onchange="filterApplications()">
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Date From</label>
+                <input type="date" id="appDateFrom" onchange="filterApplications()">
+              </div>
+              <div class="filter-group">
+                <label>Date To</label>
+                <input type="date" id="appDateTo" onchange="filterApplications()">
+              </div>
+            </div>
+
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.applications.pending %></div>
+                <div class="summary-label">Pending</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.applications.underReview %></div>
+                <div class="summary-label">Under Review</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.applications.approved %></div>
+                <div class="summary-label">Approved</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.applications.rejected %></div>
+                <div class="summary-label">Rejected</div>
+              </div>
+            </div>
+
+            <table class="report-table" id="applicationsTable">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Scholarship</th>
+                  <th>Status</th>
+                  <th>Date Applied</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% applications.slice(0, 20).forEach(app => { %>
+                  <tr data-status="<%= app.status %>" data-date="<%= app.createdAt %>">
+                    <td><%= app.studentName %></td>
+                    <td><%= app.scholarshipName %></td>
+                    <td><span class="status-badge status-<%= app.status %>"><%= app.status %></span></td>
+                    <td><%= new Date(app.createdAt).toLocaleDateString() %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Scholarships Report -->
+          <div class="report-section">
+            <div class="report-header">
+              <h2 class="report-title">Scholarships Report</h2>
+              <button class="btn-export" onclick="exportTable('scholarshipsTable')">Export CSV</button>
+            </div>
+
+            <div class="filter-bar">
+              <div class="filter-group">
+                <label>Status</label>
+                <select id="schStatusFilter" onchange="filterScholarships()">
+                  <option value="all">All Status</option>
+                  <option value="Open">Open</option>
+                  <option value="Closed">Closed</option>
+                  <option value="Pending">Pending</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Type</label>
+                <select id="schTypeFilter" onchange="filterScholarships()">
+                  <option value="all">All Types</option>
+                  <% Object.keys(analytics.scholarshipTypes).forEach(type => { %>
+                    <option value="<%= type %>"><%= type %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.scholarships.open %></div>
+                <div class="summary-label">Open</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.scholarships.pending %></div>
+                <div class="summary-label">Pending</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.scholarships.closed %></div>
+                <div class="summary-label">Closed</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.scholarships.totalSlots %></div>
+                <div class="summary-label">Total Slots</div>
+              </div>
+            </div>
+
+            <table class="report-table" id="scholarshipsTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Organization</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Slots</th>
+                  <th>Deadline</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% scholarships.forEach(sch => { %>
+                  <tr data-status="<%= sch.status %>" data-type="<%= sch.scholarshipType %>">
+                    <td><%= sch.scholarshipName %></td>
+                    <td><%= sch.organizationName %></td>
+                    <td><%= sch.scholarshipType %></td>
+                    <td><span class="status-badge status-<%= sch.status.toLowerCase() %>"><%= sch.status %></span></td>
+                    <td><%= sch.slotsFilled || 0 %>/<%= sch.slotsAvailable %></td>
+                    <td><%= new Date(sch.deadline).toLocaleDateString() %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Users Summary -->
+          <div class="report-section">
+            <div class="report-header">
+              <h2 class="report-title">Users Summary</h2>
+            </div>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.users.students %></div>
+                <div class="summary-label">Students</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.users.sponsors %></div>
+                <div class="summary-label">Sponsors</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.users.admins %></div>
+                <div class="summary-label">Admins</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= analytics.users.newThisMonth %></div>
+                <div class="summary-label">New This Month</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    function filterApplications() {
+      const status = document.getElementById('appStatusFilter').value;
+      const dateFrom = document.getElementById('appDateFrom').value;
+      const dateTo = document.getElementById('appDateTo').value;
+
+      document.querySelectorAll('#applicationsTable tbody tr').forEach(row => {
+        const rowStatus = row.dataset.status;
+        const rowDate = new Date(row.dataset.date);
+
+        let show = true;
+        if (status !== 'all' && rowStatus !== status) show = false;
+        if (dateFrom && rowDate < new Date(dateFrom)) show = false;
+        if (dateTo && rowDate > new Date(dateTo)) show = false;
+
+        row.style.display = show ? '' : 'none';
+      });
+    }
+
+    function filterScholarships() {
+      const status = document.getElementById('schStatusFilter').value;
+      const type = document.getElementById('schTypeFilter').value;
+
+      document.querySelectorAll('#scholarshipsTable tbody tr').forEach(row => {
+        const rowStatus = row.dataset.status;
+        const rowType = row.dataset.type;
+
+        let show = true;
+        if (status !== 'all' && rowStatus !== status) show = false;
+        if (type !== 'all' && rowType !== type) show = false;
+
+        row.style.display = show ? '' : 'none';
+      });
+    }
+
+    function exportTable(tableId) {
+      const table = document.getElementById(tableId);
+      const rows = table.querySelectorAll('tr:not([style*="display: none"])');
+      let csv = [];
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = [];
+        cells.forEach(cell => {
+          rowData.push('"' + cell.textContent.trim().replace(/"/g, '""') + '"');
+        });
+        csv.push(rowData.join(','));
+      });
+
+      const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = tableId + '_report.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

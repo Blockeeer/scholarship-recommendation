@@ -1,49 +1,46 @@
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <div class="sidebar-brand">
-      <span class="brand-icon">🎓</span>
-      <span class="brand-text">Scholarship</span>
-    </div>
+    <a href="/dashboard" class="sidebar-brand">
+      <span class="brand-icon">SP</span>
+      <span class="brand-text">ScholarPath</span>
+    </a>
   </div>
 
   <div class="sidebar-user">
     <div class="user-avatar">
-      <span>👤</span>
+      <span><%= typeof fullName !== 'undefined' && fullName ? fullName.charAt(0).toUpperCase() : 'S' %></span>
     </div>
     <div class="user-info">
-      <div class="user-name">Student</div>
+      <div class="user-name"><%= typeof fullName !== 'undefined' ? fullName : 'Student' %></div>
       <div class="user-email"><%= email %></div>
     </div>
   </div>
 
   <nav class="sidebar-nav">
     <a href="/dashboard" class="nav-link" data-tooltip="Dashboard">
-      <span class="nav-icon">📊</span>
       <span class="nav-text">Dashboard</span>
     </a>
     <a href="/student/recommendations" class="nav-link" data-tooltip="Recommendations">
-      <span class="nav-icon">✨</span>
       <span class="nav-text">Recommendations</span>
     </a>
-    <a href="/student/search" class="nav-link" data-tooltip="Search Scholarships">
-      <span class="nav-icon">🔍</span>
-      <span class="nav-text">Search Scholarships</span>
+    <a href="/student/scholarships" class="nav-link" data-tooltip="Browse Scholarships">
+      <span class="nav-text">Browse Scholarships</span>
     </a>
     <a href="/student/applications" class="nav-link" data-tooltip="My Applications">
-      <span class="nav-icon">📝</span>
       <span class="nav-text">My Applications</span>
     </a>
     <a href="/student/assessment" class="nav-link" data-tooltip="Profile Assessment">
-      <span class="nav-icon">📋</span>
       <span class="nav-text">Profile Assessment</span>
+    </a>
+    <a href="/student/notifications" class="nav-link" data-tooltip="Notifications">
+      <span class="nav-text">Notifications</span>
     </a>
   </nav>
 
   <div class="sidebar-footer">
     <form action="/logout" method="POST" id="logoutForm">
       <button type="button" class="logout-btn" data-tooltip="Logout" onclick="showLogoutModal(event)">
-        <span class="nav-icon">🚪</span>
         <span class="nav-text">Logout</span>
       </button>
     </form>

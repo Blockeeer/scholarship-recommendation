@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Details</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .back-link {
+      color: #667eea;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .status-header {
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: white;
+    }
+
+    .status-header.pending {
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    }
+
+    .status-header.under_review {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    }
+
+    .status-header.approved {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    }
+
+    .status-header.rejected {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .status-header h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+    }
+
+    .status-header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .status-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #555;
+    }
+
+    .info-value {
+      color: #333;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #e0e0e0;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 1.5rem;
+    }
+
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 4px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #667eea;
+      border: 2px solid white;
+      box-shadow: 0 0 0 2px #667eea;
+    }
+
+    .timeline-item.completed::before {
+      background: #27ae60;
+      box-shadow: 0 0 0 2px #27ae60;
+    }
+
+    .timeline-item.current::before {
+      background: #f39c12;
+      box-shadow: 0 0 0 2px #f39c12;
+    }
+
+    .timeline-date {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .application-letter {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .rank-display {
+      text-align: center;
+      padding: 1.5rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .rank-number {
+      font-size: 3rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .rank-label {
+      color: #666;
+    }
+
+    .score-breakdown {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .score-item {
+      text-align: center;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .score-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .score-label {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .feedback-section {
+      background: #fff3cd;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #f39c12;
+    }
+
+    .feedback-section.success {
+      background: #d4edda;
+      border-color: #27ae60;
+    }
+
+    .feedback-section.error {
+      background: #f8d7da;
+      border-color: #e74c3c;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_student') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Application Details' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <a href="/student/applications" class="back-link">ê Back to My Applications</a>
+
+        <div class="status-header <%= application.status %>">
+          <div class="status-icon">
+            <% if (application.status === 'pending') { %>Û
+            <% } else if (application.status === 'under_review') { %>=
+            <% } else if (application.status === 'approved') { %>
+            <% } else { %>L<% } %>
+          </div>
+          <h1>
+            <% if (application.status === 'pending') { %>Application Pending
+            <% } else if (application.status === 'under_review') { %>Under Review
+            <% } else if (application.status === 'approved') { %>Congratulations! You're Approved!
+            <% } else { %>Application Not Approved<% } %>
+          </h1>
+          <p>
+            <% if (application.status === 'pending') { %>Your application is waiting to be reviewed
+            <% } else if (application.status === 'under_review') { %>Your application is being evaluated
+            <% } else if (application.status === 'approved') { %>You've been selected for this scholarship
+            <% } else { %>Thank you for applying<% } %>
+          </p>
+        </div>
+
+        <div class="section">
+          <h2 class="section-title">Scholarship Information</h2>
+          <div class="info-grid">
+            <span class="info-label">Scholarship:</span>
+            <span class="info-value"><%= application.scholarshipName %></span>
+          </div>
+          <div class="info-grid">
+            <span class="info-label">Organization:</span>
+            <span class="info-value"><%= application.sponsorName %></span>
+          </div>
+          <% if (scholarship) { %>
+            <div class="info-grid">
+              <span class="info-label">Type:</span>
+              <span class="info-value"><%= scholarship.scholarshipType %></span>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="section">
+          <h2 class="section-title">Application Timeline</h2>
+          <div class="timeline">
+            <div class="timeline-item completed">
+              <div class="timeline-date"><%= new Date(application.createdAt).toLocaleString() %></div>
+              <div class="timeline-title">Application Submitted</div>
+            </div>
+            <% if (application.status !== 'pending') { %>
+              <div class="timeline-item <%= application.status === 'under_review' ? 'current' : 'completed' %>">
+                <div class="timeline-date"><%= application.updatedAt ? new Date(application.updatedAt).toLocaleString() : 'In progress' %></div>
+                <div class="timeline-title">Under Review</div>
+              </div>
+            <% } %>
+            <% if (['approved', 'rejected'].includes(application.status)) { %>
+              <div class="timeline-item completed">
+                <div class="timeline-date"><%= application.reviewedAt ? new Date(application.reviewedAt).toLocaleString() : '' %></div>
+                <div class="timeline-title">Decision: <%= application.status === 'approved' ? 'Approved' : 'Not Approved' %></div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <% if (application.rank || application.rankScore) { %>
+          <div class="section">
+            <h2 class="section-title">Your Ranking</h2>
+            <div class="rank-display">
+              <% if (application.rank) { %>
+                <div class="rank-number">#<%= application.rank %></div>
+                <div class="rank-label">Your position among all applicants</div>
+              <% } %>
+              <% if (application.rankScore) { %>
+                <div style="margin-top: 1rem;">
+                  <span style="font-size: 1.2rem; color: #333;">Match Score: </span>
+                  <span style="font-size: 1.5rem; font-weight: bold; color: #27ae60;"><%= application.rankScore %>%</span>
+                </div>
+              <% } %>
+            </div>
+
+            <% if (application.scoreBreakdown) { %>
+              <div class="score-breakdown">
+                <% if (application.scoreBreakdown.academicScore) { %>
+                  <div class="score-item">
+                    <div class="score-value"><%= application.scoreBreakdown.academicScore %>%</div>
+                    <div class="score-label">Academic</div>
+                  </div>
+                <% } %>
+                <% if (application.scoreBreakdown.financialNeedScore) { %>
+                  <div class="score-item">
+                    <div class="score-value"><%= application.scoreBreakdown.financialNeedScore %>%</div>
+                    <div class="score-label">Financial Need</div>
+                  </div>
+                <% } %>
+                <% if (application.scoreBreakdown.skillsScore) { %>
+                  <div class="score-item">
+                    <div class="score-value"><%= application.scoreBreakdown.skillsScore %>%</div>
+                    <div class="score-label">Skills</div>
+                  </div>
+                <% } %>
+                <% if (application.scoreBreakdown.essayScore) { %>
+                  <div class="score-item">
+                    <div class="score-value"><%= application.scoreBreakdown.essayScore %>%</div>
+                    <div class="score-label">Essay</div>
+                  </div>
+                <% } %>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
+
+        <div class="section">
+          <h2 class="section-title">Your Application Details</h2>
+          <div class="info-grid">
+            <span class="info-label">Course:</span>
+            <span class="info-value"><%= application.course %></span>
+          </div>
+          <div class="info-grid">
+            <span class="info-label">Year Level:</span>
+            <span class="info-value"><%= application.yearLevel %></span>
+          </div>
+          <div class="info-grid">
+            <span class="info-label">GPA:</span>
+            <span class="info-value"><%= application.gpa %></span>
+          </div>
+          <div class="info-grid">
+            <span class="info-label">Income Range:</span>
+            <span class="info-value"><%= application.incomeRange %></span>
+          </div>
+        </div>
+
+        <% if (application.applicationLetter) { %>
+          <div class="section">
+            <h2 class="section-title">Your Application Letter</h2>
+            <div class="application-letter"><%= application.applicationLetter %></div>
+          </div>
+        <% } %>
+
+        <% if (application.sponsorNotes) { %>
+          <div class="section">
+            <h2 class="section-title">Feedback from Sponsor</h2>
+            <div class="feedback-section <%= application.status === 'approved' ? 'success' : 'error' %>">
+              <%= application.sponsorNotes %>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (application.status === 'approved') { %>
+          <div class="section" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; text-align: center;">
+            <h2 style="margin: 0 0 1rem 0;">Next Steps</h2>
+            <p>Congratulations on your scholarship approval! Please check your email for further instructions on how to claim your scholarship benefits.</p>
+          </div>
+        <% } %>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+</body>
+</html>

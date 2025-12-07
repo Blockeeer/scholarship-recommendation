@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply - <%= scholarship.scholarshipName %></title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .back-link {
+      color: #667eea;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .scholarship-summary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .scholarship-summary h2 {
+      margin: 0 0 0.5rem 0;
+    }
+
+    .scholarship-summary p {
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .form-section {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      color: #333;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .profile-summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .profile-item {
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .profile-item label {
+      display: block;
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.25rem;
+    }
+
+    .profile-item span {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 150px;
+    }
+
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group .hint {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+
+    .documents-list {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+
+    .documents-list h4 {
+      margin: 0 0 0.5rem 0;
+      color: #333;
+    }
+
+    .documents-list ul {
+      margin: 0;
+      padding-left: 1.5rem;
+    }
+
+    .documents-list li {
+      padding: 0.25rem 0;
+      color: #666;
+    }
+
+    .documents-note {
+      background: #d1ecf1;
+      color: #0c5460;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 0.25rem;
+    }
+
+    .checkbox-group label {
+      font-weight: normal;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-submit:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_student') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Apply for Scholarship' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <a href="/student/scholarships/<%= scholarship.id %>" class="back-link">← Back to Scholarship Details</a>
+
+        <div class="scholarship-summary">
+          <h2><%= scholarship.scholarshipName %></h2>
+          <p><%= scholarship.organizationName %> - <%= scholarship.scholarshipType %> Scholarship</p>
+        </div>
+
+        <div id="errorAlert" class="alert alert-error" style="display: none;"></div>
+
+        <form id="applicationForm" action="/student/scholarships/<%= scholarship.id %>/apply" method="POST">
+          <div class="form-section">
+            <h3 class="section-title">Your Profile Summary</h3>
+            <p style="color: #666; margin-bottom: 1rem;">This information will be included in your application:</p>
+
+            <div class="profile-summary">
+              <div class="profile-item">
+                <label>Full Name</label>
+                <span><%= assessment.fullName %></span>
+              </div>
+              <div class="profile-item">
+                <label>Course</label>
+                <span><%= assessment.course %></span>
+              </div>
+              <div class="profile-item">
+                <label>Year Level</label>
+                <span><%= assessment.yearLevel %></span>
+              </div>
+              <div class="profile-item">
+                <label>GPA</label>
+                <span><%= assessment.gpa %></span>
+              </div>
+              <div class="profile-item">
+                <label>Income Range</label>
+                <span><%= assessment.incomeRange %></span>
+              </div>
+              <div class="profile-item">
+                <label>Skills</label>
+                <span><%= assessment.skills || 'Not specified' %></span>
+              </div>
+            </div>
+
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+              Need to update your profile? <a href="/student/assessment" style="color: #667eea;">Edit Assessment</a>
+            </p>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title">Application Letter</h3>
+
+            <div class="form-group">
+              <label for="applicationLetter">Why do you deserve this scholarship?</label>
+              <textarea
+                id="applicationLetter"
+                name="applicationLetter"
+                placeholder="Write a compelling letter explaining why you are a good fit for this scholarship. Include your goals, achievements, and how this scholarship will help you..."
+                required
+              ><%= assessment.essayReason || '' %></textarea>
+              <p class="hint">Tip: Be specific about your achievements, goals, and financial situation. Explain how this scholarship aligns with your career aspirations.</p>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title">Required Documents</h3>
+
+            <div class="documents-list">
+              <h4>Documents from your assessment:</h4>
+              <ul>
+                <% if (assessment.files) { %>
+                  <% if (assessment.files.grades) { %><li>Grades/Transcript: ✓ Uploaded</li><% } %>
+                  <% if (assessment.files.coe) { %><li>Certificate of Enrollment: ✓ Uploaded</li><% } %>
+                  <% if (assessment.files.schoolId) { %><li>School ID: ✓ Uploaded</li><% } %>
+                <% } else { %>
+                  <li>No documents uploaded yet</li>
+                <% } %>
+              </ul>
+            </div>
+
+            <% if (scholarship.requiredDocuments && scholarship.requiredDocuments.length > 0) { %>
+              <div class="documents-note">
+                <strong>Additional documents required for this scholarship:</strong>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                  <% scholarship.requiredDocuments.forEach(doc => { %>
+                    <li><%= doc %></li>
+                  <% }); %>
+                </ul>
+              </div>
+            <% } %>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title">Confirmation</h3>
+
+            <div class="checkbox-group">
+              <input type="checkbox" id="confirmAccurate" required>
+              <label for="confirmAccurate">
+                I confirm that all the information provided in my profile and this application is accurate and truthful. I understand that providing false information may result in disqualification.
+              </label>
+            </div>
+
+            <div class="checkbox-group" style="margin-top: 1rem;">
+              <input type="checkbox" id="confirmTerms" required>
+              <label for="confirmTerms">
+                I agree to the terms and conditions of this scholarship program and authorize the scholarship committee to verify my information.
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">Submit Application</button>
+        </form>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    document.getElementById('applicationForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submitBtn');
+      const errorAlert = document.getElementById('errorAlert');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      errorAlert.style.display = 'none';
+
+      try {
+        const formData = new FormData(this);
+        const response = await fetch(this.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            scholarshipId: '<%= scholarship.id %>',
+            applicationLetter: formData.get('applicationLetter')
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          window.location.href = '/student/applications/' + result.applicationId + '?success=1';
+        } else {
+          errorAlert.textContent = result.error || 'Failed to submit application';
+          errorAlert.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Application';
+        }
+      } catch (error) {
+        errorAlert.textContent = 'An error occurred. Please try again.';
+        errorAlert.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Application';
+      }
+    });
+  </script>
+</body>
+</html>

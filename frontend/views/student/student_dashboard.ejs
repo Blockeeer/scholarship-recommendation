@@ -10,6 +10,13 @@
   <link rel="stylesheet" href="/css/dashboard.css">
   <link rel="stylesheet" href="/css/footer.css">
 </head>
+<%
+  // Default values for variables if not provided
+  const stats = typeof applicationStats !== 'undefined' ? applicationStats : { total: 0, pending: 0, approved: 0, rejected: 0 };
+  const scholarships = typeof availableScholarships !== 'undefined' ? availableScholarships : 0;
+  const notifications = typeof unreadNotifications !== 'undefined' ? unreadNotifications : 0;
+  const assessment = typeof hasAssessment !== 'undefined' ? hasAssessment : false;
+%>
 <body>
   <%- include('../partials/sidebar_student') %>
 
@@ -28,41 +35,48 @@
           <div class="welcome-icon">📚</div>
         </div>
 
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-header">
-              <div class="stat-icon">✨</div>
-            </div>
-            <div class="stat-value">12</div>
-            <div class="stat-label">Recommended</div>
-            <div class="stat-trend trend-up">Based on profile</div>
+        <% if (!assessment) { %>
+          <div style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #ffc107;">
+            <strong>Complete Your Profile!</strong> To get personalized scholarship recommendations, please complete your assessment.
+            <a href="/student/assessment" style="color: inherit; font-weight: bold; margin-left: 0.5rem;">Complete Now →</a>
           </div>
+        <% } %>
 
+        <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-header">
               <div class="stat-icon">📝</div>
             </div>
-            <div class="stat-value">3</div>
-            <div class="stat-label">Applications</div>
-            <div class="stat-trend">In progress</div>
+            <div class="stat-value"><%= stats.total %></div>
+            <div class="stat-label">Total Applications</div>
+            <div class="stat-trend"><%= stats.pending %> pending</div>
           </div>
 
           <div class="stat-card">
             <div class="stat-header">
-              <div class="stat-icon">🎯</div>
+              <div class="stat-icon">✅</div>
             </div>
-            <div class="stat-value">85%</div>
-            <div class="stat-label">Match Score</div>
-            <div class="stat-trend trend-up">Excellent</div>
+            <div class="stat-value"><%= stats.approved %></div>
+            <div class="stat-label">Approved</div>
+            <div class="stat-trend trend-up">Applications</div>
           </div>
 
           <div class="stat-card">
             <div class="stat-header">
               <div class="stat-icon">🏆</div>
             </div>
-            <div class="stat-value">150+</div>
+            <div class="stat-value"><%= scholarships %></div>
             <div class="stat-label">Available</div>
             <div class="stat-trend">Scholarships</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon">🔔</div>
+            </div>
+            <div class="stat-value"><%= notifications %></div>
+            <div class="stat-label">Notifications</div>
+            <div class="stat-trend">Unread</div>
           </div>
         </div>
 
@@ -78,7 +92,7 @@
             <div class="action-icon">🔍</div>
             <h2 class="action-title">Search Scholarships</h2>
             <p class="action-description">Browse all available scholarship opportunities</p>
-            <a href="/student/search" class="btn btn-primary">Search Now</a>
+            <a href="/student/scholarships" class="btn btn-primary">Search Now</a>
           </div>
 
           <div class="action-card">

@@ -10,6 +10,17 @@
   <link rel="stylesheet" href="/css/dashboard.css">
   <link rel="stylesheet" href="/css/footer.css">
 </head>
+<%
+  // Default values for stats if not provided
+  const adminStats = typeof stats !== 'undefined' ? stats : {
+    pendingScholarships: 0,
+    totalScholarships: 0,
+    totalStudents: 0,
+    totalSponsors: 0,
+    totalApplications: 0,
+    approvedApplications: 0
+  };
+%>
 <body>
   <%- include('../partials/sidebar_admin') %>
 
@@ -33,36 +44,36 @@
           <div class="stat-header">
             <div class="stat-icon">⏳</div>
           </div>
-          <div class="stat-value">12</div>
+          <div class="stat-value"><%= adminStats.pendingScholarships %></div>
           <div class="stat-label">Pending Scholarships</div>
-          <div class="stat-trend trend-up">↑ 3 new today</div>
+          <div class="stat-trend">Awaiting review</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-header">
             <div class="stat-icon">✅</div>
           </div>
-          <div class="stat-value">45</div>
-          <div class="stat-label">Approved Scholarships</div>
-          <div class="stat-trend trend-up">↑ 5 this week</div>
+          <div class="stat-value"><%= adminStats.totalScholarships - adminStats.pendingScholarships %></div>
+          <div class="stat-label">Active Scholarships</div>
+          <div class="stat-trend trend-up"><%= adminStats.totalScholarships %> total</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-header">
             <div class="stat-icon">👥</div>
           </div>
-          <div class="stat-value">234</div>
+          <div class="stat-value"><%= adminStats.totalStudents + adminStats.totalSponsors %></div>
           <div class="stat-label">Total Users</div>
-          <div class="stat-trend trend-up">↑ 15 this month</div>
+          <div class="stat-trend"><%= adminStats.totalStudents %> students, <%= adminStats.totalSponsors %> sponsors</div>
         </div>
 
         <div class="stat-card">
           <div class="stat-header">
             <div class="stat-icon">📊</div>
           </div>
-          <div class="stat-value">89</div>
-          <div class="stat-label">Active Applications</div>
-          <div class="stat-trend">Updated today</div>
+          <div class="stat-value"><%= adminStats.totalApplications %></div>
+          <div class="stat-label">Total Applications</div>
+          <div class="stat-trend"><%= adminStats.approvedApplications %> approved</div>
         </div>
       </div>
 
@@ -85,7 +96,7 @@
           <div class="action-icon">📈</div>
           <h2 class="action-title">System Analytics</h2>
           <p class="action-description">View comprehensive reports and system statistics</p>
-          <a href="#" class="btn btn-primary" style="opacity: 0.6; cursor: not-allowed;">Coming Soon</a>
+          <a href="/admin/analytics" class="btn btn-primary">View Analytics</a>
         </div>
       </div>
 

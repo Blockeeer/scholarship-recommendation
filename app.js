@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const authRoutes = require("./backend/routes/authRoutes");
 const studentRoutes = require("./backend/routes/studentRoutes");
 const sponsorRoutes = require("./backend/routes/sponsorRoutes");
+const adminRoutes = require("./backend/routes/adminRoutes");
 
 dotenv.config();
 const app = express();
@@ -31,6 +32,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'backend/uploads')));
 app.use("/", authRoutes);
 app.use("/student", studentRoutes);
 app.use("/sponsor", sponsorRoutes);
+app.use("/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
