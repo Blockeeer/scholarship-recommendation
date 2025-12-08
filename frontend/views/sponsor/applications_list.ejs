@@ -52,38 +52,52 @@
       font-size: 1.1rem;
     }
 
+    .info-banner {
+      background: #e0f2fe;
+      border: 1px solid #7dd3fc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      color: #0369a1;
+    }
+
+    .info-banner strong {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
       gap: 1rem;
       margin-bottom: 2rem;
     }
 
     .stat-card {
       background: white;
-      padding: 1.5rem;
+      padding: 1.25rem;
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
 
     .stat-value {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: bold;
       color: #667eea;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
     }
 
     .stat-label {
       color: #666;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    .stat-card.pending .stat-value { color: #f39c12; }
-    .stat-card.approved .stat-value { color: #27ae60; }
-    .stat-card.rejected .stat-value { color: #e74c3c; }
+    .stat-card.pending .stat-value { color: #f59e0b; }
+    .stat-card.accepted .stat-value { color: #10b981; }
+    .stat-card.notified .stat-value { color: #3b82f6; }
 
     .actions-bar {
       background: white;
@@ -117,11 +131,6 @@
       cursor: pointer;
     }
 
-    .filter-group select:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
     .btn {
       padding: 0.75rem 1.5rem;
       border: none;
@@ -144,13 +153,17 @@
       color: white;
     }
 
-    .btn-success {
-      background: #27ae60;
+    .btn-accept {
+      background: #10b981;
       color: white;
     }
 
-    .btn-danger {
-      background: #e74c3c;
+    .btn-accept:hover {
+      background: #059669;
+    }
+
+    .btn-undo {
+      background: #6b7280;
       color: white;
     }
 
@@ -170,6 +183,22 @@
       gap: 1.5rem;
       align-items: center;
       transition: transform 0.2s, box-shadow 0.2s;
+      border-left: 4px solid #e5e7eb;
+    }
+
+    .application-card.status-accepted {
+      border-left-color: #10b981;
+      background: #f0fdf4;
+    }
+
+    .application-card.status-notified {
+      border-left-color: #3b82f6;
+      background: #eff6ff;
+    }
+
+    .application-card.status-not_selected {
+      border-left-color: #6b7280;
+      opacity: 0.7;
     }
 
     .application-card:hover {
@@ -188,7 +217,6 @@
       font-weight: bold;
       color: white;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
     }
 
     .rank-badge.gold {
@@ -251,7 +279,7 @@
       font-size: 0.85rem;
     }
 
-    .eligibility-badge {
+    .status-badge {
       padding: 0.3rem 0.8rem;
       border-radius: 20px;
       font-weight: 600;
@@ -259,23 +287,28 @@
     }
 
     .status-pending {
-      background: #fff3cd;
-      color: #856404;
+      background: #fef3c7;
+      color: #92400e;
     }
 
     .status-under_review {
-      background: #d1ecf1;
-      color: #0c5460;
+      background: #dbeafe;
+      color: #1e40af;
     }
 
-    .status-approved {
-      background: #d4edda;
-      color: #155724;
+    .status-accepted {
+      background: #d1fae5;
+      color: #065f46;
     }
 
-    .status-rejected {
-      background: #f8d7da;
-      color: #721c24;
+    .status-notified {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .status-not_selected {
+      background: #e5e7eb;
+      color: #374151;
     }
 
     .application-actions {
@@ -297,15 +330,6 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .empty-state h3 {
-      color: #666;
-      margin-bottom: 0.5rem;
-    }
-
-    .empty-state p {
-      color: #999;
-    }
-
     @media (max-width: 768px) {
       .application-card {
         grid-template-columns: 1fr;
@@ -318,10 +342,6 @@
 
       .applicant-details {
         justify-content: center;
-      }
-
-      .application-actions {
-        width: 100%;
       }
     }
   </style>
@@ -338,29 +358,39 @@
 
         <div class="header">
           <h1><%= scholarship.scholarshipName %></h1>
-          <p>Review and manage applications for this scholarship</p>
+          <p>Review and accept applicants for this scholarship</p>
+        </div>
+
+        <div class="info-banner">
+          <strong>How it works:</strong>
+          Use AI Ranking to sort applicants by best match, then accept the students you want.
+          Accepted students will be reviewed by admin who will notify them. You can accept more students than available slots if needed.
         </div>
 
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-value"><%= stats.total %></div>
-            <div class="stat-label">Total Applications</div>
+            <div class="stat-label">Total</div>
           </div>
           <div class="stat-card pending">
             <div class="stat-value"><%= stats.pending + stats.underReview %></div>
-            <div class="stat-label">Pending Review</div>
+            <div class="stat-label">Pending</div>
           </div>
-          <div class="stat-card approved">
-            <div class="stat-value"><%= stats.approved %></div>
-            <div class="stat-label">Approved</div>
+          <div class="stat-card accepted">
+            <div class="stat-value"><%= stats.accepted %></div>
+            <div class="stat-label">Accepted</div>
           </div>
-          <div class="stat-card rejected">
-            <div class="stat-value"><%= stats.rejected %></div>
-            <div class="stat-label">Rejected</div>
+          <div class="stat-card notified">
+            <div class="stat-value"><%= stats.notified %></div>
+            <div class="stat-label">Notified</div>
           </div>
           <div class="stat-card">
-            <div class="stat-value"><%= scholarship.slotsAvailable - (scholarship.slotsFilled || 0) %></div>
-            <div class="stat-label">Slots Available</div>
+            <div class="stat-value"><%= stats.notSelected %></div>
+            <div class="stat-label">Not Selected</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value"><%= scholarship.slotsFilled || 0 %>/<%= scholarship.slotsAvailable %></div>
+            <div class="stat-label">Slots Filled</div>
           </div>
         </div>
 
@@ -370,9 +400,10 @@
             <select id="statusFilter" onchange="filterApplications()">
               <option value="all">All Applications</option>
               <option value="pending">Pending</option>
-              <option value="under_review">Under Review</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
+              <option value="under_review">Ranked</option>
+              <option value="accepted">Accepted</option>
+              <option value="notified">Notified</option>
+              <option value="not_selected">Not Selected</option>
             </select>
           </div>
 
@@ -387,7 +418,7 @@
 
           <% if (applications.length > 0) { %>
             <button class="btn btn-primary" onclick="rankAllApplications()">
-              🤖 AI Rank All Applications
+              AI Rank Applications
             </button>
           <% } %>
         </div>
@@ -400,8 +431,13 @@
               else if (app.rank === 2) rankClass = 'silver';
               else if (app.rank === 3) rankClass = 'bronze';
               else if (!app.rank) rankClass = 'unranked';
+
+              let statusDisplay = app.status;
+              if (app.status === 'under_review') statusDisplay = 'Ranked';
+              else if (app.status === 'not_selected') statusDisplay = 'Not Selected';
+              else statusDisplay = app.status.charAt(0).toUpperCase() + app.status.slice(1);
             %>
-              <div class="application-card" data-status="<%= app.status %>" data-rank="<%= app.rankScore || 0 %>" data-gpa="<%= app.gpa %>" data-date="<%= app.createdAt %>">
+              <div class="application-card status-<%= app.status %>" data-status="<%= app.status %>" data-rank="<%= app.rankScore || 0 %>" data-gpa="<%= app.gpa %>" data-date="<%= app.createdAt %>">
                 <div class="rank-badge <%= rankClass %>">
                   <% if (app.rank) { %>
                     <%= app.rank %>
@@ -427,8 +463,8 @@
                       </div>
                     <% } %>
                     <div class="detail-item">
-                      <span class="eligibility-badge status-<%= app.status %>">
-                        <%= app.status === 'under_review' ? 'Under Review' : app.status.charAt(0).toUpperCase() + app.status.slice(1) %>
+                      <span class="status-badge status-<%= app.status %>">
+                        <%= statusDisplay %>
                       </span>
                     </div>
                   </div>
@@ -436,16 +472,21 @@
                     <strong>Applied:</strong> <%= new Date(app.createdAt).toLocaleDateString() %>
                   </div>
                   <% if (app.recommendation) { %>
-                    <div class="detail-item" style="margin-top: 0.5rem;">
-                      <strong>AI Recommendation:</strong> <%= app.recommendation %>
+                    <div class="detail-item" style="margin-top: 0.5rem; font-style: italic;">
+                      "<%= app.recommendation %>"
                     </div>
                   <% } %>
                 </div>
                 <div class="application-actions">
                   <a href="/sponsor/applications/<%= app.id %>" class="btn btn-primary">View Details</a>
                   <% if (['pending', 'under_review'].includes(app.status)) { %>
-                    <button class="btn btn-success" onclick="updateStatus('<%= app.id %>', 'approved')">Approve</button>
-                    <button class="btn btn-danger" onclick="updateStatus('<%= app.id %>', 'rejected')">Reject</button>
+                    <button class="btn btn-accept" onclick="acceptApplicant('<%= app.id %>', '<%= app.studentName %>')">
+                      Accept
+                    </button>
+                  <% } else if (app.status === 'accepted') { %>
+                    <button class="btn btn-undo" onclick="undoAccept('<%= app.id %>')">
+                      Undo Accept
+                    </button>
                   <% } %>
                 </div>
               </div>
@@ -504,7 +545,7 @@
 
       const btn = event.target;
       btn.disabled = true;
-      btn.textContent = '⏳ Ranking...';
+      btn.textContent = 'Ranking...';
 
       try {
         const response = await fetch('/sponsor/offers/<%= scholarship.id %>/applications/rank', {
@@ -522,24 +563,17 @@
         } else {
           alert(result.error || 'Failed to rank applications');
           btn.disabled = false;
-          btn.textContent = '🤖 AI Rank All Applications';
+          btn.textContent = 'AI Rank Applications';
         }
       } catch (error) {
         alert('An error occurred while ranking applications');
         btn.disabled = false;
-        btn.textContent = '🤖 AI Rank All Applications';
+        btn.textContent = 'AI Rank Applications';
       }
     }
 
-    async function updateStatus(applicationId, status) {
-      const action = status === 'approved' ? 'approve' : 'reject';
-      let notes = '';
-
-      if (status === 'rejected') {
-        notes = prompt('Please provide a reason for rejection (optional):');
-      }
-
-      if (!confirm(`Are you sure you want to ${action} this application?`)) {
+    async function acceptApplicant(applicationId, studentName) {
+      if (!confirm(`Accept ${studentName} for this scholarship? Admin will be able to notify them.`)) {
         return;
       }
 
@@ -549,7 +583,7 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ status, notes })
+          body: JSON.stringify({ status: 'accepted' })
         });
 
         const result = await response.json();
@@ -557,7 +591,33 @@
         if (result.success) {
           window.location.reload();
         } else {
-          alert(result.error || 'Failed to update application');
+          alert(result.error || 'Failed to accept applicant');
+        }
+      } catch (error) {
+        alert('An error occurred');
+      }
+    }
+
+    async function undoAccept(applicationId) {
+      if (!confirm('Undo acceptance? The applicant will be moved back to pending review.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/sponsor/applications/${applicationId}/status`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: 'under_review' })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          window.location.reload();
+        } else {
+          alert(result.error || 'Failed to undo acceptance');
         }
       } catch (error) {
         alert('An error occurred');

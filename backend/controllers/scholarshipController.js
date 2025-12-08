@@ -1,5 +1,6 @@
 const { db } = require("../config/firebaseConfig");
 const { doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, updateDoc, deleteDoc } = require("firebase/firestore");
+const { createNotification } = require("../services/notificationService");
 
 // Show form to add scholarship offer
 function showAddScholarshipForm(req, res) {
@@ -80,27 +81,38 @@ async function addScholarshipOffer(req, res) {
       startDate: startDate,
       endDate: endDate,
       
-      // Status
-      status: status || "Open",
-      
+      // Status - Default to "Pending" for admin review
+      status: "Pending",
+
       // Sponsor Information
       sponsorUid: sponsorUid,
       sponsorEmail: sponsorEmail,
       sponsorName: sponsorData.fullName || organizationName,
-      
+
       // Metadata
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
     console.log("💾 Saving scholarship to Firestore...");
-    
+
     // Add to scholarships collection
     const scholarshipsRef = collection(db, "scholarships");
     const docRef = await addDoc(scholarshipsRef, scholarshipData);
 
     console.log("✅ Scholarship added with ID:", docRef.id);
-    
+
+    // Notify admin about new scholarship submission
+    await createNotification(
+      'admin',
+      'new_scholarship',
+      'New Scholarship Submitted for Review',
+      `"${scholarshipName}" by ${organizationName} is awaiting your review.`,
+      docRef.id
+    );
+
+    console.log("📧 Admin notified about new scholarship");
+
     return res.redirect("/sponsor/offers");
   } catch (err) {
     console.error("❌ Error adding scholarship:", err);
@@ -238,6 +250,17 @@ async function deleteScholarship(req, res) {
     // Check ownership
     if (scholarshipData.sponsorUid !== req.session.user.uid) {
       return res.status(403).send("Unauthorized");
+    }
+
+    // Notify admin if the scholarship was approved/open
+    if (scholarshipData.status === 'Open' || scholarshipData.status === 'Approved') {
+      await createNotification(
+        'admin',
+        'scholarship_deleted',
+        'Scholarship Deleted by Sponsor',
+        `"${scholarshipData.scholarshipName}" by ${scholarshipData.organizationName} has been deleted by the sponsor.`,
+        null
+      );
     }
 
     await deleteDoc(scholarshipRef);

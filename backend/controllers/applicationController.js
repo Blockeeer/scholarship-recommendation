@@ -286,11 +286,21 @@ async function getScholarshipApplications(req, res) {
       rejected: applications.filter(a => a.status === "rejected").length
     };
 
+    // Calculate stats for sponsor view
+    const sponsorStats = {
+      total: applications.length,
+      pending: applications.filter(a => a.status === "pending").length,
+      underReview: applications.filter(a => a.status === "under_review").length,
+      accepted: applications.filter(a => a.status === "accepted").length,
+      notified: applications.filter(a => a.status === "notified").length,
+      notSelected: applications.filter(a => a.status === "not_selected").length
+    };
+
     res.render("sponsor/applications_list", {
       email: req.session.user.email,
       scholarship,
       applications,
-      stats
+      stats: sponsorStats
     });
 
   } catch (error) {
@@ -386,7 +396,8 @@ async function updateApplicationStatus(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  if (!["approved", "rejected", "under_review", "pending"].includes(status)) {
+  // Valid statuses: pending, under_review, accepted (sponsor), notified (admin confirmed), not_selected
+  if (!["accepted", "under_review", "pending", "notified", "not_selected"].includes(status)) {
     return res.status(400).json({ error: "Invalid status" });
   }
 
@@ -414,10 +425,18 @@ async function updateApplicationStatus(req, res) {
       reviewedBy: req.session.user.email
     };
 
-    await updateDoc(applicationRef, updateData);
+    // If sponsor accepts, record acceptance details (no slot limit check - sponsor decides)
+    if (status === "accepted" && req.session.user.role === "sponsor") {
+      updateData.acceptedBySponsor = true;
+      updateData.acceptedAt = new Date().toISOString();
+    }
 
-    // If approved, update scholarship slots
-    if (status === "approved") {
+    // If admin notifies student of acceptance
+    if (status === "notified" && req.session.user.role === "admin") {
+      updateData.notifiedAt = new Date().toISOString();
+      updateData.notifiedBy = req.session.user.email;
+
+      // Update scholarship slots when admin confirms
       const scholarshipRef = doc(db, "scholarships", application.scholarshipId);
       const scholarshipDoc = await getDoc(scholarshipRef);
       if (scholarshipDoc.exists()) {
@@ -427,24 +446,38 @@ async function updateApplicationStatus(req, res) {
           updatedAt: new Date().toISOString()
         });
       }
+
+      // Notify student of approval
+      const notificationData = {
+        userId: application.studentUid,
+        type: "application_approved",
+        title: "Congratulations! You've Been Selected!",
+        message: `Great news! You have been selected for the scholarship "${application.scholarshipName}". Check your applications for more details.`,
+        relatedId: applicationId,
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+      await addDoc(collection(db, "notifications"), notificationData);
     }
 
-    // Create notification for student
-    const notificationData = {
-      userId: application.studentUid,
-      type: "application_update",
-      title: status === "approved" ? "Application Approved!" : status === "rejected" ? "Application Update" : "Application Under Review",
-      message: status === "approved"
-        ? `Congratulations! Your application for ${application.scholarshipName} has been approved.`
-        : status === "rejected"
-        ? `Your application for ${application.scholarshipName} was not approved. ${notes || ""}`
-        : `Your application for ${application.scholarshipName} is now under review.`,
-      relatedId: applicationId,
-      read: false,
-      createdAt: new Date().toISOString()
-    };
+    // If admin marks as not selected
+    if (status === "not_selected" && req.session.user.role === "admin") {
+      updateData.notSelectedAt = new Date().toISOString();
 
-    await addDoc(collection(db, "notifications"), notificationData);
+      // Notify student they were not chosen
+      const notificationData = {
+        userId: application.studentUid,
+        type: "application_not_selected",
+        title: "Application Update",
+        message: `Unfortunately, you were not selected for the scholarship "${application.scholarshipName}". Don't give up - keep applying to other scholarships!`,
+        relatedId: applicationId,
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+      await addDoc(collection(db, "notifications"), notificationData);
+    }
+
+    await updateDoc(applicationRef, updateData);
 
     console.log(` Application ${applicationId} updated to ${status}`);
 

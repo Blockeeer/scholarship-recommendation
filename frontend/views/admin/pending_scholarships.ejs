@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Review Pending Offers - Admin</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .scholarship-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-left: 4px solid #f59e0b;
+    }
+    .scholarship-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .scholarship-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.25rem;
+    }
+    .scholarship-org {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+    .scholarship-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .meta-item {
+      text-align: center;
+    }
+    .meta-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+    .meta-value {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .scholarship-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn-approve {
+      background: #10b981;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-approve:hover { background: #059669; }
+    .btn-reject {
+      background: #ef4444;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-reject:hover { background: #dc2626; }
+    .btn-view {
+      background: #3b82f6;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-view:hover { background: #2563eb; }
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 12px;
+    }
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .detail-row {
+      display: flex;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .detail-label {
+      width: 140px;
+      font-weight: 500;
+      color: #6b7280;
+    }
+    .detail-value {
+      flex: 1;
+      color: #1f2937;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      min-height: 100px;
+      resize: vertical;
+    }
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_admin') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Review Pending Offers' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="dashboard-wrapper">
+          <div class="page-header" style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 600; color: #1f2937;">
+              Pending Scholarship Offers
+              <% if (scholarships.length > 0) { %>
+                <span class="status-pending" style="margin-left: 0.5rem;"><%= scholarships.length %></span>
+              <% } %>
+            </h2>
+            <p style="color: #6b7280; margin-top: 0.25rem;">Review and approve scholarship offers submitted by sponsors</p>
+          </div>
+
+          <% if (scholarships.length === 0) { %>
+            <div class="empty-state">
+              <div class="empty-icon">✅</div>
+              <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">All Caught Up!</h3>
+              <p style="color: #6b7280;">No pending scholarship offers to review at the moment.</p>
+              <a href="/admin/dashboard" class="btn btn-primary" style="margin-top: 1rem;">Back to Dashboard</a>
+            </div>
+          <% } else { %>
+            <% scholarships.forEach(s => { %>
+              <div class="scholarship-card">
+                <div class="scholarship-header">
+                  <div>
+                    <div class="scholarship-title"><%= s.scholarshipName %></div>
+                    <div class="scholarship-org">by <%= s.organizationName %></div>
+                  </div>
+                  <span class="status-pending">Pending Review</span>
+                </div>
+
+                <div class="scholarship-meta">
+                  <div class="meta-item">
+                    <div class="meta-label">Type</div>
+                    <div class="meta-value"><%= s.scholarshipType %></div>
+                  </div>
+                  <div class="meta-item">
+                    <div class="meta-label">Slots</div>
+                    <div class="meta-value"><%= s.slotsAvailable %></div>
+                  </div>
+                  <div class="meta-item">
+                    <div class="meta-label">Min GPA</div>
+                    <div class="meta-value"><%= s.minGPA || 'N/A' %></div>
+                  </div>
+                  <div class="meta-item">
+                    <div class="meta-label">Deadline</div>
+                    <div class="meta-value"><%= new Date(s.endDate).toLocaleDateString() %></div>
+                  </div>
+                  <div class="meta-item">
+                    <div class="meta-label">Submitted</div>
+                    <div class="meta-value"><%= new Date(s.createdAt).toLocaleDateString() %></div>
+                  </div>
+                </div>
+
+                <div class="scholarship-actions">
+                  <button class="btn-view" onclick="viewDetails('<%= s.id %>')">View Details</button>
+                  <button class="btn-approve" onclick="approveScholarship('<%= s.id %>')">Approve</button>
+                  <button class="btn-reject" onclick="showRejectModal('<%= s.id %>', '<%= s.scholarshipName %>')">Reject</button>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <!-- View Details Modal -->
+  <div class="modal" id="viewModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 600;">Scholarship Details</h3>
+        <button class="modal-close" onclick="closeViewModal()">&times;</button>
+      </div>
+      <div id="scholarshipDetails"></div>
+    </div>
+  </div>
+
+  <!-- Reject Modal -->
+  <div class="modal" id="rejectModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 600;">Reject Scholarship</h3>
+        <button class="modal-close" onclick="closeRejectModal()">&times;</button>
+      </div>
+      <p style="margin-bottom: 1rem; color: #6b7280;">Please provide a reason for rejecting "<span id="rejectScholarshipName"></span>"</p>
+      <form id="rejectForm">
+        <input type="hidden" id="rejectScholarshipId">
+        <div class="form-group">
+          <label for="rejectReason">Reason for Rejection</label>
+          <textarea id="rejectReason" placeholder="Enter the reason why this scholarship is being rejected..." required></textarea>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeRejectModal()" style="flex: 1;">Cancel</button>
+          <button type="submit" class="btn-reject" style="flex: 1;">Confirm Rejection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    function viewDetails(id) {
+      fetch('/admin/scholarships/' + id + '/details')
+        .then(res => res.json())
+        .then(data => {
+          if (data.scholarship) {
+            const s = data.scholarship;
+            document.getElementById('scholarshipDetails').innerHTML = `
+              <div class="detail-row">
+                <div class="detail-label">Name</div>
+                <div class="detail-value">${s.scholarshipName}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Organization</div>
+                <div class="detail-value">${s.organizationName}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Type</div>
+                <div class="detail-value">${s.scholarshipType}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Min GPA</div>
+                <div class="detail-value">${s.minGPA || 'Not specified'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Slots</div>
+                <div class="detail-value">${s.slotsAvailable}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Duration</div>
+                <div class="detail-value">${new Date(s.startDate).toLocaleDateString()} - ${new Date(s.endDate).toLocaleDateString()}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Eligible Courses</div>
+                <div class="detail-value">${(s.eligibleCourses || []).join(', ') || 'All courses'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Year Levels</div>
+                <div class="detail-value">${(s.eligibleYearLevels || []).join(', ') || 'All levels'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Income Limit</div>
+                <div class="detail-value">${s.incomeLimit || 'Not specified'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Required Skills</div>
+                <div class="detail-value">${(s.requiredSkills || []).join(', ') || 'None'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Required Docs</div>
+                <div class="detail-value">${(s.requiredDocuments || []).join(', ') || 'Standard documents'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Sponsor Email</div>
+                <div class="detail-value">${s.sponsorEmail}</div>
+              </div>
+            `;
+            document.getElementById('viewModal').classList.add('active');
+          }
+        })
+        .catch(err => alert('Error loading details'));
+    }
+
+    function closeViewModal() {
+      document.getElementById('viewModal').classList.remove('active');
+    }
+
+    function approveScholarship(id) {
+      if (!confirm('Are you sure you want to approve this scholarship? It will be visible to students.')) return;
+
+      fetch('/admin/scholarships/' + id + '/approve', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Scholarship approved successfully!');
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to approve'));
+          }
+        })
+        .catch(err => alert('Error approving scholarship'));
+    }
+
+    function showRejectModal(id, name) {
+      document.getElementById('rejectScholarshipId').value = id;
+      document.getElementById('rejectScholarshipName').textContent = name;
+      document.getElementById('rejectReason').value = '';
+      document.getElementById('rejectModal').classList.add('active');
+    }
+
+    function closeRejectModal() {
+      document.getElementById('rejectModal').classList.remove('active');
+    }
+
+    document.getElementById('rejectForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('rejectScholarshipId').value;
+      const reason = document.getElementById('rejectReason').value;
+
+      fetch('/admin/scholarships/' + id + '/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Scholarship rejected. The sponsor has been notified.');
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to reject'));
+          }
+        })
+        .catch(err => alert('Error rejecting scholarship'));
+    });
+  </script>
+</body>
+</html>

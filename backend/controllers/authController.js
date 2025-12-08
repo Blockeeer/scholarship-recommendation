@@ -8,8 +8,14 @@ const { doc, getDoc } = require("firebase/firestore");
 function getReadableErrorMessage(error) {
   const errorCode = error.code || '';
   const errorMessage = error.message || '';
+  const lowerMessage = errorMessage.toLowerCase();
 
   console.log('🔍 Processing error - Code:', errorCode, 'Message:', errorMessage);
+
+  // Firestore permission errors (check first)
+  if (errorCode.includes('permission-denied') || lowerMessage.includes('permission')) {
+    return 'Database permission error. Please update Firestore security rules in Firebase Console.';
+  }
 
   // Firebase Auth errors
   if (errorCode.includes('auth/invalid-credential') ||
@@ -44,7 +50,6 @@ function getReadableErrorMessage(error) {
   }
 
   // Check error message as fallback
-  const lowerMessage = errorMessage.toLowerCase();
 
   if (lowerMessage.includes('invalid-credential') ||
       lowerMessage.includes('wrong password') ||
@@ -265,7 +270,7 @@ async function login(req, res) {
   }
 
   // Hardcoded Admin
-  if (email === "admin@example.com" && password === "admin123123") {
+  if (email === "admin@example.com" && password === "admin123") {
     req.session.user = { uid: "admin", email, role: "admin" };
     return res.redirect("/dashboard");
   }

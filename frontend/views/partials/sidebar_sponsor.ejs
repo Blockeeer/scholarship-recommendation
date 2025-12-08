@@ -29,8 +29,34 @@
     </a>
     <a href="/sponsor/notifications" class="nav-link" data-tooltip="Notifications">
       <span class="nav-text">Notifications</span>
+      <span class="nav-badge" id="notificationCount" style="display: none;"></span>
     </a>
   </nav>
+  <style>
+    .nav-badge {
+      background: #ef4444;
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      margin-left: 0.5rem;
+      font-weight: 600;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('/sponsor/api/counts')
+        .then(res => res.json())
+        .then(data => {
+          if (data.unreadNotifications > 0) {
+            const notifEl = document.getElementById('notificationCount');
+            notifEl.textContent = data.unreadNotifications;
+            notifEl.style.display = 'inline';
+          }
+        })
+        .catch(err => console.log('Could not load counts'));
+    });
+  </script>
 
   <div class="sidebar-footer">
     <form action="/logout" method="POST" id="logoutForm">

@@ -14,6 +14,7 @@ const {
   showAssessmentForm,
   submitAssessment
 } = require("../controllers/assessmentController");
+const { initializeAdmin } = require("../services/firebaseAuthService");
 
 const router = express.Router();
 
@@ -33,5 +34,15 @@ router.post("/logout", logout);
 // // Show form
 // router.get("/student/assessment", showAssessmentForm);
 // router.post("/student/assessment", submitAssessment);
+
+// One-time admin setup route (visit once to create admin)
+router.get("/setup-admin", async (req, res) => {
+  try {
+    const result = await initializeAdmin();
+    res.json({ success: true, message: "Admin account created", ...result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 module.exports = router;

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Applications - <%= scholarship.scholarshipName %></title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .page-header {
+      margin-bottom: 1.5rem;
+    }
+    .scholarship-summary {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .summary-item {
+      text-align: center;
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .summary-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .summary-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+    }
+    .summary-item.accepted .summary-value { color: #3b82f6; }
+    .summary-item.notified .summary-value { color: #10b981; }
+    .summary-item.not-selected .summary-value { color: #6b7280; }
+    .info-banner {
+      background: #dbeafe;
+      border: 1px solid #93c5fd;
+      color: #1e40af;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .info-banner h4 {
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .info-banner p {
+      font-size: 0.875rem;
+      margin: 0;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .section-header h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .bulk-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-bulk {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .btn-mark-not-selected {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+    .btn-mark-not-selected:hover {
+      background: #e5e7eb;
+    }
+    .application-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-left: 4px solid #e5e7eb;
+    }
+    .application-card.accepted { border-left-color: #3b82f6; background: #eff6ff; }
+    .application-card.notified { border-left-color: #10b981; background: #f0fdf4; }
+    .application-card.not_selected { border-left-color: #6b7280; background: #f9fafb; opacity: 0.8; }
+    .application-card.pending { border-left-color: #f59e0b; }
+    .application-card.under_review { border-left-color: #8b5cf6; }
+    .application-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .applicant-info h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.25rem;
+    }
+    .applicant-email {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+    .status-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-under_review { background: #dbeafe; color: #1e40af; }
+    .status-accepted { background: #dbeafe; color: #1e40af; }
+    .status-notified { background: #d1fae5; color: #065f46; }
+    .status-not_selected { background: #e5e7eb; color: #374151; }
+    .sponsor-accepted-badge {
+      background: #3b82f6;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .ai-score {
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    .application-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.5);
+      border-radius: 8px;
+    }
+    .meta-item {
+      text-align: center;
+    }
+    .meta-label {
+      font-size: 0.7rem;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+    .meta-value {
+      font-weight: 600;
+      color: #1f2937;
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+    }
+    .application-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn-notify {
+      background: #10b981;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-notify:hover { background: #059669; }
+    .btn-not-selected {
+      background: #6b7280;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-not-selected:hover { background: #4b5563; }
+    .btn-view-profile {
+      background: #3b82f6;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-view-profile:hover { background: #2563eb; }
+    .notified-info {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+    .not-selected-info {
+      background: #e5e7eb;
+      color: #374151;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 12px;
+    }
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #6b7280;
+      text-decoration: none;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    .back-link:hover { color: #3b82f6; }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .profile-section {
+      margin-bottom: 1.5rem;
+    }
+    .profile-section h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+    }
+    .profile-label {
+      color: #6b7280;
+    }
+    .profile-value {
+      font-weight: 500;
+      color: #1f2937;
+    }
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+    .filter-btn.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    .section-divider {
+      margin: 2rem 0;
+      padding-top: 1.5rem;
+      border-top: 2px solid #e5e7eb;
+    }
+    .waiting-section {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .waiting-section h4 {
+      color: #92400e;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_admin') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Manage Applications' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="dashboard-wrapper">
+          <a href="/admin/approved-scholarships" class="back-link">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to Approved Scholarships
+          </a>
+
+          <div class="scholarship-summary">
+            <h2 style="font-size: 1.5rem; font-weight: 600; color: #1f2937;"><%= scholarship.scholarshipName %></h2>
+            <p style="color: #6b7280;">by <%= scholarship.organizationName %></p>
+
+            <%
+              const acceptedApps = applications.filter(a => a.status === 'accepted');
+              const notifiedApps = applications.filter(a => a.status === 'notified');
+              const notSelectedApps = applications.filter(a => a.status === 'not_selected');
+              const pendingApps = applications.filter(a => a.status === 'pending' || a.status === 'under_review');
+            %>
+
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="summary-value"><%= applications.length %></div>
+                <div class="summary-label">Total Apps</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-value"><%= scholarship.slotsFilled || 0 %> / <%= scholarship.slotsAvailable %></div>
+                <div class="summary-label">Slots Filled</div>
+              </div>
+              <div class="summary-item accepted">
+                <div class="summary-value"><%= acceptedApps.length %></div>
+                <div class="summary-label">Accepted</div>
+              </div>
+              <div class="summary-item notified">
+                <div class="summary-value"><%= notifiedApps.length %></div>
+                <div class="summary-label">Notified</div>
+              </div>
+              <div class="summary-item not-selected">
+                <div class="summary-value"><%= notSelectedApps.length %></div>
+                <div class="summary-label">Not Selected</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-banner">
+            <h4>Admin Notification Workflow</h4>
+            <p>The sponsor has accepted applicants for this scholarship. Your role is to notify accepted students one at a time. Once you've notified all desired students, mark the remaining applicants as "Not Selected" to inform them.</p>
+          </div>
+
+          <% if (applications.length === 0) { %>
+            <div class="empty-state">
+              <div class="empty-icon">📭</div>
+              <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No Applications Yet</h3>
+              <p style="color: #6b7280;">Students haven't applied to this scholarship yet.</p>
+            </div>
+          <% } else { %>
+
+            <!-- Accepted by Sponsor - Ready to Notify -->
+            <% if (acceptedApps.length > 0) { %>
+              <div class="section-header">
+                <h3>Accepted by Sponsor - Ready to Notify (<%= acceptedApps.length %>)</h3>
+              </div>
+
+              <div id="acceptedList">
+                <% acceptedApps.forEach((app, index) => { %>
+                  <div class="application-card accepted" data-status="accepted">
+                    <div class="application-header">
+                      <div class="applicant-info">
+                        <h3><%= app.studentName || 'Student' %></h3>
+                        <div class="applicant-email"><%= app.studentEmail || 'No email provided' %></div>
+                      </div>
+                      <div class="status-badges">
+                        <span class="sponsor-accepted-badge">Sponsor Accepted</span>
+                        <span class="status-badge status-accepted">Awaiting Notification</span>
+                        <% if (app.aiScore) { %>
+                          <div class="ai-score">AI Score: <%= app.aiScore.toFixed(1) %></div>
+                        <% } %>
+                      </div>
+                    </div>
+
+                    <div class="application-meta">
+                      <div class="meta-item">
+                        <div class="meta-label">GPA</div>
+                        <div class="meta-value"><%= app.studentGPA || 'N/A' %></div>
+                      </div>
+                      <div class="meta-item">
+                        <div class="meta-label">Course</div>
+                        <div class="meta-value"><%= app.studentCourse || 'N/A' %></div>
+                      </div>
+                      <div class="meta-item">
+                        <div class="meta-label">Year Level</div>
+                        <div class="meta-value"><%= app.studentYearLevel || 'N/A' %></div>
+                      </div>
+                      <div class="meta-item">
+                        <div class="meta-label">Accepted</div>
+                        <div class="meta-value"><%= app.acceptedAt ? new Date(app.acceptedAt).toLocaleDateString() : 'N/A' %></div>
+                      </div>
+                    </div>
+
+                    <div class="application-actions">
+                      <button class="btn-view-profile" onclick="viewStudentProfile('<%= app.studentUid %>')">View Profile</button>
+                      <button class="btn-notify" onclick="notifyStudent('<%= app.id %>', '<%= app.studentName || 'this student' %>')">
+                        Notify Student (Confirm Selection)
+                      </button>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+
+            <!-- Already Notified -->
+            <% if (notifiedApps.length > 0) { %>
+              <div class="section-divider">
+                <div class="section-header">
+                  <h3>Notified Students (<%= notifiedApps.length %>)</h3>
+                </div>
+              </div>
+
+              <div id="notifiedList">
+                <% notifiedApps.forEach((app) => { %>
+                  <div class="application-card notified" data-status="notified">
+                    <div class="application-header">
+                      <div class="applicant-info">
+                        <h3><%= app.studentName || 'Student' %></h3>
+                        <div class="applicant-email"><%= app.studentEmail || 'No email provided' %></div>
+                      </div>
+                      <div class="status-badges">
+                        <span class="status-badge status-notified">Notified</span>
+                      </div>
+                    </div>
+
+                    <div class="notified-info">
+                      Student notified on <%= app.notifiedAt ? new Date(app.notifiedAt).toLocaleDateString() : 'N/A' %>
+                      <% if (app.notifiedBy) { %> by <%= app.notifiedBy %><% } %>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+
+            <!-- Pending (Waiting for Sponsor Decision) -->
+            <% if (pendingApps.length > 0) { %>
+              <div class="section-divider">
+                <div class="waiting-section">
+                  <h4>Waiting for Sponsor Decision (<%= pendingApps.length %>)</h4>
+                  <p style="font-size: 0.875rem; color: #78716c; margin-bottom: 1rem;">These applicants are still being reviewed by the sponsor. Once the sponsor accepts them, they will appear in the "Ready to Notify" section above.</p>
+
+                  <% pendingApps.forEach((app) => { %>
+                    <div class="application-card <%= app.status %>" data-status="<%= app.status %>" style="margin-bottom: 0.75rem;">
+                      <div class="application-header" style="margin-bottom: 0;">
+                        <div class="applicant-info">
+                          <h3 style="font-size: 1rem;"><%= app.studentName || 'Student' %></h3>
+                          <div class="applicant-email"><%= app.studentEmail || 'No email provided' %></div>
+                        </div>
+                        <div class="status-badges">
+                          <span class="status-badge status-<%= app.status %>">
+                            <%= app.status === 'under_review' ? 'Under Review' : 'Pending' %>
+                          </span>
+                          <% if (app.aiScore) { %>
+                            <div class="ai-score">AI: <%= app.aiScore.toFixed(1) %></div>
+                          <% } %>
+                        </div>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+              </div>
+            <% } %>
+
+            <!-- Not Selected -->
+            <% if (notSelectedApps.length > 0) { %>
+              <div class="section-divider">
+                <div class="section-header">
+                  <h3>Not Selected (<%= notSelectedApps.length %>)</h3>
+                </div>
+              </div>
+
+              <div id="notSelectedList">
+                <% notSelectedApps.forEach((app) => { %>
+                  <div class="application-card not_selected" data-status="not_selected">
+                    <div class="application-header">
+                      <div class="applicant-info">
+                        <h3><%= app.studentName || 'Student' %></h3>
+                        <div class="applicant-email"><%= app.studentEmail || 'No email provided' %></div>
+                      </div>
+                      <div class="status-badges">
+                        <span class="status-badge status-not_selected">Not Selected</span>
+                      </div>
+                    </div>
+                    <div class="not-selected-info">
+                      Marked as not selected on <%= app.notSelectedAt ? new Date(app.notSelectedAt).toLocaleDateString() : 'N/A' %>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+
+            <!-- Mark Remaining as Not Selected -->
+            <%
+              const remainingToMark = applications.filter(a =>
+                a.status !== 'notified' && a.status !== 'not_selected'
+              );
+            %>
+            <% if (remainingToMark.length > 0 && notifiedApps.length > 0) { %>
+              <div class="section-divider">
+                <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 1.5rem;">
+                  <h4 style="color: #991b1b; margin-bottom: 0.5rem;">Finalize Selection</h4>
+                  <p style="font-size: 0.875rem; color: #7f1d1d; margin-bottom: 1rem;">
+                    Once you've notified all the students you want to select, you can mark the remaining <%= remainingToMark.length %> applicant(s) as "Not Selected". This will notify them that they were not chosen for this scholarship.
+                  </p>
+                  <button class="btn-not-selected" onclick="markRemainingNotSelected()">
+                    Mark All Remaining as Not Selected (<%= remainingToMark.length %>)
+                  </button>
+                </div>
+              </div>
+            <% } %>
+
+          <% } %>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <!-- Student Profile Modal -->
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 600;">Student Profile</h3>
+        <button class="modal-close" onclick="closeProfileModal()">&times;</button>
+      </div>
+      <div id="profileContent">Loading...</div>
+    </div>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    const scholarshipId = '<%= scholarship.id %>';
+
+    function viewStudentProfile(uid) {
+      document.getElementById('profileContent').innerHTML = 'Loading...';
+      document.getElementById('profileModal').classList.add('active');
+
+      fetch('/admin/users/' + uid + '/details')
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) {
+            const u = data.user;
+            const a = data.assessment || {};
+
+            let html = `
+              <div class="profile-section">
+                <h4>Basic Information</h4>
+                <div class="profile-row">
+                  <span class="profile-label">Full Name</span>
+                  <span class="profile-value">${u.fullName || 'Not provided'}</span>
+                </div>
+                <div class="profile-row">
+                  <span class="profile-label">Email</span>
+                  <span class="profile-value">${u.email}</span>
+                </div>
+                <div class="profile-row">
+                  <span class="profile-label">Registered</span>
+                  <span class="profile-value">${new Date(u.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            `;
+
+            if (a && Object.keys(a).length > 0) {
+              html += `
+                <div class="profile-section">
+                  <h4>Academic Information</h4>
+                  <div class="profile-row">
+                    <span class="profile-label">Course</span>
+                    <span class="profile-value">${a.course || 'N/A'}</span>
+                  </div>
+                  <div class="profile-row">
+                    <span class="profile-label">Year Level</span>
+                    <span class="profile-value">${a.yearLevel || 'N/A'}</span>
+                  </div>
+                  <div class="profile-row">
+                    <span class="profile-label">GPA</span>
+                    <span class="profile-value">${a.gpa || 'N/A'}</span>
+                  </div>
+                  <div class="profile-row">
+                    <span class="profile-label">Family Income</span>
+                    <span class="profile-value">${a.familyIncome || 'N/A'}</span>
+                  </div>
+                </div>
+
+                <div class="profile-section">
+                  <h4>Skills & Interests</h4>
+                  <div class="profile-row">
+                    <span class="profile-label">Skills</span>
+                    <span class="profile-value">${(a.skills || []).join(', ') || 'None listed'}</span>
+                  </div>
+                  <div class="profile-row">
+                    <span class="profile-label">Interests</span>
+                    <span class="profile-value">${(a.interests || []).join(', ') || 'None listed'}</span>
+                  </div>
+                </div>
+              `;
+            } else {
+              html += `
+                <div class="profile-section">
+                  <p style="color: #6b7280; text-align: center; padding: 1rem;">Student has not completed their assessment yet.</p>
+                </div>
+              `;
+            }
+
+            document.getElementById('profileContent').innerHTML = html;
+          }
+        })
+        .catch(err => {
+          document.getElementById('profileContent').innerHTML = '<p style="color: #ef4444;">Error loading profile</p>';
+        });
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').classList.remove('active');
+    }
+
+    async function notifyStudent(appId, studentName) {
+      if (!confirm(`Notify ${studentName} that they have been selected for this scholarship? This will send them a congratulations notification.`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/admin/applications/' + appId + '/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('Student has been notified of their selection!');
+          location.reload();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to notify student'));
+        }
+      } catch (err) {
+        alert('Error notifying student');
+      }
+    }
+
+    async function markNotSelected(appId, studentName) {
+      if (!confirm(`Mark ${studentName} as not selected? This will notify them that they were not chosen.`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/admin/applications/' + appId + '/not-selected', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          location.reload();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to update status'));
+        }
+      } catch (err) {
+        alert('Error updating application');
+      }
+    }
+
+    async function markRemainingNotSelected() {
+      if (!confirm('Are you sure you want to mark all remaining applicants as "Not Selected"? This will notify each of them that they were not chosen for this scholarship.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/admin/scholarships/' + scholarshipId + '/mark-remaining-not-selected', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(`${data.count} applicant(s) have been notified that they were not selected.`);
+          location.reload();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to update applicants'));
+        }
+      } catch (err) {
+        alert('Error updating applicants');
+      }
+    }
+  </script>
+</body>
+</html>

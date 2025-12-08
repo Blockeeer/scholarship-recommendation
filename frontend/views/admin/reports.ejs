@@ -116,8 +116,10 @@
       font-weight: 500;
     }
     .status-pending { background: #fef3c7; color: #92400e; }
-    .status-approved { background: #d1fae5; color: #065f46; }
-    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-under_review { background: #dbeafe; color: #1e40af; }
+    .status-accepted { background: #dbeafe; color: #1e40af; }
+    .status-notified { background: #d1fae5; color: #065f46; }
+    .status-not_selected { background: #e5e7eb; color: #374151; }
     .status-open { background: #d1fae5; color: #065f46; }
     .status-closed { background: #e5e7eb; color: #374151; }
     .chart-container {
@@ -224,8 +226,10 @@
                 <select id="appStatusFilter" onchange="filterApplications()">
                   <option value="all">All Status</option>
                   <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
+                  <option value="under_review">Under Review</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="notified">Notified</option>
+                  <option value="not_selected">Not Selected</option>
                 </select>
               </div>
               <div class="filter-group">
@@ -240,20 +244,20 @@
 
             <div class="summary-grid">
               <div class="summary-item">
-                <div class="summary-value"><%= analytics.applications.pending %></div>
+                <div class="summary-value"><%= analytics.applications.pending || 0 %></div>
                 <div class="summary-label">Pending</div>
               </div>
               <div class="summary-item">
-                <div class="summary-value"><%= analytics.applications.underReview %></div>
-                <div class="summary-label">Under Review</div>
+                <div class="summary-value"><%= analytics.applications.accepted || 0 %></div>
+                <div class="summary-label">Accepted</div>
               </div>
               <div class="summary-item">
-                <div class="summary-value"><%= analytics.applications.approved %></div>
-                <div class="summary-label">Approved</div>
+                <div class="summary-value" style="color: #10b981;"><%= analytics.applications.notified || 0 %></div>
+                <div class="summary-label">Notified</div>
               </div>
               <div class="summary-item">
-                <div class="summary-value"><%= analytics.applications.rejected %></div>
-                <div class="summary-label">Rejected</div>
+                <div class="summary-value"><%= analytics.applications.notSelected || 0 %></div>
+                <div class="summary-label">Not Selected</div>
               </div>
             </div>
 

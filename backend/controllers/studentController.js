@@ -365,9 +365,9 @@ async function getMyApplications(req, res) {
     // Calculate stats
     const stats = {
       total: applications.length,
-      pending: applications.filter(a => a.status === "pending" || a.status === "under_review").length,
-      approved: applications.filter(a => a.status === "approved").length,
-      rejected: applications.filter(a => a.status === "rejected").length
+      pending: applications.filter(a => a.status === "pending" || a.status === "under_review" || a.status === "accepted").length,
+      notified: applications.filter(a => a.status === "notified").length,
+      notSelected: applications.filter(a => a.status === "not_selected").length
     };
 
     res.render("student/my_applications", {

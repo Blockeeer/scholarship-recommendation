@@ -9,18 +9,6 @@
   <link rel="stylesheet" href="/css/topbar.css">
   <link rel="stylesheet" href="/css/footer.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f7fa;
-      padding: 2rem;
-    }
-
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -44,6 +32,38 @@
       border-radius: 6px;
       text-decoration: none;
       font-weight: 600;
+      transition: transform 0.2s;
+    }
+
+    .add-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .filter-tab:hover {
+      border-color: #667eea;
+    }
+
+    .filter-tab.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
     }
 
     .scholarships-grid {
@@ -58,6 +78,21 @@
       padding: 1.5rem;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       transition: transform 0.2s;
+      border-left: 4px solid #10b981;
+    }
+
+    .scholarship-card.status-pending {
+      border-left-color: #f59e0b;
+    }
+
+    .scholarship-card.status-rejected {
+      border-left-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .scholarship-card.status-closed {
+      border-left-color: #6b7280;
+      opacity: 0.85;
     }
 
     .scholarship-card:hover {
@@ -66,6 +101,9 @@
 
     .card-header {
       margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     .card-title {
@@ -99,19 +137,43 @@
     }
 
     .status-open {
-      background: #d4edda;
-      color: #155724;
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-rejected {
+      background: #fee2e2;
+      color: #991b1b;
     }
 
     .status-closed {
-      background: #f8d7da;
-      color: #721c24;
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .rejection-reason {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin: 1rem 0;
+      font-size: 0.875rem;
+    }
+
+    .rejection-reason strong {
+      color: #991b1b;
     }
 
     .card-actions {
       display: flex;
       gap: 0.5rem;
       margin-top: 1rem;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -124,6 +186,8 @@
       text-align: center;
       text-decoration: none;
       display: inline-block;
+      font-size: 0.875rem;
+      transition: all 0.2s;
     }
 
     .btn-view {
@@ -131,9 +195,17 @@
       color: white;
     }
 
+    .btn-view:hover {
+      background: #5a67d8;
+    }
+
     .btn-edit {
       background: #3498db;
       color: white;
+    }
+
+    .btn-edit:hover {
+      background: #2980b9;
     }
 
     .btn-delete {
@@ -141,11 +213,139 @@
       color: white;
     }
 
+    .btn-delete:hover {
+      background: #c0392b;
+    }
+
+    .btn-resubmit {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-resubmit:hover {
+      background: #d97706;
+    }
+
+    .btn-request-close {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-request-close:hover {
+      background: #4b5563;
+    }
+
+    .btn-applications {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-applications:hover {
+      background: #059669;
+    }
+
     .empty-state {
       text-align: center;
       padding: 4rem 2rem;
       background: white;
       border-radius: 12px;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6b7280;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .modal-actions .btn {
+      flex: 1;
+    }
+
+    .slots-progress {
+      width: 100%;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+
+    .slots-progress-bar {
+      height: 100%;
+      background: #10b981;
+      transition: width 0.3s;
+    }
+
+    .slots-progress-bar.warning {
+      background: #f59e0b;
+    }
+
+    .slots-progress-bar.full {
+      background: #ef4444;
     }
   </style>
 </head>
@@ -157,71 +357,186 @@
 
     <main class="page-content">
       <div class="container">
-    <div class="header">
-      <div>
-        <h1>My Scholarship Offers</h1>
-        <p>Manage your scholarship opportunities</p>
-      </div>
-      <a href="/sponsor/add-offer" class="add-btn">+ Add New Scholarship</a>
-    </div>
-
-    <% if (scholarships.length === 0) { %>
-      <div class="empty-state">
-        <h2>No Scholarship Offers Yet</h2>
-        <p>Create your first scholarship offer to get started</p>
-        <a href="/sponsor/add-offer" class="add-btn" style="margin-top: 1rem; display: inline-block;">+ Add Scholarship</a>
-      </div>
-    <% } else { %>
-      <div class="scholarships-grid">
-        <% scholarships.forEach(scholarship => { %>
-          <div class="scholarship-card">
-            <div class="card-header">
-              <h3 class="card-title"><%= scholarship.scholarshipName %></h3>
-              <p class="card-org"><%= scholarship.organizationName %></p>
-            </div>
-
-            <div class="card-info">
-              <div class="info-item">
-                <span>Type:</span>
-                <strong><%= scholarship.scholarshipType %></strong>
-              </div>
-              <div class="info-item">
-                <span>Min GPA:</span>
-                <strong><%= scholarship.minGPA %></strong>
-              </div>
-              <div class="info-item">
-                <span>Slots:</span>
-                <strong><%= scholarship.slotsFilled %>/<%= scholarship.slotsAvailable %></strong>
-              </div>
-              <div class="info-item">
-                <span>Status:</span>
-                <span class="status-badge <%= scholarship.status === 'Open' ? 'status-open' : 'status-closed' %>">
-                  <%= scholarship.status %>
-                </span>
-              </div>
-              <div class="info-item">
-                <span>Duration:</span>
-                <strong><%= new Date(scholarship.startDate).toLocaleDateString() %> - <%= new Date(scholarship.endDate).toLocaleDateString() %></strong>
-              </div>
-            </div>
-
-            <div class="card-actions">
-              <a href="/sponsor/offers/<%= scholarship.id %>" class="btn btn-view">View Details</a>
-              <a href="/sponsor/offers/<%= scholarship.id %>/edit" class="btn btn-edit">Edit</a>
-              <form action="/sponsor/offers/<%= scholarship.id %>/delete" method="POST" style="flex: 1;" onsubmit="return confirm('Are you sure you want to delete this scholarship?')">
-                <button type="submit" class="btn btn-delete" style="width: 100%;">Delete</button>
-              </form>
-            </div>
+        <div class="header">
+          <div>
+            <h1>My Scholarship Offers</h1>
+            <p>Manage your scholarship opportunities</p>
           </div>
-        <% }) %>
-      </div>
-    <% } %>
+          <a href="/sponsor/add-offer" class="add-btn">+ Add New Scholarship</a>
+        </div>
+
+        <% if (scholarships.length === 0) { %>
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h2>No Scholarship Offers Yet</h2>
+            <p style="color: #6b7280; margin-bottom: 1rem;">Create your first scholarship offer to start helping students</p>
+            <a href="/sponsor/add-offer" class="add-btn">+ Add Scholarship</a>
+          </div>
+        <% } else { %>
+          <!-- Filter Tabs -->
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterScholarships('all')">All (<%= scholarships.length %>)</button>
+            <button class="filter-tab" onclick="filterScholarships('Open')">Open (<%= scholarships.filter(s => s.status === 'Open').length %>)</button>
+            <button class="filter-tab" onclick="filterScholarships('Pending')">Pending Review (<%= scholarships.filter(s => s.status === 'Pending').length %>)</button>
+            <button class="filter-tab" onclick="filterScholarships('Rejected')">Rejected (<%= scholarships.filter(s => s.status === 'Rejected').length %>)</button>
+            <button class="filter-tab" onclick="filterScholarships('Closed')">Closed (<%= scholarships.filter(s => s.status === 'Closed').length %>)</button>
+          </div>
+
+          <div class="scholarships-grid">
+            <% scholarships.forEach(scholarship => {
+              const slotsPercent = scholarship.slotsAvailable > 0 ? ((scholarship.slotsFilled || 0) / scholarship.slotsAvailable) * 100 : 0;
+              let progressClass = '';
+              if (slotsPercent >= 100) progressClass = 'full';
+              else if (slotsPercent >= 75) progressClass = 'warning';
+
+              let statusClass = '';
+              if (scholarship.status === 'Pending') statusClass = 'status-pending';
+              else if (scholarship.status === 'Rejected') statusClass = 'status-rejected';
+              else if (scholarship.status === 'Closed') statusClass = 'status-closed';
+            %>
+              <div class="scholarship-card <%= statusClass %>" data-status="<%= scholarship.status %>">
+                <div class="card-header">
+                  <div>
+                    <h3 class="card-title"><%= scholarship.scholarshipName %></h3>
+                    <p class="card-org"><%= scholarship.organizationName %></p>
+                  </div>
+                  <span class="status-badge status-<%= scholarship.status.toLowerCase() %>">
+                    <%= scholarship.status %>
+                  </span>
+                </div>
+
+                <% if (scholarship.status === 'Rejected' && scholarship.rejectionReason) { %>
+                  <div class="rejection-reason">
+                    <strong>Rejection Reason:</strong> <%= scholarship.rejectionReason %>
+                  </div>
+                <% } %>
+
+                <div class="card-info">
+                  <div class="info-item">
+                    <span>Type:</span>
+                    <strong><%= scholarship.scholarshipType %></strong>
+                  </div>
+                  <div class="info-item">
+                    <span>Min GPA:</span>
+                    <strong><%= scholarship.minGPA %></strong>
+                  </div>
+                  <div class="info-item">
+                    <span>Slots:</span>
+                    <div>
+                      <strong><%= scholarship.slotsFilled || 0 %>/<%= scholarship.slotsAvailable %></strong>
+                      <div class="slots-progress">
+                        <div class="slots-progress-bar <%= progressClass %>" style="width: <%= Math.min(slotsPercent, 100) %>%"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="info-item">
+                    <span>Duration:</span>
+                    <strong><%= new Date(scholarship.startDate).toLocaleDateString() %> - <%= new Date(scholarship.endDate).toLocaleDateString() %></strong>
+                  </div>
+                </div>
+
+                <div class="card-actions">
+                  <% if (scholarship.status === 'Open') { %>
+                    <a href="/sponsor/offers/<%= scholarship.id %>/applications" class="btn btn-applications">Applications</a>
+                    <a href="/sponsor/offers/<%= scholarship.id %>" class="btn btn-view">Details</a>
+                    <button class="btn btn-request-close" onclick="showCloseRequestModal('<%= scholarship.id %>', '<%= scholarship.scholarshipName %>')">Request Close</button>
+                  <% } else if (scholarship.status === 'Pending') { %>
+                    <a href="/sponsor/offers/<%= scholarship.id %>" class="btn btn-view">View Details</a>
+                    <a href="/sponsor/offers/<%= scholarship.id %>/edit" class="btn btn-edit">Edit</a>
+                    <form action="/sponsor/offers/<%= scholarship.id %>/delete" method="POST" style="flex: 1;" onsubmit="return confirm('Are you sure you want to delete this scholarship?')">
+                      <button type="submit" class="btn btn-delete" style="width: 100%;">Delete</button>
+                    </form>
+                  <% } else if (scholarship.status === 'Rejected') { %>
+                    <a href="/sponsor/offers/<%= scholarship.id %>/edit" class="btn btn-edit">Edit & Resubmit</a>
+                    <form action="/sponsor/offers/<%= scholarship.id %>/delete" method="POST" style="flex: 1;" onsubmit="return confirm('Are you sure you want to delete this scholarship?')">
+                      <button type="submit" class="btn btn-delete" style="width: 100%;">Delete</button>
+                    </form>
+                  <% } else if (scholarship.status === 'Closed') { %>
+                    <a href="/sponsor/offers/<%= scholarship.id %>" class="btn btn-view">View Details</a>
+                    <a href="/sponsor/offers/<%= scholarship.id %>/applications" class="btn btn-applications">View Applications</a>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
       </div>
     </main>
 
     <%- include('../partials/footer') %>
   </div>
 
+  <!-- Close Request Modal -->
+  <div class="modal" id="closeRequestModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 600;">Request to Close Scholarship</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <p style="color: #6b7280; margin-bottom: 1rem;">
+        Request admin to close "<span id="closeScholarshipName"></span>". Please provide a reason.
+      </p>
+      <form id="closeRequestForm">
+        <input type="hidden" id="closeScholarshipId">
+        <div class="form-group">
+          <label for="closeReason">Reason for Closing</label>
+          <textarea id="closeReason" placeholder="e.g., All positions have been filled, budget constraints, program ended..." required></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" style="background: #e5e7eb; color: #374151;" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-request-close">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="/js/sidebar.js"></script>
+  <script>
+    function filterScholarships(status) {
+      document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.querySelectorAll('.scholarship-card').forEach(card => {
+        if (status === 'all' || card.dataset.status === status) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function showCloseRequestModal(id, name) {
+      document.getElementById('closeScholarshipId').value = id;
+      document.getElementById('closeScholarshipName').textContent = name;
+      document.getElementById('closeReason').value = '';
+      document.getElementById('closeRequestModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('closeRequestModal').classList.remove('active');
+    }
+
+    document.getElementById('closeRequestForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('closeScholarshipId').value;
+      const reason = document.getElementById('closeReason').value;
+
+      fetch('/sponsor/offers/' + id + '/request-close', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Close request submitted. Admin will review your request.');
+            closeModal();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to submit request'));
+          }
+        })
+        .catch(err => alert('Error submitting request'));
+    });
+  </script>
 </body>
 </html>

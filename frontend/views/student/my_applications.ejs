@@ -57,7 +57,8 @@
 
     .stat-card.pending .stat-value { color: #f39c12; }
     .stat-card.approved .stat-value { color: #27ae60; }
-    .stat-card.rejected .stat-value { color: #e74c3c; }
+    .stat-card.notified .stat-value { color: #10b981; }
+    .stat-card.not-selected .stat-value { color: #6b7280; }
 
     .applications-list {
       display: flex;
@@ -127,14 +128,19 @@
       color: #0c5460;
     }
 
-    .status-approved {
-      background: #d4edda;
-      color: #155724;
+    .status-approved, .status-accepted {
+      background: #dbeafe;
+      color: #1e40af;
     }
 
-    .status-rejected {
-      background: #f8d7da;
-      color: #721c24;
+    .status-notified {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-not_selected {
+      background: #e5e7eb;
+      color: #374151;
     }
 
     .rank-badge {
@@ -234,13 +240,13 @@
             <div class="stat-value"><%= stats.pending %></div>
             <div class="stat-label">Pending</div>
           </div>
-          <div class="stat-card approved">
-            <div class="stat-value"><%= stats.approved %></div>
-            <div class="stat-label">Approved</div>
+          <div class="stat-card notified">
+            <div class="stat-value"><%= stats.notified || 0 %></div>
+            <div class="stat-label">Selected</div>
           </div>
-          <div class="stat-card rejected">
-            <div class="stat-value"><%= stats.rejected %></div>
-            <div class="stat-label">Rejected</div>
+          <div class="stat-card not-selected">
+            <div class="stat-value"><%= stats.notSelected || 0 %></div>
+            <div class="stat-label">Not Selected</div>
           </div>
         </div>
 
@@ -261,10 +267,21 @@
                   </div>
                   <div class="application-status">
                     <span class="status-badge status-<%= app.status %>">
-                      <%= app.status === 'under_review' ? 'Under Review' : app.status.charAt(0).toUpperCase() + app.status.slice(1) %>
+                      <%
+                        let statusLabel = app.status;
+                        if (app.status === 'under_review') statusLabel = 'Under Review';
+                        else if (app.status === 'notified') statusLabel = 'Selected';
+                        else if (app.status === 'not_selected') statusLabel = 'Not Selected';
+                        else if (app.status === 'accepted') statusLabel = 'Accepted';
+                        else statusLabel = app.status.charAt(0).toUpperCase() + app.status.slice(1);
+                      %>
+                      <%= statusLabel %>
                     </span>
                     <% if (app.rank) { %>
                       <span class="rank-badge">Rank: <strong>#<%= app.rank %></strong></span>
+                    <% } %>
+                    <% if (app.status === 'notified') { %>
+                      <span class="rank-badge" style="color: #10b981; font-weight: 600;">Congratulations!</span>
                     <% } %>
                   </div>
                 </div>

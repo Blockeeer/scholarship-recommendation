@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Approved Offers - Admin</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .scholarship-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-left: 4px solid #10b981;
+    }
+    .scholarship-card.closed {
+      border-left-color: #6b7280;
+      opacity: 0.85;
+    }
+    .scholarship-card.expired {
+      border-left-color: #ef4444;
+    }
+    .scholarship-card.full {
+      border-left-color: #f59e0b;
+    }
+    .scholarship-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .scholarship-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.25rem;
+    }
+    .scholarship-org {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+    .scholarship-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .meta-item {
+      text-align: center;
+    }
+    .meta-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+    .meta-value {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .scholarship-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn-close-offer {
+      background: #ef4444;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-close-offer:hover { background: #dc2626; }
+    .btn-reopen {
+      background: #10b981;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-reopen:hover { background: #059669; }
+    .btn-view-apps {
+      background: #3b82f6;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-view-apps:hover { background: #2563eb; }
+    .btn-details {
+      background: #6b7280;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-details:hover { background: #4b5563; }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .status-open {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .status-closed {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .status-expired {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .status-full {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 12px;
+    }
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .filter-tab:hover {
+      border-color: #3b82f6;
+    }
+    .filter-tab.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    .slots-progress {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .slots-progress-bar {
+      height: 100%;
+      background: #10b981;
+      transition: width 0.3s;
+    }
+    .slots-progress-bar.warning {
+      background: #f59e0b;
+    }
+    .slots-progress-bar.full {
+      background: #ef4444;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .detail-row {
+      display: flex;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .detail-label {
+      width: 140px;
+      font-weight: 500;
+      color: #6b7280;
+    }
+    .detail-value {
+      flex: 1;
+      color: #1f2937;
+    }
+    .app-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .warning-indicators {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .indicator {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+    .indicator.expired {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .indicator.full {
+      background: #fef3c7;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_admin') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Manage Approved Offers' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="dashboard-wrapper">
+          <div class="page-header" style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 600; color: #1f2937;">
+              Approved Scholarship Offers
+            </h2>
+            <p style="color: #6b7280; margin-top: 0.25rem;">Manage active scholarships, view applications, and close/reopen offers</p>
+          </div>
+
+          <!-- Filter Tabs -->
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterScholarships('all')">
+              All (<%= scholarships.length %>)
+            </button>
+            <button class="filter-tab" onclick="filterScholarships('open')">
+              Open (<%= scholarships.filter(s => s.status === 'Open' && !s.isExpired && !s.isFull).length %>)
+            </button>
+            <button class="filter-tab" onclick="filterScholarships('full')">
+              Slots Full (<%= scholarships.filter(s => s.isFull).length %>)
+            </button>
+            <button class="filter-tab" onclick="filterScholarships('expired')">
+              Expired (<%= scholarships.filter(s => s.isExpired).length %>)
+            </button>
+            <button class="filter-tab" onclick="filterScholarships('closed')">
+              Closed (<%= scholarships.filter(s => s.status === 'Closed').length %>)
+            </button>
+          </div>
+
+          <% if (scholarships.length === 0) { %>
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No Approved Scholarships</h3>
+              <p style="color: #6b7280;">Approved scholarship offers will appear here.</p>
+              <a href="/admin/pending-scholarships" class="btn btn-primary" style="margin-top: 1rem;">Review Pending Offers</a>
+            </div>
+          <% } else { %>
+            <div id="scholarshipsList">
+              <% scholarships.forEach(s => {
+                let cardClass = '';
+                if (s.status === 'Closed') cardClass = 'closed';
+                else if (s.isExpired) cardClass = 'expired';
+                else if (s.isFull) cardClass = 'full';
+
+                const slotsPercent = s.slotsAvailable > 0 ? ((s.slotsFilled || 0) / s.slotsAvailable) * 100 : 0;
+                let progressClass = '';
+                if (slotsPercent >= 100) progressClass = 'full';
+                else if (slotsPercent >= 75) progressClass = 'warning';
+              %>
+                <div class="scholarship-card <%= cardClass %>" data-status="<%= s.status === 'Closed' ? 'closed' : (s.isExpired ? 'expired' : (s.isFull ? 'full' : 'open')) %>">
+                  <div class="scholarship-header">
+                    <div>
+                      <div class="scholarship-title"><%= s.scholarshipName %></div>
+                      <div class="scholarship-org">by <%= s.organizationName %></div>
+                      <% if (s.isExpired || s.isFull) { %>
+                        <div class="warning-indicators">
+                          <% if (s.isExpired) { %>
+                            <span class="indicator expired">Deadline Passed</span>
+                          <% } %>
+                          <% if (s.isFull) { %>
+                            <span class="indicator full">Slots Full</span>
+                          <% } %>
+                        </div>
+                      <% } %>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                      <% if (s.status === 'Closed') { %>
+                        <span class="status-badge status-closed">Closed</span>
+                      <% } else if (s.isExpired) { %>
+                        <span class="status-badge status-expired">Expired</span>
+                      <% } else if (s.isFull) { %>
+                        <span class="status-badge status-full">Full</span>
+                      <% } else { %>
+                        <span class="status-badge status-open">Open</span>
+                      <% } %>
+                      <span class="app-count">
+                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+                        <%= s.applicationCounts.total %> applications
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="scholarship-meta">
+                    <div class="meta-item">
+                      <div class="meta-label">Type</div>
+                      <div class="meta-value"><%= s.scholarshipType %></div>
+                    </div>
+                    <div class="meta-item">
+                      <div class="meta-label">Slots</div>
+                      <div class="meta-value"><%= s.slotsFilled || 0 %> / <%= s.slotsAvailable %></div>
+                      <div class="slots-progress">
+                        <div class="slots-progress-bar <%= progressClass %>" style="width: <%= Math.min(slotsPercent, 100) %>%"></div>
+                      </div>
+                    </div>
+                    <div class="meta-item">
+                      <div class="meta-label">Accepted</div>
+                      <div class="meta-value" style="color: #3b82f6;"><%= s.applicationCounts.accepted || 0 %></div>
+                    </div>
+                    <div class="meta-item">
+                      <div class="meta-label">Notified</div>
+                      <div class="meta-value" style="color: #10b981;"><%= s.applicationCounts.notified || 0 %></div>
+                    </div>
+                    <div class="meta-item">
+                      <div class="meta-label">Pending</div>
+                      <div class="meta-value"><%= s.applicationCounts.pending %></div>
+                    </div>
+                    <div class="meta-item">
+                      <div class="meta-label">Deadline</div>
+                      <div class="meta-value" style="<%= s.isExpired ? 'color: #ef4444;' : '' %>">
+                        <%= new Date(s.endDate).toLocaleDateString() %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="scholarship-actions">
+                    <button class="btn-view-apps" onclick="location.href='/admin/scholarships/<%= s.id %>/applications'">
+                      View Applications (<%= s.applicationCounts.total %>)
+                    </button>
+                    <button class="btn-details" onclick="viewDetails('<%= s.id %>')">Details</button>
+                    <% if (s.status === 'Open') { %>
+                      <button class="btn-close-offer" onclick="closeScholarship('<%= s.id %>', '<%= s.scholarshipName %>')">Close Scholarship</button>
+                    <% } else { %>
+                      <button class="btn-reopen" onclick="reopenScholarship('<%= s.id %>', '<%= s.scholarshipName %>')">Reopen Scholarship</button>
+                    <% } %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <!-- View Details Modal -->
+  <div class="modal" id="viewModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 600;">Scholarship Details</h3>
+        <button class="modal-close" onclick="closeViewModal()">&times;</button>
+      </div>
+      <div id="scholarshipDetails"></div>
+    </div>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    function filterScholarships(status) {
+      // Update active tab
+      document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Filter cards
+      document.querySelectorAll('.scholarship-card').forEach(card => {
+        const cardStatus = card.dataset.status;
+        if (status === 'all' || cardStatus === status) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function viewDetails(id) {
+      fetch('/admin/scholarships/' + id + '/details')
+        .then(res => res.json())
+        .then(data => {
+          if (data.scholarship) {
+            const s = data.scholarship;
+            document.getElementById('scholarshipDetails').innerHTML = `
+              <div class="detail-row">
+                <div class="detail-label">Name</div>
+                <div class="detail-value">${s.scholarshipName}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Organization</div>
+                <div class="detail-value">${s.organizationName}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Status</div>
+                <div class="detail-value">${s.status}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Type</div>
+                <div class="detail-value">${s.scholarshipType}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Min GPA</div>
+                <div class="detail-value">${s.minGPA || 'Not specified'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Slots</div>
+                <div class="detail-value">${s.slotsFilled || 0} / ${s.slotsAvailable} filled</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Duration</div>
+                <div class="detail-value">${new Date(s.startDate).toLocaleDateString()} - ${new Date(s.endDate).toLocaleDateString()}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Eligible Courses</div>
+                <div class="detail-value">${(s.eligibleCourses || []).join(', ') || 'All courses'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Year Levels</div>
+                <div class="detail-value">${(s.eligibleYearLevels || []).join(', ') || 'All levels'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Income Limit</div>
+                <div class="detail-value">${s.incomeLimit || 'Not specified'}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Sponsor Email</div>
+                <div class="detail-value">${s.sponsorEmail}</div>
+              </div>
+              ${s.closedAt ? `
+              <div class="detail-row">
+                <div class="detail-label">Closed On</div>
+                <div class="detail-value">${new Date(s.closedAt).toLocaleDateString()}</div>
+              </div>
+              ` : ''}
+            `;
+            document.getElementById('viewModal').classList.add('active');
+          }
+        })
+        .catch(err => alert('Error loading details'));
+    }
+
+    function closeViewModal() {
+      document.getElementById('viewModal').classList.remove('active');
+    }
+
+    function closeScholarship(id, name) {
+      if (!confirm(`Are you sure you want to close "${name}"? Students will no longer be able to apply.`)) return;
+
+      fetch('/admin/scholarships/' + id + '/close', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Scholarship closed successfully. The sponsor has been notified.');
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to close'));
+          }
+        })
+        .catch(err => alert('Error closing scholarship'));
+    }
+
+    function reopenScholarship(id, name) {
+      if (!confirm(`Are you sure you want to reopen "${name}"? Students will be able to apply again.`)) return;
+
+      fetch('/admin/scholarships/' + id + '/reopen', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Scholarship reopened successfully. The sponsor has been notified.');
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to reopen'));
+          }
+        })
+        .catch(err => alert('Error reopening scholarship'));
+    }
+  </script>
+</body>
+</html>

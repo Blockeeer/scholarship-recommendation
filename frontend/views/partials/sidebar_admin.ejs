@@ -21,8 +21,12 @@
     <a href="/dashboard" class="nav-link" data-tooltip="Dashboard">
       <span class="nav-text">Dashboard</span>
     </a>
-    <a href="/admin/scholarships" class="nav-link" data-tooltip="Manage Scholarships">
-      <span class="nav-text">Manage Scholarships</span>
+    <a href="/admin/pending-scholarships" class="nav-link" data-tooltip="Pending Review">
+      <span class="nav-text">Pending Review</span>
+      <span class="nav-badge pending-count" id="pendingCount" style="display: none;"></span>
+    </a>
+    <a href="/admin/approved-scholarships" class="nav-link" data-tooltip="Manage Approved">
+      <span class="nav-text">Approved Offers</span>
     </a>
     <a href="/admin/applications" class="nav-link" data-tooltip="Review Applications">
       <span class="nav-text">Review Applications</span>
@@ -33,10 +37,42 @@
     <a href="/admin/reports" class="nav-link" data-tooltip="Reports">
       <span class="nav-text">Reports</span>
     </a>
-    <a href="/admin/notifications" class="nav-link" data-tooltip="Send Notifications">
-      <span class="nav-text">Send Notifications</span>
+    <a href="/admin/notifications" class="nav-link" data-tooltip="Notifications">
+      <span class="nav-text">Notifications</span>
+      <span class="nav-badge notification-count" id="notificationCount" style="display: none;"></span>
     </a>
   </nav>
+  <style>
+    .nav-badge {
+      background: #ef4444;
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      margin-left: 0.5rem;
+      font-weight: 600;
+    }
+  </style>
+  <script>
+    // Fetch notification and pending counts
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('/admin/api/counts')
+        .then(res => res.json())
+        .then(data => {
+          if (data.pendingScholarships > 0) {
+            const pendingEl = document.getElementById('pendingCount');
+            pendingEl.textContent = data.pendingScholarships;
+            pendingEl.style.display = 'inline';
+          }
+          if (data.unreadNotifications > 0) {
+            const notifEl = document.getElementById('notificationCount');
+            notifEl.textContent = data.unreadNotifications;
+            notifEl.style.display = 'inline';
+          }
+        })
+        .catch(err => console.log('Could not load counts'));
+    });
+  </script>
 
   <div class="sidebar-footer">
     <form action="/logout" method="POST" id="logoutForm">
