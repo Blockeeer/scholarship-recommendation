@@ -10,6 +10,7 @@ const {
   viewScholarshipDetails,
   showApplyForm,
   getRecommendations,
+  generateAndSaveRecommendations,
   getMyApplications,
   viewApplicationDetails,
   getNotifications,
@@ -86,6 +87,7 @@ router.post('/applications/:id/withdraw', withdrawApplication);
 
 // Recommendations (GPT-powered)
 router.get('/recommendations', getRecommendations);
+router.post('/recommendations/generate', generateAndSaveRecommendations);
 
 // Notifications
 router.get('/notifications', getNotifications);

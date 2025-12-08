@@ -7,6 +7,7 @@ const { db } = require("../config/firebaseConfig");
 const {
   doc,
   getDoc,
+  setDoc,
   collection,
   getDocs,
   query,
@@ -257,7 +258,7 @@ async function showApplyForm(req, res) {
 }
 
 /**
- * Get GPT-powered scholarship recommendations
+ * Get saved scholarship recommendations (loads from database)
  */
 async function getRecommendations(req, res) {
   if (!req.session.user || req.session.user.role !== "student") {
@@ -276,8 +277,87 @@ async function getRecommendations(req, res) {
         email: req.session.user.email,
         recommendations: [],
         hasAssessment: false,
+        lastGenerated: null,
         error: "Please complete your assessment to get personalized recommendations."
       });
+    }
+
+    const assessment = assessmentDoc.data();
+
+    // Get saved recommendations from database
+    const recommendationsRef = doc(db, "users", studentUid, "recommendations", "main");
+    const recommendationsDoc = await getDoc(recommendationsRef);
+
+    if (!recommendationsDoc.exists()) {
+      // No saved recommendations yet - show empty state with generate button
+      return res.render("student/recommendations", {
+        email: req.session.user.email,
+        recommendations: [],
+        hasAssessment: true,
+        lastGenerated: null,
+        assessment
+      });
+    }
+
+    const savedData = recommendationsDoc.data();
+    const savedRecommendations = savedData.recommendations || [];
+    const lastGenerated = savedData.generatedAt;
+
+    // Get current scholarship data to enrich saved recommendations
+    const scholarshipsRef = collection(db, "scholarships");
+    const snapshot = await getDocs(scholarshipsRef);
+
+    const scholarshipsMap = {};
+    snapshot.forEach(doc => {
+      scholarshipsMap[doc.id] = { id: doc.id, ...doc.data() };
+    });
+
+    // Enhance saved recommendations with current scholarship data
+    const enhancedRecommendations = savedRecommendations.map(rec => {
+      const scholarship = scholarshipsMap[rec.scholarshipId];
+      return {
+        ...rec,
+        scholarship
+      };
+    }).filter(rec => rec.scholarship); // Filter out recommendations for deleted scholarships
+
+    res.render("student/recommendations", {
+      email: req.session.user.email,
+      recommendations: enhancedRecommendations,
+      hasAssessment: true,
+      lastGenerated,
+      assessment
+    });
+
+  } catch (error) {
+    console.error("❌ Error getting recommendations:", error);
+    res.render("student/recommendations", {
+      email: req.session.user.email,
+      recommendations: [],
+      hasAssessment: true,
+      lastGenerated: null,
+      error: "Error loading recommendations. Please try again later."
+    });
+  }
+}
+
+/**
+ * Generate and save AI-powered scholarship recommendations
+ */
+async function generateAndSaveRecommendations(req, res) {
+  if (!req.session.user || req.session.user.role !== "student") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const studentUid = req.session.user.uid;
+
+  try {
+    // Get student's assessment
+    const assessmentRef = doc(db, "users", studentUid, "assessment", "main");
+    const assessmentDoc = await getDoc(assessmentRef);
+
+    if (!assessmentDoc.exists()) {
+      return res.status(400).json({ error: "Please complete your assessment first." });
     }
 
     const assessment = assessmentDoc.data();
@@ -297,41 +377,35 @@ async function getRecommendations(req, res) {
     });
 
     if (scholarships.length === 0) {
-      return res.render("student/recommendations", {
-        email: req.session.user.email,
-        recommendations: [],
-        hasAssessment: true,
-        error: "No scholarships are currently available."
-      });
+      return res.status(400).json({ error: "No scholarships are currently available." });
     }
 
     // Get GPT recommendations
     const recommendations = await matchStudentToScholarships(assessment, scholarships);
 
-    // Enhance recommendations with full scholarship data
-    const enhancedRecommendations = recommendations.map(rec => {
-      const scholarship = scholarships.find(s => s.id === rec.scholarshipId);
-      return {
-        ...rec,
-        scholarship
-      };
+    // Save recommendations to database
+    const recommendationsRef = doc(db, "users", studentUid, "recommendations", "main");
+    await setDoc(recommendationsRef, {
+      recommendations: recommendations,
+      generatedAt: new Date().toISOString(),
+      assessmentSnapshot: {
+        gpa: assessment.gpa,
+        course: assessment.course,
+        yearLevel: assessment.yearLevel
+      }
     });
 
-    res.render("student/recommendations", {
-      email: req.session.user.email,
-      recommendations: enhancedRecommendations,
-      hasAssessment: true,
-      assessment
+    console.log(`✅ Saved ${recommendations.length} recommendations for student ${studentUid}`);
+
+    res.json({
+      success: true,
+      count: recommendations.length,
+      message: `Generated ${recommendations.length} scholarship recommendations.`
     });
 
   } catch (error) {
-    console.error("❌ Error getting recommendations:", error);
-    res.render("student/recommendations", {
-      email: req.session.user.email,
-      recommendations: [],
-      hasAssessment: true,
-      error: "Error generating recommendations. Please try again later."
-    });
+    console.error("❌ Error generating recommendations:", error);
+    res.status(500).json({ error: "Failed to generate recommendations. Please try again later." });
   }
 }
 
@@ -523,6 +597,7 @@ module.exports = {
   viewScholarshipDetails,
   showApplyForm,
   getRecommendations,
+  generateAndSaveRecommendations,
   getMyApplications,
   viewApplicationDetails,
   getNotifications,
