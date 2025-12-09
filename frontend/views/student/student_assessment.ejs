@@ -85,7 +85,7 @@
     }
 
     .form-group label .required {
-      color: var(--danger-500);
+      color: #ef4444;
     }
 
     .form-group input,
@@ -270,6 +270,13 @@
             <p><%= hasCompletedAssessment ? 'Keep your information up to date for better scholarship matches' : 'Fill out this form to get personalized scholarship recommendations' %></p>
           </div>
 
+          <% if (typeof redirectScholarshipId !== 'undefined' && redirectScholarshipId) { %>
+          <div style="background: var(--primary-50); border-left: 4px solid var(--primary-500); padding: 1rem 1.5rem; margin: 1rem 1.5rem 0;">
+            <strong style="color: var(--primary-700);">Complete your profile to apply</strong>
+            <p style="margin: 0.5rem 0 0; color: var(--text-secondary); font-size: 0.875rem;">Please fill out this assessment form first. After submission, you will be redirected to complete your scholarship application.</p>
+          </div>
+          <% } %>
+
           <div class="form-body">
             <div class="progress-text">Complete all sections to maximize your scholarship matches</div>
             <div class="progress-bar">
@@ -277,6 +284,9 @@
             </div>
 
             <form action="/student/assessment" method="POST" enctype="multipart/form-data" id="assessmentForm">
+              <% if (typeof redirectScholarshipId !== 'undefined' && redirectScholarshipId) { %>
+                <input type="hidden" name="redirectScholarshipId" value="<%= redirectScholarshipId %>">
+              <% } %>
 
               <!-- Personal Information -->
               <div class="form-section">
@@ -471,7 +481,7 @@
                   <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
                   <% if (hasCompletedAssessment && assessmentData && assessmentData.gradesFile) { %>
                     <div class="current-file">
-                      <span>✅</span> Current file uploaded - leave empty to keep
+                      Current file uploaded - leave empty to keep
                     </div>
                   <% } %>
                 </div>
@@ -482,7 +492,7 @@
                   <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
                   <% if (hasCompletedAssessment && assessmentData && assessmentData.coeFile) { %>
                     <div class="current-file">
-                      <span>✅</span> Current file uploaded - leave empty to keep
+                      Current file uploaded - leave empty to keep
                     </div>
                   <% } %>
                 </div>
@@ -493,7 +503,7 @@
                   <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
                   <% if (hasCompletedAssessment && assessmentData && assessmentData.schoolIdFile) { %>
                     <div class="current-file">
-                      <span>✅</span> Current file uploaded - leave empty to keep
+                      Current file uploaded - leave empty to keep
                     </div>
                   <% } %>
                 </div>
@@ -508,7 +518,6 @@
               <!-- Submit -->
               <div class="submit-section">
                 <button type="submit" class="btn-submit" id="submitBtn">
-                  <span><%= hasCompletedAssessment ? '💾' : '🚀' %></span>
                   <%= hasCompletedAssessment ? 'Save Changes' : 'Submit Assessment' %>
                 </button>
               </div>
@@ -525,7 +534,7 @@
   <script>
     const form = document.getElementById('assessmentForm');
     const submitBtn = document.getElementById('submitBtn');
-    const hasCompletedAssessment = <%= hasCompletedAssessment ? 'true' : 'false' %>;
+    const hasCompletedAssessment = "<%= hasCompletedAssessment ? 'yes' : 'no' %>" === "yes";
     const progressFill = document.getElementById('progressFill');
 
     // Toggle checkbox styling
@@ -574,7 +583,7 @@
       }
 
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span>⏳</span> ' + (hasCompletedAssessment ? 'Saving...' : 'Submitting...');
+      submitBtn.innerHTML = hasCompletedAssessment ? 'Saving...' : 'Submitting...';
     });
   </script>
 </body>

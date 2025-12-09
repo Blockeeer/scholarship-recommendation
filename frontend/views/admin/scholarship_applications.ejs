@@ -478,7 +478,7 @@
           <!-- Exam Details Section -->
           <% if (scholarship.examSchedule) { %>
             <div class="exam-details-banner">
-              <h4>📅 Exam Schedule Set by Sponsor</h4>
+              <h4>Exam Schedule Set by Sponsor</h4>
               <div class="exam-details-grid">
                 <div class="exam-detail-item">
                   <div class="exam-detail-label">Date</div>
@@ -498,7 +498,7 @@
               <% } %>
               <% if (notifiedApps.length > 0) { %>
                 <button class="btn-send-exam" onclick="sendExamDetails()" id="sendExamBtn">
-                  📧 Send Exam Details to <%= notifiedApps.length %> Notified Student(s)
+                  Send Exam Details to <%= notifiedApps.length %> Notified Student(s)
                 </button>
               <% } else { %>
                 <p style="font-size: 0.875rem; opacity: 0.8;">Notify students first, then you can send them the exam details.</p>
@@ -512,7 +512,7 @@
 
           <% if (applications.length === 0) { %>
             <div class="empty-state">
-              <div class="empty-icon">📭</div>
+              <div class="empty-icon"></div>
               <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No Applications Yet</h3>
               <p style="color: var(--text-secondary, #4b5563);">Students haven't applied to this scholarship yet.</p>
             </div>
@@ -862,7 +862,7 @@
 
       const btn = document.getElementById('sendExamBtn');
       btn.disabled = true;
-      btn.innerHTML = '⏳ Sending...';
+      btn.innerHTML = 'Sending...';
 
       try {
         const response = await fetch('/admin/scholarships/' + scholarshipId + '/send-exam-details', {
@@ -874,16 +874,16 @@
 
         if (data.success) {
           alert(`Exam details sent to ${data.count} student(s) successfully!`);
-          btn.innerHTML = '✅ Sent!';
+          btn.innerHTML = 'Sent!';
         } else {
           alert('Error: ' + (data.error || 'Failed to send exam details'));
           btn.disabled = false;
-          btn.innerHTML = '📧 Send Exam Details';
+          btn.innerHTML = 'Send Exam Details';
         }
       } catch (err) {
         alert('Error sending exam details');
         btn.disabled = false;
-        btn.innerHTML = '📧 Send Exam Details';
+        btn.innerHTML = 'Send Exam Details';
       }
     }
   </script>

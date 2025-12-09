@@ -423,7 +423,7 @@
             </div>
           <% } else { %>
             <div class="empty-inbox">
-              <div class="icon">📭</div>
+              <div class="icon"></div>
               <h3>No Notifications</h3>
               <p>You're all caught up! New notifications will appear here.</p>
             </div>
@@ -464,7 +464,7 @@
               </div>
 
               <button type="submit" class="btn-send" id="sendBtn">
-                <span>📤</span> Send Notification
+                Send Notification
               </button>
             </form>
 
@@ -487,7 +487,6 @@
 
   <!-- Success Toast -->
   <div class="success-toast" id="successToast">
-    <span>✅</span>
     <span id="toastMessage">Notification sent successfully!</span>
   </div>
 
@@ -551,7 +550,7 @@
 
       const btn = document.getElementById('sendBtn');
       btn.disabled = true;
-      btn.innerHTML = '<span>⏳</span> Sending...';
+      btn.innerHTML = 'Sending...';
 
       const data = {
         targetRole: document.getElementById('targetRole').value,
@@ -569,7 +568,7 @@
         const result = await response.json();
 
         btn.disabled = false;
-        btn.innerHTML = '<span>📤</span> Send Notification';
+        btn.innerHTML = 'Send Notification';
 
         if (result.success) {
           showToast(result.message || 'Notification sent successfully!');
@@ -580,7 +579,7 @@
         }
       } catch (err) {
         btn.disabled = false;
-        btn.innerHTML = '<span>📤</span> Send Notification';
+        btn.innerHTML = 'Send Notification';
         alert('Error sending notification');
       }
     });

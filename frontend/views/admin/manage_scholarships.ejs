@@ -190,28 +190,28 @@
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-header">
-                <div class="stat-icon">⏳</div>
+                <div class="stat-icon"></div>
               </div>
               <div class="stat-value"><%= stats.pending %></div>
               <div class="stat-label">Pending Review</div>
             </div>
             <div class="stat-card">
               <div class="stat-header">
-                <div class="stat-icon">✅</div>
+                <div class="stat-icon"></div>
               </div>
               <div class="stat-value"><%= stats.open %></div>
               <div class="stat-label">Active</div>
             </div>
             <div class="stat-card">
               <div class="stat-header">
-                <div class="stat-icon">🔒</div>
+                <div class="stat-icon"></div>
               </div>
               <div class="stat-value"><%= stats.closed %></div>
               <div class="stat-label">Closed</div>
             </div>
             <div class="stat-card">
               <div class="stat-header">
-                <div class="stat-icon">📋</div>
+                <div class="stat-icon"></div>
               </div>
               <div class="stat-value"><%= stats.total %></div>
               <div class="stat-label">Total</div>
@@ -231,7 +231,7 @@
           <div id="tab-pending" class="tab-content active">
             <% if (pendingScholarships.length === 0) { %>
               <div class="empty-state">
-                <div class="empty-state-icon">✅</div>
+                <div class="empty-state-icon"></div>
                 <h3>No Pending Scholarships</h3>
                 <p>All scholarship submissions have been reviewed.</p>
               </div>
@@ -274,7 +274,7 @@
             <% const approvedScholarships = scholarships.filter(s => s.status === 'Open' || s.status === 'Closed'); %>
             <% if (approvedScholarships.length === 0) { %>
               <div class="empty-state">
-                <div class="empty-state-icon">📋</div>
+                <div class="empty-state-icon"></div>
                 <h3>No Approved Scholarships</h3>
                 <p>Approved scholarships will appear here.</p>
               </div>
@@ -317,7 +317,7 @@
           <div id="tab-all" class="tab-content">
             <% if (scholarships.length === 0) { %>
               <div class="empty-state">
-                <div class="empty-state-icon">📋</div>
+                <div class="empty-state-icon"></div>
                 <h3>No Scholarships</h3>
                 <p>No scholarships have been created yet.</p>
               </div>

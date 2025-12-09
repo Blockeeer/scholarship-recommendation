@@ -478,23 +478,23 @@
               <h3>Actions</h3>
               <div class="action-buttons">
                 <a href="/sponsor/offers/<%= scholarship.id %>/applications" class="btn btn-success">
-                  📋 View Applications
+                  View Applications
                 </a>
 
                 <form action="/sponsor/offers/<%= scholarship.id %>/status" method="POST" style="margin: 0;">
                   <input type="hidden" name="status" value="<%= scholarship.status === 'Open' ? 'Closed' : 'Open' %>">
                   <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <%= scholarship.status === 'Open' ? '🔒 Close Scholarship' : '🔓 Reopen Scholarship' %>
+                    <%= scholarship.status === 'Open' ? 'Close Scholarship' : 'Reopen Scholarship' %>
                   </button>
                 </form>
 
                 <a href="/sponsor/offers/<%= scholarship.id %>/edit" class="btn btn-secondary">
-                  ✏️ Edit Details
+                  Edit Details
                 </a>
 
                 <form action="/sponsor/offers/<%= scholarship.id %>/delete" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this scholarship? This action cannot be undone.')">
                   <button type="submit" class="btn btn-danger" style="width: 100%;">
-                    🗑️ Delete Scholarship
+                    Delete Scholarship
                   </button>
                 </form>
               </div>
@@ -503,27 +503,27 @@
             <!-- Exam Schedule -->
             <div class="exam-card">
               <div class="exam-header">
-                <h3>📅 Exam Schedule</h3>
+                <h3>Exam Schedule</h3>
               </div>
               <div class="exam-body">
                 <% if (scholarship.examSchedule) { %>
                   <div class="exam-info">
                     <div class="exam-info-item">
-                      <span class="exam-info-icon">📅</span>
+                      <span class="exam-info-icon"></span>
                       <div class="exam-info-content">
                         <div class="exam-info-label">Date</div>
                         <div class="exam-info-value"><%= new Date(scholarship.examSchedule.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></div>
                       </div>
                     </div>
                     <div class="exam-info-item">
-                      <span class="exam-info-icon">🕐</span>
+                      <span class="exam-info-icon"></span>
                       <div class="exam-info-content">
                         <div class="exam-info-label">Time</div>
                         <div class="exam-info-value"><%= scholarship.examSchedule.time %></div>
                       </div>
                     </div>
                     <div class="exam-info-item">
-                      <span class="exam-info-icon">📍</span>
+                      <span class="exam-info-icon"></span>
                       <div class="exam-info-content">
                         <div class="exam-info-label">Venue</div>
                         <div class="exam-info-value"><%= scholarship.examSchedule.venue %></div>
@@ -531,7 +531,7 @@
                     </div>
                     <% if (scholarship.examSchedule.notes) { %>
                       <div class="exam-info-item">
-                        <span class="exam-info-icon">📝</span>
+                        <span class="exam-info-icon"></span>
                         <div class="exam-info-content">
                           <div class="exam-info-label">Additional Notes</div>
                           <div class="exam-info-value"><%= scholarship.examSchedule.notes %></div>
@@ -540,13 +540,13 @@
                     <% } %>
                   </div>
                   <button class="btn btn-primary" style="width: 100%;" onclick="openExamModal(true)">
-                    ✏️ Update Schedule
+                    Update Schedule
                   </button>
                 <% } else { %>
                   <div class="no-exam">
                     <p>No exam schedule set yet.</p>
                     <button class="btn btn-primary" onclick="openExamModal(false)">
-                      📅 Set Exam Schedule
+                      Set Exam Schedule
                     </button>
                   </div>
                 <% } %>
@@ -598,7 +598,6 @@
 
   <!-- Toast -->
   <div class="toast" id="toast">
-    <span>✅</span>
     <span id="toastMessage">Saved!</span>
   </div>
 

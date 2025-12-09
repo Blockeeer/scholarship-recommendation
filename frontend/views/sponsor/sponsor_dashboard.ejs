@@ -27,17 +27,17 @@
   <!-- Welcome Banner -->
   <div class="welcome-banner">
     <div class="welcome-content">
-      <h1>Welcome, <%= fullName || 'Sponsor' %>! 🏢</h1>
+      <h1>Welcome, <%= fullName || 'Sponsor' %>!</h1>
       <p>Manage your scholarship offers and connect with students</p>
     </div>
-    <div class="welcome-icon">💼</div>
+    <div class="welcome-icon"></div>
   </div>
 
   <!-- Stats Grid -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-header">
-        <div class="stat-icon">📋</div>
+        <div class="stat-icon"></div>
       </div>
       <div class="stat-value"><%= schStats.open %></div>
       <div class="stat-label">Active Scholarships</div>
@@ -46,7 +46,7 @@
 
     <div class="stat-card">
       <div class="stat-header">
-        <div class="stat-icon">👥</div>
+        <div class="stat-icon"></div>
       </div>
       <div class="stat-value"><%= appStats.total %></div>
       <div class="stat-label">Total Applications</div>
@@ -55,7 +55,7 @@
 
     <div class="stat-card">
       <div class="stat-header">
-        <div class="stat-icon">⏳</div>
+        <div class="stat-icon"></div>
       </div>
       <div class="stat-value"><%= appStats.pending %></div>
       <div class="stat-label">Pending Reviews</div>
@@ -64,7 +64,7 @@
 
     <div class="stat-card">
       <div class="stat-header">
-        <div class="stat-icon">🎓</div>
+        <div class="stat-icon"></div>
       </div>
       <div class="stat-value"><%= schStats.totalSlots - schStats.filledSlots %></div>
       <div class="stat-label">Available Slots</div>
@@ -75,21 +75,21 @@
   <!-- Action Cards -->
   <div class="action-grid">
     <div class="action-card">
-      <div class="action-icon">➕</div>
+      <div class="action-icon"></div>
       <h2 class="action-title">Create New Offer</h2>
       <p class="action-description">Add a new scholarship opportunity for students</p>
       <a href="/sponsor/add-offer" class="btn btn-primary">Create Scholarship</a>
     </div>
 
     <div class="action-card">
-      <div class="action-icon">📋</div>
+      <div class="action-icon"></div>
       <h2 class="action-title">Manage Offers</h2>
       <p class="action-description">View and edit your existing scholarship listings</p>
       <a href="/sponsor/offers" class="btn btn-primary">View My Offers</a>
     </div>
 
     <div class="action-card">
-      <div class="action-icon">👥</div>
+      <div class="action-icon"></div>
       <h2 class="action-title">Review Applicants</h2>
       <p class="action-description">Review and approve student applications</p>
       <a href="/sponsor/offers" class="btn btn-primary">View Applications</a>

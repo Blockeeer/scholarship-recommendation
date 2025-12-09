@@ -188,28 +188,28 @@
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-header">
-                <div class="stat-icon">📝</div>
+                <div class="stat-icon"></div>
               </div>
               <div class="stat-value"><%= stats.total %></div>
               <div class="stat-label">Total Applications</div>
             </div>
             <div class="stat-card">
               <div class="stat-header">
-                <div class="stat-icon">⏳</div>
+                <div class="stat-icon"></div>
               </div>
               <div class="stat-value"><%= stats.pending + stats.underReview %></div>
               <div class="stat-label">Pending Review</div>
             </div>
             <div class="stat-card">
               <div class="stat-header">
-                <div class="stat-icon">✅</div>
+                <div class="stat-icon"></div>
               </div>
               <div class="stat-value"><%= stats.approved %></div>
               <div class="stat-label">Approved</div>
             </div>
             <div class="stat-card">
               <div class="stat-header">
-                <div class="stat-icon">❌</div>
+                <div class="stat-icon"></div>
               </div>
               <div class="stat-value"><%= stats.rejected %></div>
               <div class="stat-label">Rejected</div>
@@ -247,7 +247,7 @@
           <!-- Applications Table -->
           <% if (applications.length === 0) { %>
             <div class="empty-state">
-              <div class="empty-state-icon">📋</div>
+              <div class="empty-state-icon"></div>
               <h3>No Applications</h3>
               <p>No applications have been submitted yet.</p>
             </div>

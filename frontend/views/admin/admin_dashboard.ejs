@@ -32,16 +32,16 @@
         <div class="dashboard-wrapper">
       <div class="welcome-banner">
         <div class="welcome-content">
-          <h1>Welcome, <%= fullName || 'Admin' %>! 👨‍💼</h1>
+          <h1>Welcome, <%= fullName || 'Admin' %>!</h1>
           <p>Manage and oversee the scholarship system</p>
         </div>
-        <div class="welcome-icon">🛡️</div>
+        <div class="welcome-icon"></div>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-header">
-            <div class="stat-icon">⏳</div>
+            <div class="stat-icon"></div>
           </div>
           <div class="stat-value"><%= adminStats.pendingScholarships %></div>
           <div class="stat-label">Pending Scholarships</div>
@@ -50,7 +50,7 @@
 
         <div class="stat-card">
           <div class="stat-header">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon"></div>
           </div>
           <div class="stat-value"><%= adminStats.totalScholarships - adminStats.pendingScholarships %></div>
           <div class="stat-label">Active Scholarships</div>
@@ -59,7 +59,7 @@
 
         <div class="stat-card">
           <div class="stat-header">
-            <div class="stat-icon">👥</div>
+            <div class="stat-icon"></div>
           </div>
           <div class="stat-value"><%= adminStats.totalStudents + adminStats.totalSponsors %></div>
           <div class="stat-label">Total Users</div>
@@ -68,7 +68,7 @@
 
         <div class="stat-card">
           <div class="stat-header">
-            <div class="stat-icon">📊</div>
+            <div class="stat-icon"></div>
           </div>
           <div class="stat-value"><%= adminStats.totalApplications %></div>
           <div class="stat-label">Total Applications</div>
@@ -78,21 +78,21 @@
 
       <div class="action-grid">
         <div class="action-card">
-          <div class="action-icon">⏳</div>
+          <div class="action-icon"></div>
           <h2 class="action-title">Review Pending Offers</h2>
           <p class="action-description">Review and approve scholarship offers submitted by sponsors</p>
           <a href="/admin/pending-scholarships" class="btn btn-primary">Review Now</a>
         </div>
 
         <div class="action-card">
-          <div class="action-icon">✅</div>
+          <div class="action-icon"></div>
           <h2 class="action-title">Manage Approved Offers</h2>
           <p class="action-description">View and manage all approved scholarship opportunities</p>
           <a href="/admin/approved-scholarships" class="btn btn-primary">View Offers</a>
         </div>
 
         <div class="action-card">
-          <div class="action-icon">📈</div>
+          <div class="action-icon"></div>
           <h2 class="action-title">System Analytics</h2>
           <p class="action-description">View comprehensive reports and system statistics</p>
           <a href="/admin/analytics" class="btn btn-primary">View Analytics</a>

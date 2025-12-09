@@ -11,6 +11,7 @@ async function showAssessmentForm(req, res) {
   }
 
   const userUid = req.session.user.uid;
+  const redirectScholarshipId = req.query.redirect || null;
 
   try {
     // Check if user has already completed assessment
@@ -33,7 +34,8 @@ async function showAssessmentForm(req, res) {
       email: req.session.user.email,
       uid: req.session.user.uid,
       hasCompletedAssessment,
-      assessmentData
+      assessmentData,
+      redirectScholarshipId
     });
   } catch (error) {
     console.error("Error loading assessment form:", error);
@@ -67,7 +69,8 @@ async function submitAssessment(req, res) {
     scholarshipType,
     skills,
     involvement,
-    essayReason
+    essayReason,
+    redirectScholarshipId
   } = req.body;
 
   // Validate required fields
@@ -126,8 +129,14 @@ async function submitAssessment(req, res) {
 
     console.log("✅ Assessment submitted successfully for UID:", userUid);
     console.log("✅ User document updated with assessment completion flag");
+
+    // If there's a redirect scholarship ID, redirect to the scholarship apply page
+    if (redirectScholarshipId) {
+      console.log("🔄 Redirecting to scholarship apply page:", redirectScholarshipId);
+      return res.redirect("/student/scholarships/" + redirectScholarshipId + "/apply");
+    }
+
     console.log("🔄 Redirecting to /dashboard");
-    
     return res.redirect("/dashboard");
   } catch (err) {
     console.error("❌ Error submitting assessment:", err);

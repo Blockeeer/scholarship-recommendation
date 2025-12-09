@@ -317,7 +317,7 @@
                     <div class="notification-message"><%= notif.message %></div>
                     <div class="notification-footer">
                       <div class="notification-time">
-                        <span>🕐</span>
+                        <span></span>
                         <%= new Date(notif.createdAt).toLocaleString() %>
                       </div>
                       <% if (!notif.read) { %>
@@ -330,7 +330,7 @@
             </div>
           <% } else { %>
             <div class="empty-state">
-              <div class="icon">📭</div>
+              <div class="icon"></div>
               <h3>No Notifications Yet</h3>
               <p>You're all caught up! We'll notify you when there's something new.</p>
             </div>
@@ -344,7 +344,6 @@
 
   <!-- Toast -->
   <div class="toast" id="toast">
-    <span>✅</span>
     <span id="toastMessage">Done!</span>
   </div>
 
