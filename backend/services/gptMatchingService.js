@@ -63,19 +63,23 @@ async function callGPTAPI(systemPrompt, userPrompt) {
 async function matchStudentToScholarships(studentAssessment, scholarships) {
   console.log("🤖 Starting GPT matching for student...");
 
-  const systemPrompt = `You are a scholarship matching expert. Your task is to analyze a student's profile and match them with suitable scholarships.
+  const systemPrompt = `You are a scholarship matching expert. Your task is to analyze a student's profile and match them with ALL available scholarships.
 
 For each scholarship, evaluate the student's fit based on:
-1. GPA requirement match
-2. Course/program eligibility
-3. Year level eligibility
-4. Financial need (income range vs income limit)
-5. Skills match
+1. GPA requirement match (student GPA vs minimum required)
+2. Course/program eligibility (student course vs eligible courses)
+3. Year level eligibility (student year vs eligible years)
+4. Financial need (student income range vs scholarship income limit)
+5. Skills match (student skills vs required skills)
 6. Overall scholarship type fit (Merit, Need-based, etc.)
 
-Provide a match score (0-100) and brief explanation for each scholarship.
+Provide a personalized match score (0-100) and a specific explanation for each scholarship based on THIS student's unique profile.
 
-IMPORTANT: Return your response as a valid JSON array only, with no additional text.`;
+CRITICAL RULES:
+- You MUST evaluate and return ALL scholarships provided - do not skip any
+- Each explanation should be personalized to this specific student
+- Return your response as a valid JSON array only, with no additional text
+- Even low-match scholarships should be included with appropriate scores`;
 
   const userPrompt = `
 Student Profile:
@@ -102,7 +106,7 @@ ${JSON.stringify(scholarships.map(s => ({
   slotsAvailable: s.slotsAvailable - (s.slotsFilled || 0)
 })), null, 2)}
 
-Return a JSON array with the following structure for each scholarship:
+Return a JSON array with the following structure for EVERY scholarship provided (do not skip any):
 [
   {
     "scholarshipId": "id",
@@ -116,12 +120,12 @@ Return a JSON array with the following structure for each scholarship:
       "incomeMatch": true,
       "skillsMatch": true
     },
-    "explanation": "Brief explanation of why this is a good/poor match",
+    "explanation": "Brief explanation of why this is a good/poor match for this specific student",
     "recommendation": "Highly Recommended" | "Recommended" | "Consider" | "Not Recommended"
   }
 ]
 
-Only include scholarships where the student has some eligibility. Sort by matchScore descending.`;
+IMPORTANT: You MUST include ALL scholarships in your response, even if they are not a perfect match. Provide a matchScore for each one based on how well the student fits. Sort by matchScore descending.`;
 
   try {
     const gptResponse = await callGPTAPI(systemPrompt, userPrompt);
@@ -358,23 +362,21 @@ function performBasicMatching(studentAssessment, scholarships) {
     // Ensure score is between 0 and 100
     matchScore = Math.max(0, Math.min(100, matchScore));
 
-    // Only include if somewhat eligible
-    if (matchScore >= 30 && matchDetails.gpaMatch) {
-      let recommendation = "Not Recommended";
-      if (matchScore >= 80) recommendation = "Highly Recommended";
-      else if (matchScore >= 60) recommendation = "Recommended";
-      else if (matchScore >= 40) recommendation = "Consider";
+    // Include ALL scholarships with their match scores
+    let recommendation = "Not Recommended";
+    if (matchScore >= 80) recommendation = "Highly Recommended";
+    else if (matchScore >= 60) recommendation = "Recommended";
+    else if (matchScore >= 40) recommendation = "Consider";
 
-      matches.push({
-        scholarshipId: scholarship.id,
-        scholarshipName: scholarship.scholarshipName,
-        matchScore,
-        eligible: matchDetails.gpaMatch && matchDetails.courseMatch,
-        matchDetails,
-        explanation: `Based on your profile, this scholarship has a ${matchScore}% match score.`,
-        recommendation
-      });
-    }
+    matches.push({
+      scholarshipId: scholarship.id,
+      scholarshipName: scholarship.scholarshipName,
+      matchScore,
+      eligible: matchDetails.gpaMatch && matchDetails.courseMatch,
+      matchDetails,
+      explanation: `Based on your profile, this scholarship has a ${matchScore}% match score.`,
+      recommendation
+    });
   }
 
   // Sort by match score

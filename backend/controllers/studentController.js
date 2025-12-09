@@ -382,22 +382,32 @@ async function generateAndSaveRecommendations(req, res) {
       return res.status(400).json({ error: "No scholarships are currently available." });
     }
 
-    // Get GPT recommendations
+    console.log(`📊 Found ${scholarships.length} open scholarships for matching`);
+    console.log(`👤 Generating personalized recommendations for: ${assessment.fullName}`);
+
+    // Get GPT recommendations - personalized for this specific student
     const recommendations = await matchStudentToScholarships(assessment, scholarships);
 
-    // Save recommendations to database
+    // Sort recommendations by matchScore (highest to lowest)
+    recommendations.sort((a, b) => b.matchScore - a.matchScore);
+
+    // Save recommendations to database (each student has their own recommendations)
     const recommendationsRef = doc(db, "users", studentUid, "recommendations", "main");
     await setDoc(recommendationsRef, {
       recommendations: recommendations,
       generatedAt: new Date().toISOString(),
+      studentName: assessment.fullName,
       assessmentSnapshot: {
+        fullName: assessment.fullName,
         gpa: assessment.gpa,
         course: assessment.course,
-        yearLevel: assessment.yearLevel
+        yearLevel: assessment.yearLevel,
+        incomeRange: assessment.incomeRange,
+        scholarshipType: assessment.scholarshipType
       }
     });
 
-    console.log(`✅ Saved ${recommendations.length} recommendations for student ${studentUid}`);
+    console.log(`✅ Saved ${recommendations.length} personalized recommendations for student ${assessment.fullName} (${studentUid})`);
 
     res.json({
       success: true,
