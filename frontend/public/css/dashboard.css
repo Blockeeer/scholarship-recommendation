@@ -36,6 +36,12 @@
 .welcome-content h1 {
   font-size: 2rem;
   margin-bottom: 0.5rem;
+  color: white;
+}
+
+.welcome-content p {
+  color: white;
+  opacity: 0.95;
 }
 
 .welcome-icon {

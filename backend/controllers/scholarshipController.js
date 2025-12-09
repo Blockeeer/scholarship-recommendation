@@ -33,12 +33,14 @@ async function addScholarshipOffer(req, res) {
     scholarshipName,
     organizationName,
     scholarshipType,
+    description,
     minGPA,
     eligibleCourses,
     eligibleYearLevels,
     incomeLimit,
     requiredSkills,
     requiredDocuments,
+    additionalDocuments,
     slotsAvailable,
     startDate,
     endDate,
@@ -49,6 +51,14 @@ async function addScholarshipOffer(req, res) {
   if (!scholarshipName || !organizationName || !scholarshipType || !minGPA || !slotsAvailable || !startDate || !endDate) {
     return res.status(400).send("Please fill in all required fields");
   }
+
+  // Helper function to normalize arrays (checkboxes send arrays, old form sent comma strings)
+  const normalizeToArray = (value) => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.map(v => v.trim());
+    if (typeof value === 'string') return value.split(',').map(v => v.trim()).filter(v => v);
+    return [];
+  };
 
   try {
     // Get sponsor's full name from users collection
@@ -62,25 +72,27 @@ async function addScholarshipOffer(req, res) {
       scholarshipName: scholarshipName.trim(),
       organizationName: organizationName.trim(),
       scholarshipType: scholarshipType.trim(),
-      
+      description: description ? description.trim() : "",
+
       // Qualification Criteria
       minGPA: parseFloat(minGPA),
-      eligibleCourses: eligibleCourses ? eligibleCourses.split(',').map(c => c.trim()) : [],
-      eligibleYearLevels: eligibleYearLevels ? eligibleYearLevels.split(',').map(y => y.trim()) : [],
+      eligibleCourses: normalizeToArray(eligibleCourses),
+      eligibleYearLevels: normalizeToArray(eligibleYearLevels),
       incomeLimit: incomeLimit ? incomeLimit.trim() : "",
-      requiredSkills: requiredSkills ? requiredSkills.split(',').map(s => s.trim()) : [],
-      
+      requiredSkills: normalizeToArray(requiredSkills),
+
       // Document Requirements
-      requiredDocuments: requiredDocuments ? requiredDocuments.split(',').map(d => d.trim()) : [],
-      
+      requiredDocuments: normalizeToArray(requiredDocuments),
+      additionalDocuments: additionalDocuments ? additionalDocuments.trim() : "",
+
       // Scholarship Capacity
       slotsAvailable: parseInt(slotsAvailable),
       slotsFilled: 0,
-      
+
       // Duration
       startDate: startDate,
       endDate: endDate,
-      
+
       // Status - Default to "Pending" for admin review
       status: "Pending",
 

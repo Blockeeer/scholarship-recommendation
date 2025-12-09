@@ -420,6 +420,76 @@ router.post('/applications/:id/not-selected', isAdmin, async (req, res) => {
   }
 });
 
+// Send exam details to all notified students
+router.post('/scholarships/:id/send-exam-details', isAdmin, async (req, res) => {
+  try {
+    const scholarshipId = req.params.id;
+
+    // Get scholarship
+    const scholarshipRef = doc(db, 'scholarships', scholarshipId);
+    const scholarshipDoc = await getDoc(scholarshipRef);
+
+    if (!scholarshipDoc.exists()) {
+      return res.status(404).json({ error: 'Scholarship not found' });
+    }
+
+    const scholarship = scholarshipDoc.data();
+
+    if (!scholarship.examSchedule) {
+      return res.status(400).json({ error: 'No exam schedule set for this scholarship' });
+    }
+
+    // Get all notified applications for this scholarship
+    const applicationsRef = collection(db, 'applications');
+    const q = query(applicationsRef, where('scholarshipId', '==', scholarshipId));
+    const appSnapshot = await getDocs(q);
+
+    const notificationPromises = [];
+    let count = 0;
+
+    appSnapshot.forEach(docSnap => {
+      const app = docSnap.data();
+      if (app.status === 'notified') {
+        const examDate = new Date(scholarship.examSchedule.date).toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        let message = `Exam Details for "${scholarship.scholarshipName}":\n\n` +
+          `📅 Date: ${examDate}\n` +
+          `🕐 Time: ${scholarship.examSchedule.time}\n` +
+          `📍 Venue: ${scholarship.examSchedule.venue}`;
+
+        if (scholarship.examSchedule.notes) {
+          message += `\n\n📝 Notes: ${scholarship.examSchedule.notes}`;
+        }
+
+        notificationPromises.push(
+          createNotification(
+            app.studentUid,
+            'exam_schedule',
+            'Exam Schedule - ' + scholarship.scholarshipName,
+            message,
+            scholarshipId
+          )
+        );
+        count++;
+      }
+    });
+
+    await Promise.all(notificationPromises);
+
+    console.log(`✅ Sent exam details to ${count} students for scholarship ${scholarshipId}`);
+
+    res.json({ success: true, count, message: `Exam details sent to ${count} student(s)` });
+  } catch (error) {
+    console.error('Error sending exam details:', error);
+    res.status(500).json({ error: 'Failed to send exam details' });
+  }
+});
+
 // Mark all remaining applications as not selected for a scholarship
 router.post('/scholarships/:id/mark-remaining-not-selected', isAdmin, async (req, res) => {
   try {
@@ -530,30 +600,65 @@ router.get('/reports', isAdmin, async (req, res) => {
     const applications = [];
     applicationsSnapshot.forEach(doc => applications.push({ id: doc.id, ...doc.data() }));
 
+    // Calculate slots
+    const totalSlots = scholarships.reduce((sum, s) => sum + (s.slotsAvailable || 0), 0);
+    const filledSlots = scholarships.reduce((sum, s) => sum + (s.slotsFilled || 0), 0);
+
+    // Calculate new users this month
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const newThisMonth = users.filter(u => {
+      const created = u.createdAt ? new Date(u.createdAt) : null;
+      return created && created >= startOfMonth;
+    }).length;
+
+    // Calculate scholarship types
+    const scholarshipTypes = {};
+    scholarships.forEach(s => {
+      const type = s.scholarshipType || 'Other';
+      scholarshipTypes[type] = (scholarshipTypes[type] || 0) + 1;
+    });
+
+    // Calculate approval rate
+    const totalDecided = applications.filter(a =>
+      a.status === 'notified' || a.status === 'not_selected'
+    ).length;
+    const approvalRate = totalDecided > 0
+      ? Math.round((applications.filter(a => a.status === 'notified').length / totalDecided) * 100)
+      : 0;
+
     const analytics = {
       users: {
         total: users.length,
         students: users.filter(u => u.role === 'student').length,
-        sponsors: users.filter(u => u.role === 'sponsor').length
+        sponsors: users.filter(u => u.role === 'sponsor').length,
+        admins: users.filter(u => u.role === 'admin').length,
+        newThisMonth
       },
       scholarships: {
         total: scholarships.length,
         open: scholarships.filter(s => s.status === 'Open').length,
         closed: scholarships.filter(s => s.status === 'Closed').length,
-        pending: scholarships.filter(s => s.status === 'Pending').length
+        pending: scholarships.filter(s => s.status === 'Pending').length,
+        totalSlots,
+        filledSlots
       },
       applications: {
         total: applications.length,
         accepted: applications.filter(a => a.status === 'accepted').length,
         notified: applications.filter(a => a.status === 'notified').length,
         pending: applications.filter(a => a.status === 'pending' || a.status === 'under_review').length,
-        notSelected: applications.filter(a => a.status === 'not_selected').length
-      }
+        notSelected: applications.filter(a => a.status === 'not_selected').length,
+        approvalRate
+      },
+      scholarshipTypes
     };
 
     res.render('admin/reports', {
       email: req.session.user.email,
-      analytics
+      analytics,
+      applications,
+      scholarships
     });
   } catch (error) {
     console.error('Error loading reports:', error);

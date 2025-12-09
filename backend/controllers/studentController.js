@@ -63,6 +63,7 @@ async function showStudentDashboard(req, res) {
 
     res.render("student/student_dashboard", {
       email: req.session.user.email,
+      fullName: req.session.user.fullName || "",
       hasAssessment,
       applicationStats,
       availableScholarships,
@@ -73,6 +74,7 @@ async function showStudentDashboard(req, res) {
     console.error("❌ Error loading student dashboard:", error);
     res.render("student/student_dashboard", {
       email: req.session.user.email,
+      fullName: req.session.user.fullName || "",
       hasAssessment: false,
       applicationStats: { total: 0, pending: 0, approved: 0, rejected: 0 },
       availableScholarships: 0,

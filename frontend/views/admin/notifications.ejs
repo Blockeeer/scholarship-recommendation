@@ -3,122 +3,358 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Send Notifications - Admin</title>
+  <title>Notifications - Admin</title>
   <link rel="stylesheet" href="/css/global.css">
   <link rel="stylesheet" href="/css/sidebar.css">
   <link rel="stylesheet" href="/css/topbar.css">
   <link rel="stylesheet" href="/css/dashboard.css">
   <link rel="stylesheet" href="/css/footer.css">
   <style>
-    .notification-form {
-      background: var(--card-bg, white);
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      max-width: 600px;
+    .notifications-container {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
     }
+
+    @media (max-width: 1200px) {
+      .notifications-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Inbox Section */
+    .inbox-section {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .inbox-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+    }
+
+    .inbox-header h2 {
+      font-size: 1.25rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .inbox-header .unread-badge {
+      background: var(--danger-500);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+
+    .btn-mark-all {
+      padding: 0.5rem 1rem;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all var(--transition);
+    }
+
+    .btn-mark-all:hover {
+      background: var(--primary-hover);
+    }
+
+    .notifications-list {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .notification-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      transition: all var(--transition);
+      cursor: pointer;
+    }
+
+    .notification-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .notification-item.unread {
+      background: var(--primary-50);
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .notification-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .notification-icon.info { background: var(--primary-100); }
+    .notification-icon.success { background: #dcfce7; }
+    .notification-icon.warning { background: #fef3c7; }
+    .notification-icon.danger { background: #fee2e2; }
+
+    .notification-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+      font-size: 0.9375rem;
+    }
+
+    .notification-message {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .notification-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .notification-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      color: var(--text-secondary);
+    }
+
+    .btn-icon:hover {
+      background: var(--bg-tertiary);
+      color: var(--primary-color);
+    }
+
+    .empty-inbox {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-inbox .icon {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-inbox h3 {
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Send Notification Section */
+    .send-section {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+    }
+
+    .send-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+    }
+
+    .send-header h2 {
+      font-size: 1.25rem;
+      margin: 0;
+    }
+
+    .send-body {
+      padding: 1.5rem;
+    }
+
     .form-group {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
     }
+
     .form-group label {
       display: block;
       margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: var(--text-primary, #333);
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 0.875rem;
     }
+
     .form-group input,
     .form-group select,
     .form-group textarea {
       width: 100%;
       padding: 0.75rem 1rem;
-      border: 1px solid var(--border-color, #e0e0e0);
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.2s;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      transition: all var(--transition);
+      background: var(--bg-primary);
+      color: var(--text-primary);
     }
+
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
       outline: none;
-      border-color: var(--primary-color, #4f46e5);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-100);
     }
+
     .form-group textarea {
-      min-height: 150px;
+      min-height: 120px;
       resize: vertical;
     }
+
     .form-hint {
-      font-size: 0.875rem;
-      color: var(--text-secondary, #666);
+      font-size: 0.8125rem;
+      color: var(--text-muted);
       margin-top: 0.25rem;
     }
-    .btn-send {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      background: var(--primary-color, #4f46e5);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-send:hover {
-      opacity: 0.9;
-    }
-    .btn-send:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+
     .recipient-count {
-      background: var(--bg-secondary, #f8f9fa);
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-    }
-    .recipient-count strong {
-      color: var(--primary-color, #4f46e5);
-    }
-    .success-message {
-      background: #d1fae5;
-      color: #065f46;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
+      background: var(--primary-50);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      margin-bottom: 1.25rem;
+      font-size: 0.875rem;
+      color: var(--primary-700);
       display: none;
     }
-    .success-message.show {
+
+    .recipient-count.show {
       display: block;
     }
-    .quick-templates {
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--border-color, #e0e0e0);
+
+    .recipient-count strong {
+      font-weight: 600;
     }
-    .quick-templates h3 {
-      margin-bottom: 1rem;
+
+    .btn-send {
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
       font-size: 1rem;
-      color: var(--text-secondary, #666);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
+
+    .btn-send:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-send:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .quick-templates {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .quick-templates h4 {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+    }
+
     .template-btns {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
     }
+
     .template-btn {
-      padding: 0.5rem 1rem;
-      background: var(--bg-secondary, #f8f9fa);
-      border: 1px solid var(--border-color, #e0e0e0);
-      border-radius: 8px;
+      padding: 0.4rem 0.75rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
       cursor: pointer;
-      font-size: 0.875rem;
-      transition: all 0.2s;
+      font-size: 0.8125rem;
+      transition: all var(--transition);
+      color: var(--text-secondary);
     }
+
     .template-btn:hover {
-      background: var(--primary-color, #4f46e5);
+      background: var(--primary-color);
       color: white;
-      border-color: var(--primary-color, #4f46e5);
+      border-color: var(--primary-color);
+    }
+
+    .success-toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--success-500);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .success-toast.show {
+      transform: translateY(0);
+      opacity: 1;
     }
   </style>
 </head>
@@ -126,56 +362,119 @@
   <%- include('../partials/sidebar_admin') %>
 
   <div class="main-wrapper">
-    <%- include('../partials/topbar', { pageTitle: 'Send Notifications' }) %>
+    <%- include('../partials/topbar', { pageTitle: 'Notifications' }) %>
 
     <main class="page-content">
-      <div class="container">
-        <div class="dashboard-wrapper">
-          <div class="notification-form">
-            <div class="success-message" id="successMessage">
-              Notification sent successfully!
-            </div>
+      <div class="notifications-container">
+        <!-- Inbox Section -->
+        <div class="inbox-section">
+          <div class="inbox-header">
+            <h2>
+              Inbox
+              <% if (unreadCount > 0) { %>
+                <span class="unread-badge"><%= unreadCount %> new</span>
+              <% } %>
+            </h2>
+            <% if (notifications.length > 0) { %>
+              <button class="btn-mark-all" onclick="markAllRead()">Mark All Read</button>
+            <% } %>
+          </div>
 
+          <% if (notifications.length > 0) { %>
+            <div class="notifications-list">
+              <% notifications.forEach(notif => {
+                let icon = '🔔';
+                let iconClass = 'info';
+                if (notif.type === 'scholarship_approved' || notif.type === 'application_approved') {
+                  icon = '✅';
+                  iconClass = 'success';
+                } else if (notif.type === 'scholarship_rejected' || notif.type === 'application_rejected') {
+                  icon = '❌';
+                  iconClass = 'danger';
+                } else if (notif.type === 'close_request' || notif.type === 'scholarship_resubmit') {
+                  icon = '📋';
+                  iconClass = 'warning';
+                } else if (notif.type === 'application_submitted') {
+                  icon = '📝';
+                  iconClass = 'info';
+                } else if (notif.type === 'system') {
+                  icon = '⚙️';
+                  iconClass = 'info';
+                }
+              %>
+                <div class="notification-item <%= notif.read ? '' : 'unread' %>" data-id="<%= notif.id %>">
+                  <div class="notification-icon <%= iconClass %>"><%= icon %></div>
+                  <div class="notification-content">
+                    <div class="notification-title"><%= notif.title %></div>
+                    <div class="notification-message"><%= notif.message %></div>
+                    <div class="notification-meta">
+                      <span><%= new Date(notif.createdAt).toLocaleString() %></span>
+                    </div>
+                  </div>
+                  <div class="notification-actions">
+                    <% if (!notif.read) { %>
+                      <button class="btn-icon" onclick="markRead('<%= notif.id %>', event)" title="Mark as read">
+                        ✓
+                      </button>
+                    <% } %>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="empty-inbox">
+              <div class="icon">📭</div>
+              <h3>No Notifications</h3>
+              <p>You're all caught up! New notifications will appear here.</p>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Send Notification Section -->
+        <div class="send-section">
+          <div class="send-header">
+            <h2>Send Notification</h2>
+          </div>
+          <div class="send-body">
             <form id="notificationForm">
               <div class="form-group">
-                <label for="targetRole">Send To</label>
+                <label for="targetRole">Recipients</label>
                 <select id="targetRole" name="targetRole" required>
                   <option value="">Select recipients...</option>
                   <option value="all">All Users</option>
                   <option value="student">All Students</option>
                   <option value="sponsor">All Sponsors</option>
                 </select>
-                <div class="form-hint">Choose who should receive this notification</div>
               </div>
 
-              <div class="recipient-count" id="recipientCount" style="display: none;">
-                This will be sent to <strong id="countValue">0</strong> users
+              <div class="recipient-count" id="recipientCount">
+                Sending to <strong id="countValue">0</strong> users
               </div>
 
               <div class="form-group">
-                <label for="title">Notification Title</label>
-                <input type="text" id="title" name="title" placeholder="Enter notification title..." required maxlength="100">
-                <div class="form-hint">Keep it short and descriptive (max 100 characters)</div>
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" placeholder="Notification title..." required maxlength="100">
+                <div class="form-hint">Max 100 characters</div>
               </div>
 
               <div class="form-group">
                 <label for="message">Message</label>
-                <textarea id="message" name="message" placeholder="Enter your message here..." required maxlength="500"></textarea>
-                <div class="form-hint">The main content of your notification (max 500 characters)</div>
+                <textarea id="message" name="message" placeholder="Write your message..." required maxlength="500"></textarea>
+                <div class="form-hint">Max 500 characters</div>
               </div>
 
               <button type="submit" class="btn-send" id="sendBtn">
-                <span>🔔</span> Send Notification
+                <span>📤</span> Send Notification
               </button>
             </form>
 
             <div class="quick-templates">
-              <h3>Quick Templates</h3>
+              <h4>Quick Templates</h4>
               <div class="template-btns">
-                <button type="button" class="template-btn" onclick="useTemplate('deadline')">Deadline Reminder</button>
+                <button type="button" class="template-btn" onclick="useTemplate('deadline')">Deadline</button>
                 <button type="button" class="template-btn" onclick="useTemplate('newScholarship')">New Scholarship</button>
-                <button type="button" class="template-btn" onclick="useTemplate('maintenance')">System Maintenance</button>
-                <button type="button" class="template-btn" onclick="useTemplate('update')">Important Update</button>
+                <button type="button" class="template-btn" onclick="useTemplate('maintenance')">Maintenance</button>
+                <button type="button" class="template-btn" onclick="useTemplate('update')">Update</button>
               </div>
             </div>
           </div>
@@ -184,6 +483,12 @@
     </main>
 
     <%- include('../partials/footer') %>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="success-toast" id="successToast">
+    <span>✅</span>
+    <span id="toastMessage">Notification sent successfully!</span>
   </div>
 
   <script src="/js/sidebar.js"></script>
@@ -220,9 +525,9 @@
 
       if (role && userCounts[role] !== undefined) {
         countValue.textContent = userCounts[role];
-        countDiv.style.display = 'block';
+        countDiv.classList.add('show');
       } else {
-        countDiv.style.display = 'none';
+        countDiv.classList.remove('show');
       }
     });
 
@@ -234,7 +539,14 @@
       }
     }
 
-    document.getElementById('notificationForm').addEventListener('submit', function(e) {
+    function showToast(message) {
+      const toast = document.getElementById('successToast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    document.getElementById('notificationForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const btn = document.getElementById('sendBtn');
@@ -247,35 +559,85 @@
         message: document.getElementById('message').value
       };
 
-      fetch('/admin/notifications/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      })
-        .then(res => res.json())
-        .then(result => {
-          btn.disabled = false;
-          btn.innerHTML = '<span>🔔</span> Send Notification';
-
-          if (result.success) {
-            document.getElementById('successMessage').classList.add('show');
-            document.getElementById('successMessage').textContent = result.message;
-            document.getElementById('notificationForm').reset();
-            document.getElementById('recipientCount').style.display = 'none';
-
-            setTimeout(() => {
-              document.getElementById('successMessage').classList.remove('show');
-            }, 5000);
-          } else {
-            alert('Error: ' + result.error);
-          }
-        })
-        .catch(err => {
-          btn.disabled = false;
-          btn.innerHTML = '<span>🔔</span> Send Notification';
-          alert('Error sending notification');
+      try {
+        const response = await fetch('/admin/notifications/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
         });
+
+        const result = await response.json();
+
+        btn.disabled = false;
+        btn.innerHTML = '<span>📤</span> Send Notification';
+
+        if (result.success) {
+          showToast(result.message || 'Notification sent successfully!');
+          document.getElementById('notificationForm').reset();
+          document.getElementById('recipientCount').classList.remove('show');
+        } else {
+          alert('Error: ' + result.error);
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>📤</span> Send Notification';
+        alert('Error sending notification');
+      }
     });
+
+    async function markRead(notificationId, event) {
+      event.stopPropagation();
+      try {
+        const response = await fetch(`/admin/notifications/${notificationId}/read`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+          const item = document.querySelector(`[data-id="${notificationId}"]`);
+          item.classList.remove('unread');
+          const btn = item.querySelector('.btn-icon');
+          if (btn) btn.remove();
+
+          // Update unread badge
+          const badge = document.querySelector('.unread-badge');
+          if (badge) {
+            const count = parseInt(badge.textContent) - 1;
+            if (count <= 0) {
+              badge.remove();
+            } else {
+              badge.textContent = count + ' new';
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
+
+    async function markAllRead() {
+      try {
+        const response = await fetch('/admin/notifications/read-all', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+          document.querySelectorAll('.notification-item.unread').forEach(item => {
+            item.classList.remove('unread');
+            const btn = item.querySelector('.btn-icon');
+            if (btn) btn.remove();
+          });
+
+          const badge = document.querySelector('.unread-badge');
+          if (badge) badge.remove();
+
+          showToast('All notifications marked as read');
+        }
+      } catch (error) {
+        console.error('Error marking all notifications as read:', error);
+      }
+    }
   </script>
 </body>
 </html>

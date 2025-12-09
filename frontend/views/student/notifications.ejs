@@ -9,130 +9,249 @@
   <link rel="stylesheet" href="/css/topbar.css">
   <link rel="stylesheet" href="/css/footer.css">
   <style>
-    .container {
+    .notifications-page {
       max-width: 800px;
       margin: 0 auto;
-      padding: 2rem;
     }
 
     .page-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
     .page-header h1 {
-      color: #333;
+      color: var(--text-primary);
       margin: 0;
+      font-size: 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
 
-    .btn-mark-all {
-      padding: 0.5rem 1rem;
-      background: #667eea;
+    .unread-count {
+      background: var(--danger-500);
       color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      font-size: 0.875rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-full);
       font-weight: 600;
     }
 
+    .btn-mark-all {
+      padding: 0.625rem 1.25rem;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
     .btn-mark-all:hover {
-      background: #5a6fd6;
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .notifications-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
     .notifications-list {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
     }
 
     .notification-item {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       display: flex;
       gap: 1rem;
-      transition: transform 0.2s;
-      border-left: 4px solid transparent;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
     }
 
     .notification-item:hover {
-      transform: translateX(5px);
+      background: var(--bg-secondary);
     }
 
     .notification-item.unread {
-      border-left-color: #667eea;
-      background: #f8f9ff;
+      background: var(--primary-50);
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .notification-item.unread::before {
+      content: '';
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 10px;
+      height: 10px;
+      background: var(--primary-color);
+      border-radius: 50%;
     }
 
     .notification-icon {
-      font-size: 2rem;
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
       flex-shrink: 0;
+    }
+
+    .notification-icon.success {
+      background: #dcfce7;
+    }
+
+    .notification-icon.danger {
+      background: #fee2e2;
+    }
+
+    .notification-icon.info {
+      background: var(--primary-100);
+    }
+
+    .notification-icon.warning {
+      background: #fef3c7;
     }
 
     .notification-content {
       flex: 1;
+      min-width: 0;
     }
 
     .notification-title {
       font-weight: 600;
-      color: #333;
-      margin-bottom: 0.25rem;
+      color: var(--text-primary);
+      margin-bottom: 0.375rem;
+      font-size: 1rem;
     }
 
     .notification-message {
-      color: #666;
-      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
       margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+
+    .notification-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
     }
 
     .notification-time {
-      color: #999;
-      font-size: 0.85rem;
-    }
-
-    .notification-actions {
+      color: var(--text-muted);
+      font-size: 0.8125rem;
       display: flex;
       align-items: center;
+      gap: 0.375rem;
     }
 
     .btn-read {
-      padding: 0.5rem 1rem;
-      background: #e0e0e0;
-      color: #333;
-      border: none;
-      border-radius: 6px;
+      padding: 0.375rem 0.875rem;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      transition: all var(--transition);
     }
 
     .btn-read:hover {
-      background: #d0d0d0;
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
     }
 
     .empty-state {
       text-align: center;
-      padding: 4rem 2rem;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 5rem 2rem;
     }
 
     .empty-state .icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      opacity: 0.5;
+      width: 80px;
+      height: 80px;
+      background: var(--bg-secondary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2.5rem;
     }
 
     .empty-state h3 {
-      color: #666;
+      color: var(--text-primary);
       margin-bottom: 0.5rem;
+      font-size: 1.25rem;
     }
 
     .empty-state p {
-      color: #999;
+      color: var(--text-secondary);
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--success-500);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 640px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .notification-item {
+        padding: 1rem;
+      }
+
+      .notification-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+      }
     }
   </style>
 </head>
@@ -143,54 +262,101 @@
     <%- include('../partials/topbar', { pageTitle: 'Notifications' }) %>
 
     <main class="page-content">
-      <div class="container">
+      <div class="notifications-page">
         <div class="page-header">
-          <h1>Notifications</h1>
-          <% if (notifications.length > 0) { %>
-            <button class="btn-mark-all" onclick="markAllRead()">Mark All as Read</button>
+          <h1>
+            Notifications
+            <%
+              const unreadNotifs = notifications.filter(n => !n.read);
+              if (unreadNotifs.length > 0) {
+            %>
+              <span class="unread-count"><%= unreadNotifs.length %> new</span>
+            <% } %>
+          </h1>
+          <% if (notifications.length > 0 && unreadNotifs.length > 0) { %>
+            <button class="btn-mark-all" onclick="markAllRead()">
+              <span>✓</span> Mark All as Read
+            </button>
           <% } %>
         </div>
 
-        <% if (notifications.length > 0) { %>
-          <div class="notifications-list">
-            <% notifications.forEach(notif => {
-              let icon = '🔔';
-              if (notif.type === 'application_approved') icon = '✅';
-              else if (notif.type === 'application_rejected') icon = '❌';
-              else if (notif.type === 'application_update') icon = '📝';
-              else if (notif.type === 'scholarship_new') icon = '🎓';
-              else if (notif.type === 'system') icon = '⚙️';
-            %>
-              <div class="notification-item <%= notif.read ? '' : 'unread' %>" data-id="<%= notif.id %>">
-                <div class="notification-icon"><%= icon %></div>
-                <div class="notification-content">
-                  <div class="notification-title"><%= notif.title %></div>
-                  <div class="notification-message"><%= notif.message %></div>
-                  <div class="notification-time"><%= new Date(notif.createdAt).toLocaleString() %></div>
-                </div>
-                <% if (!notif.read) { %>
-                  <div class="notification-actions">
-                    <button class="btn-read" onclick="markRead('<%= notif.id %>')">Mark Read</button>
+        <div class="notifications-card">
+          <% if (notifications.length > 0) { %>
+            <div class="notifications-list">
+              <% notifications.forEach(notif => {
+                let icon = '🔔';
+                let iconClass = 'info';
+
+                if (notif.type === 'application_approved') {
+                  icon = '🎉';
+                  iconClass = 'success';
+                } else if (notif.type === 'application_rejected' || notif.type === 'application_not_selected') {
+                  icon = '😔';
+                  iconClass = 'danger';
+                } else if (notif.type === 'application_update') {
+                  icon = '📝';
+                  iconClass = 'info';
+                } else if (notif.type === 'scholarship_new') {
+                  icon = '🎓';
+                  iconClass = 'success';
+                } else if (notif.type === 'exam_schedule') {
+                  icon = '📅';
+                  iconClass = 'warning';
+                } else if (notif.type === 'system') {
+                  icon = '⚙️';
+                  iconClass = 'info';
+                } else if (notif.type === 'reminder') {
+                  icon = '⏰';
+                  iconClass = 'warning';
+                }
+              %>
+                <div class="notification-item <%= notif.read ? '' : 'unread' %>" data-id="<%= notif.id %>">
+                  <div class="notification-icon <%= iconClass %>"><%= icon %></div>
+                  <div class="notification-content">
+                    <div class="notification-title"><%= notif.title %></div>
+                    <div class="notification-message"><%= notif.message %></div>
+                    <div class="notification-footer">
+                      <div class="notification-time">
+                        <span>🕐</span>
+                        <%= new Date(notif.createdAt).toLocaleString() %>
+                      </div>
+                      <% if (!notif.read) { %>
+                        <button class="btn-read" onclick="markRead('<%= notif.id %>')">Mark as Read</button>
+                      <% } %>
+                    </div>
                   </div>
-                <% } %>
-              </div>
-            <% }); %>
-          </div>
-        <% } else { %>
-          <div class="empty-state">
-            <div class="icon">🔔</div>
-            <h3>No Notifications</h3>
-            <p>You're all caught up! Check back later for updates.</p>
-          </div>
-        <% } %>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="icon">📭</div>
+              <h3>No Notifications Yet</h3>
+              <p>You're all caught up! We'll notify you when there's something new.</p>
+            </div>
+          <% } %>
+        </div>
       </div>
     </main>
 
     <%- include('../partials/footer') %>
   </div>
 
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span>✅</span>
+    <span id="toastMessage">Done!</span>
+  </div>
+
   <script src="/js/sidebar.js"></script>
   <script>
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
     async function markRead(notificationId) {
       try {
         const response = await fetch(`/student/notifications/${notificationId}/read`, {
@@ -203,6 +369,9 @@
           item.classList.remove('unread');
           const btn = item.querySelector('.btn-read');
           if (btn) btn.remove();
+
+          // Update unread count
+          updateUnreadCount(-1);
         }
       } catch (error) {
         console.error('Error marking notification as read:', error);
@@ -222,9 +391,34 @@
             const btn = item.querySelector('.btn-read');
             if (btn) btn.remove();
           });
+
+          // Remove unread count badge
+          const badge = document.querySelector('.unread-count');
+          if (badge) badge.remove();
+
+          // Hide mark all button
+          const markAllBtn = document.querySelector('.btn-mark-all');
+          if (markAllBtn) markAllBtn.style.display = 'none';
+
+          showToast('All notifications marked as read');
         }
       } catch (error) {
         console.error('Error marking all notifications as read:', error);
+      }
+    }
+
+    function updateUnreadCount(change) {
+      const badge = document.querySelector('.unread-count');
+      if (badge) {
+        const currentCount = parseInt(badge.textContent);
+        const newCount = currentCount + change;
+        if (newCount <= 0) {
+          badge.remove();
+          const markAllBtn = document.querySelector('.btn-mark-all');
+          if (markAllBtn) markAllBtn.style.display = 'none';
+        } else {
+          badge.textContent = newCount + ' new';
+        }
       }
     }
   </script>

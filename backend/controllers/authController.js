@@ -172,11 +172,12 @@ async function registerStudent(req, res) {
   try {
     const user = await registerUser(email, password, "student", { fullName });
 
-    // Store UID in session along with email and role
+    // Store UID in session along with email, role and fullName
     req.session.user = {
       uid: user.uid,
       email: user.email,
-      role: "student"
+      role: "student",
+      fullName: fullName
     };
 
     console.log("🎓 Student registered with UID:", user.uid);
@@ -231,11 +232,12 @@ async function registerSponsor(req, res) {
   try {
     const user = await registerUser(email, password, "sponsor", { fullName });
 
-    // Store UID in session
+    // Store UID in session with fullName
     req.session.user = {
       uid: user.uid,
       email: user.email,
-      role: "sponsor"
+      role: "sponsor",
+      fullName: fullName
     };
 
     return res.redirect("/dashboard");
@@ -271,18 +273,19 @@ async function login(req, res) {
 
   // Hardcoded Admin
   if (email === "admin@example.com" && password === "admin123") {
-    req.session.user = { uid: "admin", email, role: "admin" };
+    req.session.user = { uid: "admin", email, role: "admin", fullName: "System Administrator" };
     return res.redirect("/dashboard");
   }
 
   try {
-    const { user, role } = await loginUser(email, password);
+    const { user, role, userData } = await loginUser(email, password);
 
-    // Store UID in session
+    // Store UID in session with fullName
     req.session.user = {
       uid: user.uid,
       email: user.email,
-      role
+      role,
+      fullName: userData.fullName || ""
     };
 
     console.log("🔐 User logged in with UID:", user.uid);

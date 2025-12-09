@@ -349,6 +349,74 @@
       color: #92400e;
       margin-bottom: 1rem;
     }
+    /* Exam details banner */
+    .exam-details-banner {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .exam-details-banner h4 {
+      margin: 0 0 0.75rem 0;
+      font-size: 1.125rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .exam-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .exam-detail-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.75rem;
+      border-radius: 8px;
+    }
+    .exam-detail-label {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+    .exam-detail-value {
+      font-weight: 600;
+    }
+    .btn-send-exam {
+      background: white;
+      color: #1d4ed8;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-send-exam:hover {
+      background: #f0f9ff;
+      transform: translateY(-1px);
+    }
+    .btn-send-exam:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .no-exam-banner {
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .no-exam-banner p {
+      margin: 0;
+    }
   </style>
 </head>
 <body>
@@ -406,6 +474,41 @@
             <h4>Admin Notification Workflow</h4>
             <p>The sponsor has accepted applicants for this scholarship. Your role is to notify accepted students one at a time. Once you've notified all desired students, mark the remaining applicants as "Not Selected" to inform them.</p>
           </div>
+
+          <!-- Exam Details Section -->
+          <% if (scholarship.examSchedule) { %>
+            <div class="exam-details-banner">
+              <h4>📅 Exam Schedule Set by Sponsor</h4>
+              <div class="exam-details-grid">
+                <div class="exam-detail-item">
+                  <div class="exam-detail-label">Date</div>
+                  <div class="exam-detail-value"><%= new Date(scholarship.examSchedule.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %></div>
+                </div>
+                <div class="exam-detail-item">
+                  <div class="exam-detail-label">Time</div>
+                  <div class="exam-detail-value"><%= scholarship.examSchedule.time %></div>
+                </div>
+                <div class="exam-detail-item">
+                  <div class="exam-detail-label">Venue</div>
+                  <div class="exam-detail-value"><%= scholarship.examSchedule.venue %></div>
+                </div>
+              </div>
+              <% if (scholarship.examSchedule.notes) { %>
+                <p style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 1rem;"><strong>Notes:</strong> <%= scholarship.examSchedule.notes %></p>
+              <% } %>
+              <% if (notifiedApps.length > 0) { %>
+                <button class="btn-send-exam" onclick="sendExamDetails()" id="sendExamBtn">
+                  📧 Send Exam Details to <%= notifiedApps.length %> Notified Student(s)
+                </button>
+              <% } else { %>
+                <p style="font-size: 0.875rem; opacity: 0.8;">Notify students first, then you can send them the exam details.</p>
+              <% } %>
+            </div>
+          <% } else if (notifiedApps.length > 0) { %>
+            <div class="no-exam-banner">
+              <p><strong>No Exam Schedule Set</strong> - The sponsor hasn't set an exam schedule yet. Once they do, you'll be able to send exam details to the <%= notifiedApps.length %> notified student(s).</p>
+            </div>
+          <% } %>
 
           <% if (applications.length === 0) { %>
             <div class="empty-state">
@@ -749,6 +852,38 @@
         }
       } catch (err) {
         alert('Error updating applicants');
+      }
+    }
+
+    async function sendExamDetails() {
+      if (!confirm('Send exam schedule details to all notified students? They will receive a notification with the date, time, and venue.')) {
+        return;
+      }
+
+      const btn = document.getElementById('sendExamBtn');
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Sending...';
+
+      try {
+        const response = await fetch('/admin/scholarships/' + scholarshipId + '/send-exam-details', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(`Exam details sent to ${data.count} student(s) successfully!`);
+          btn.innerHTML = '✅ Sent!';
+        } else {
+          alert('Error: ' + (data.error || 'Failed to send exam details'));
+          btn.disabled = false;
+          btn.innerHTML = '📧 Send Exam Details';
+        }
+      } catch (err) {
+        alert('Error sending exam details');
+        btn.disabled = false;
+        btn.innerHTML = '📧 Send Exam Details';
       }
     }
   </script>

@@ -70,6 +70,7 @@ async function showAdminDashboard(req, res) {
 
     res.render("admin/admin_dashboard", {
       email: req.session.user.email,
+      fullName: req.session.user.fullName || "Admin",
       stats: {
         totalStudents,
         totalSponsors,

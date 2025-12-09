@@ -56,6 +56,52 @@ router.post('/offers/:id/status', updateScholarshipStatus);
 // Delete scholarship
 router.post('/offers/:id/delete', deleteScholarship);
 
+// Save exam schedule for scholarship
+router.post('/offers/:id/exam-schedule', async (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'sponsor') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const scholarshipId = req.params.id;
+  const { date, time, venue, notes } = req.body;
+  const sponsorUid = req.session.user.uid;
+
+  try {
+    const scholarshipRef = doc(db, 'scholarships', scholarshipId);
+    const scholarshipDoc = await getDoc(scholarshipRef);
+
+    if (!scholarshipDoc.exists()) {
+      return res.status(404).json({ error: 'Scholarship not found' });
+    }
+
+    const scholarship = scholarshipDoc.data();
+
+    // Check ownership
+    if (scholarship.sponsorUid !== sponsorUid) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    // Update scholarship with exam schedule
+    await updateDoc(scholarshipRef, {
+      examSchedule: {
+        date,
+        time,
+        venue,
+        notes: notes || '',
+        updatedAt: new Date().toISOString()
+      },
+      updatedAt: new Date().toISOString()
+    });
+
+    console.log(`✅ Exam schedule saved for scholarship ${scholarshipId}`);
+
+    res.json({ success: true, message: 'Exam schedule saved successfully' });
+  } catch (error) {
+    console.error('Error saving exam schedule:', error);
+    res.status(500).json({ error: 'Failed to save exam schedule' });
+  }
+});
+
 // Request to close scholarship (sponsor requests admin to close)
 router.post('/offers/:id/request-close', async (req, res) => {
   if (!req.session.user || req.session.user.role !== 'sponsor') {
@@ -220,6 +266,7 @@ router.get('/dashboard', async (req, res) => {
 
     res.render('sponsor/sponsor_dashboard', {
       email: req.session.user.email,
+      fullName: req.session.user.fullName || "",
       scholarshipStats,
       applicationStats,
       unreadNotifications
@@ -229,6 +276,7 @@ router.get('/dashboard', async (req, res) => {
     console.error('Error loading sponsor dashboard:', error);
     res.render('sponsor/sponsor_dashboard', {
       email: req.session.user.email,
+      fullName: req.session.user.fullName || "",
       scholarshipStats: { total: 0, open: 0, pending: 0, closed: 0, totalSlots: 0, filledSlots: 0 },
       applicationStats: { total: 0, pending: 0, approved: 0, rejected: 0 },
       unreadNotifications: 0

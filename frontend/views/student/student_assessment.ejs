@@ -3,160 +3,255 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scholarship Assessment</title>
+  <title>Profile Assessment - Scholarship Portal</title>
   <link rel="stylesheet" href="/css/global.css">
   <link rel="stylesheet" href="/css/sidebar.css">
   <link rel="stylesheet" href="/css/topbar.css">
   <link rel="stylesheet" href="/css/footer.css">
   <style>
-    .assessment-container {
-      padding: 2rem;
-      background: #f5f7fa;
-      min-height: calc(100vh - 200px);
-    }
-
-    .container {
+    .assessment-page {
       max-width: 800px;
       margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .assessment-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
       overflow: hidden;
     }
 
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .assessment-header {
+      background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
       color: white;
       padding: 2rem;
       text-align: center;
     }
 
-    .header h1 {
-      font-size: 1.8rem;
+    .assessment-header h1 {
+      font-size: 1.75rem;
       margin-bottom: 0.5rem;
+      color: white;
     }
 
-    .header p {
+    .assessment-header p {
       opacity: 0.95;
-      font-size: 0.95rem;
+      font-size: 0.9375rem;
+      color: white;
     }
 
-    .user-info {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 0.75rem;
-      border-radius: 6px;
-      margin-top: 1rem;
-    }
-
-    .form-content {
+    .form-body {
       padding: 2rem;
     }
 
-    .section {
+    .form-section {
       margin-bottom: 2rem;
     }
 
     .section-title {
-      color: #667eea;
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--primary-color);
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
     }
 
     .form-group {
-      margin-bottom: 1.2rem;
+      margin-bottom: 1.25rem;
     }
 
-    label {
+    .form-group label {
       display: block;
-      color: #555;
-      font-size: 0.9rem;
-      margin-bottom: 0.4rem;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
       font-weight: 500;
     }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="number"],
-    select,
-    textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      transition: border-color 0.3s;
-      font-family: inherit;
+    .form-group label .required {
+      color: var(--danger-500);
     }
 
-    input:focus,
-    select:focus,
-    textarea:focus {
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      transition: all var(--transition);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-100);
     }
 
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    input[type="file"] {
-      padding: 0.5rem;
-      border: 2px dashed #e0e0e0;
-      border-radius: 6px;
-      width: 100%;
-      cursor: pointer;
-    }
-
-    .file-label {
-      font-size: 0.85rem;
-      color: #888;
-      margin-top: 0.3rem;
-      display: block;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin-top: 1rem;
-    }
-
-    .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .submit-btn:active {
-      transform: translateY(0);
-    }
-
-    .submit-btn:disabled {
-      opacity: 0.6;
+    .form-group input:read-only {
+      background: var(--bg-secondary);
       cursor: not-allowed;
     }
 
-    .required {
-      color: #e74c3c;
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
     }
 
-    @media (max-width: 768px) {
-      .header h1 {
-        font-size: 1.5rem;
-      }
+    .form-hint {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-top: 0.375rem;
+    }
 
-      .form-content {
-        padding: 1.5rem;
-      }
+    /* Checkbox group for skills */
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.875rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .checkbox-item:hover {
+      border-color: var(--primary-color);
+      background: var(--primary-50);
+    }
+
+    .checkbox-item input {
+      width: auto;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .checkbox-item.checked {
+      background: var(--primary-50);
+      border-color: var(--primary-color);
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: 400;
+      color: var(--text-primary);
+    }
+
+    /* File upload */
+    .file-upload {
+      position: relative;
+    }
+
+    .file-upload input[type="file"] {
+      padding: 0.75rem;
+      border: 2px dashed var(--border-color);
+      background: var(--bg-secondary);
+      cursor: pointer;
+    }
+
+    .file-upload input[type="file"]:hover {
+      border-color: var(--primary-color);
+      background: var(--primary-50);
+    }
+
+    .current-file {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--success-50);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      color: var(--success-700);
+    }
+
+    /* Submit button */
+    .submit-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1.0625rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Progress indicator */
+    .progress-bar {
+      background: var(--bg-secondary);
+      height: 6px;
+      border-radius: 3px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary-gradient);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
     }
   </style>
 </head>
@@ -167,138 +262,255 @@
     <%- include('../partials/topbar', { pageTitle: 'Profile Assessment' }) %>
 
     <main class="page-content">
-      <div class="assessment-container">
-        <div class="container">
-          <div class="header">
-            <h1>Scholarship Assessment</h1>
-            <p><%= hasCompletedAssessment ? 'Update your assessment details' : 'Complete this form to be considered for available scholarships' %></p>
-            <div class="user-info">
-              <strong>📧 Your Account:</strong> <%= email %>
-            </div>
+      <div class="assessment-page">
+        <div class="assessment-card">
+          <div class="assessment-header">
+            <h1><%= hasCompletedAssessment ? 'Update Your Profile' : 'Complete Your Profile' %></h1>
+            <p><%= hasCompletedAssessment ? 'Keep your information up to date for better scholarship matches' : 'Fill out this form to get personalized scholarship recommendations' %></p>
           </div>
 
-          <div class="form-content">
+          <div class="form-body">
+            <div class="progress-text">Complete all sections to maximize your scholarship matches</div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
             <form action="/student/assessment" method="POST" enctype="multipart/form-data" id="assessmentForm">
 
-              <div class="section">
-                <h2 class="section-title">Personal Information</h2>
+              <!-- Personal Information -->
+              <div class="form-section">
+                <h2 class="section-title">
+                  Personal Information
+                </h2>
 
-                <div class="form-group">
-                  <label>Your Email (from account)</label>
-                  <input type="email" value="<%= email %>" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
-                  <span class="file-label">This is automatically linked to your account</span>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Full Name <span class="required">*</span></label>
+                    <input type="text" name="fullName" id="fullName" value="<%= assessmentData && assessmentData.fullName ? assessmentData.fullName : '' %>" placeholder="Enter your full name" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Age <span class="required">*</span></label>
+                    <input type="number" name="age" id="age" min="15" max="60" value="<%= assessmentData && assessmentData.age ? assessmentData.age : '' %>" placeholder="Enter your age" required>
+                  </div>
                 </div>
 
-                <div class="form-group">
-                  <label>Full Name <span class="required">*</span></label>
-                  <input type="text" name="fullName" id="fullName" value="<%= assessmentData && assessmentData.fullName ? assessmentData.fullName : '' %>" required>
-                </div>
-                <div class="form-group">
-                  <label>Age <span class="required">*</span></label>
-                  <input type="number" name="age" id="age" min="1" max="100" value="<%= assessmentData && assessmentData.age ? assessmentData.age : '' %>" required>
-                </div>
                 <div class="form-group">
                   <label>Gender <span class="required">*</span></label>
                   <select name="gender" id="gender" required>
-                    <option value="">Select...</option>
+                    <option value="">Select gender...</option>
                     <option value="Male" <%= assessmentData && assessmentData.gender === 'Male' ? 'selected' : '' %>>Male</option>
                     <option value="Female" <%= assessmentData && assessmentData.gender === 'Female' ? 'selected' : '' %>>Female</option>
                     <option value="Other" <%= assessmentData && assessmentData.gender === 'Other' ? 'selected' : '' %>>Other</option>
+                    <option value="Prefer not to say" <%= assessmentData && assessmentData.gender === 'Prefer not to say' ? 'selected' : '' %>>Prefer not to say</option>
                   </select>
                 </div>
               </div>
 
-              <div class="section">
-                <h2 class="section-title">Academic Information</h2>
+              <!-- Academic Information -->
+              <div class="form-section">
+                <h2 class="section-title">
+                  Academic Information
+                </h2>
+
                 <div class="form-group">
                   <label>Course / Program <span class="required">*</span></label>
-                  <input type="text" name="course" id="course" value="<%= assessmentData && assessmentData.course ? assessmentData.course : '' %>" required>
+                  <select name="course" id="course" required>
+                    <option value="">Select your course...</option>
+                    <option value="Computer Science" <%= assessmentData && assessmentData.course === 'Computer Science' ? 'selected' : '' %>>Computer Science</option>
+                    <option value="Information Technology" <%= assessmentData && assessmentData.course === 'Information Technology' ? 'selected' : '' %>>Information Technology</option>
+                    <option value="Engineering" <%= assessmentData && assessmentData.course === 'Engineering' ? 'selected' : '' %>>Engineering</option>
+                    <option value="Business Administration" <%= assessmentData && assessmentData.course === 'Business Administration' ? 'selected' : '' %>>Business Administration</option>
+                    <option value="Accountancy" <%= assessmentData && assessmentData.course === 'Accountancy' ? 'selected' : '' %>>Accountancy</option>
+                    <option value="Education" <%= assessmentData && assessmentData.course === 'Education' ? 'selected' : '' %>>Education</option>
+                    <option value="Nursing" <%= assessmentData && assessmentData.course === 'Nursing' ? 'selected' : '' %>>Nursing</option>
+                    <option value="Medical Technology" <%= assessmentData && assessmentData.course === 'Medical Technology' ? 'selected' : '' %>>Medical Technology</option>
+                    <option value="Psychology" <%= assessmentData && assessmentData.course === 'Psychology' ? 'selected' : '' %>>Psychology</option>
+                    <option value="Architecture" <%= assessmentData && assessmentData.course === 'Architecture' ? 'selected' : '' %>>Architecture</option>
+                    <option value="Fine Arts" <%= assessmentData && assessmentData.course === 'Fine Arts' ? 'selected' : '' %>>Fine Arts</option>
+                    <option value="Mass Communication" <%= assessmentData && assessmentData.course === 'Mass Communication' ? 'selected' : '' %>>Mass Communication</option>
+                    <option value="Hospitality Management" <%= assessmentData && assessmentData.course === 'Hospitality Management' ? 'selected' : '' %>>Hospitality Management</option>
+                    <option value="Tourism" <%= assessmentData && assessmentData.course === 'Tourism' ? 'selected' : '' %>>Tourism</option>
+                    <option value="Criminology" <%= assessmentData && assessmentData.course === 'Criminology' ? 'selected' : '' %>>Criminology</option>
+                    <option value="Other" <%= assessmentData && assessmentData.course === 'Other' ? 'selected' : '' %>>Other</option>
+                  </select>
                 </div>
-                <div class="form-group">
-                  <label>Year Level <span class="required">*</span></label>
-                  <input type="text" name="yearLevel" id="yearLevel" placeholder="e.g., 1st Year, 2nd Year" value="<%= assessmentData && assessmentData.yearLevel ? assessmentData.yearLevel : '' %>" required>
-                </div>
-                <div class="form-group">
-                  <label>GPA / GWA <span class="required">*</span></label>
-                  <input type="text" name="gpa" id="gpa" placeholder="e.g., 1.5, 90%" value="<%= assessmentData && assessmentData.gpa ? assessmentData.gpa : '' %>" required>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Year Level <span class="required">*</span></label>
+                    <select name="yearLevel" id="yearLevel" required>
+                      <option value="">Select year level...</option>
+                      <option value="1st Year" <%= assessmentData && assessmentData.yearLevel === '1st Year' ? 'selected' : '' %>>1st Year</option>
+                      <option value="2nd Year" <%= assessmentData && assessmentData.yearLevel === '2nd Year' ? 'selected' : '' %>>2nd Year</option>
+                      <option value="3rd Year" <%= assessmentData && assessmentData.yearLevel === '3rd Year' ? 'selected' : '' %>>3rd Year</option>
+                      <option value="4th Year" <%= assessmentData && assessmentData.yearLevel === '4th Year' ? 'selected' : '' %>>4th Year</option>
+                      <option value="5th Year" <%= assessmentData && assessmentData.yearLevel === '5th Year' ? 'selected' : '' %>>5th Year</option>
+                      <option value="Graduate" <%= assessmentData && assessmentData.yearLevel === 'Graduate' ? 'selected' : '' %>>Graduate Student</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>GPA / GWA <span class="required">*</span></label>
+                    <input type="number" name="gpa" id="gpa" step="0.01" min="1.0" max="5.0" value="<%= assessmentData && assessmentData.gpa ? assessmentData.gpa : '' %>" placeholder="e.g., 1.50 or 3.50" required>
+                    <div class="form-hint">Enter your GPA (1.0-5.0 scale or percentage)</div>
+                  </div>
                 </div>
               </div>
 
-              <div class="section">
-                <h2 class="section-title">Financial Background</h2>
+              <!-- Financial Information -->
+              <div class="form-section">
+                <h2 class="section-title">
+                  Financial Information
+                </h2>
+
                 <div class="form-group">
                   <label>Monthly Family Income <span class="required">*</span></label>
                   <select name="incomeRange" id="incomeRange" required>
                     <option value="">Select income range...</option>
                     <option value="below_10k" <%= assessmentData && assessmentData.incomeRange === 'below_10k' ? 'selected' : '' %>>Below ₱10,000</option>
-                    <option value="10k_20k" <%= assessmentData && assessmentData.incomeRange === '10k_20k' ? 'selected' : '' %>>₱10,000 – ₱20,000</option>
-                    <option value="20k_30k" <%= assessmentData && assessmentData.incomeRange === '20k_30k' ? 'selected' : '' %>>₱20,000 – ₱30,000</option>
-                    <option value="30k_plus" <%= assessmentData && assessmentData.incomeRange === '30k_plus' ? 'selected' : '' %>>Above ₱30,000</option>
+                    <option value="10k_20k" <%= assessmentData && assessmentData.incomeRange === '10k_20k' ? 'selected' : '' %>>₱10,000 - ₱20,000</option>
+                    <option value="20k_30k" <%= assessmentData && assessmentData.incomeRange === '20k_30k' ? 'selected' : '' %>>₱20,000 - ₱30,000</option>
+                    <option value="30k_50k" <%= assessmentData && assessmentData.incomeRange === '30k_50k' ? 'selected' : '' %>>₱30,000 - ₱50,000</option>
+                    <option value="above_50k" <%= assessmentData && assessmentData.incomeRange === 'above_50k' ? 'selected' : '' %>>Above ₱50,000</option>
                   </select>
+                  <div class="form-hint">This helps match you with need-based scholarships</div>
                 </div>
               </div>
 
-              <div class="section">
-                <h2 class="section-title">Scholarship Preferences</h2>
+              <!-- Scholarship Preferences -->
+              <div class="form-section">
+                <h2 class="section-title">
+                  Scholarship Preferences
+                </h2>
+
                 <div class="form-group">
                   <label>Preferred Scholarship Type <span class="required">*</span></label>
                   <select name="scholarshipType" id="scholarshipType" required>
-                    <option value="">Select type...</option>
-                    <option value="Merit" <%= assessmentData && assessmentData.scholarshipType === 'Merit' ? 'selected' : '' %>>Merit-based</option>
-                    <option value="Need-based" <%= assessmentData && assessmentData.scholarshipType === 'Need-based' ? 'selected' : '' %>>Need-based</option>
-                    <option value="Athletic" <%= assessmentData && assessmentData.scholarshipType === 'Athletic' ? 'selected' : '' %>>Athletic</option>
+                    <option value="">Select scholarship type...</option>
+                    <option value="Merit" <%= assessmentData && assessmentData.scholarshipType === 'Merit' ? 'selected' : '' %>>Merit-based (Academic Excellence)</option>
+                    <option value="Need-based" <%= assessmentData && assessmentData.scholarshipType === 'Need-based' ? 'selected' : '' %>>Need-based (Financial Aid)</option>
+                    <option value="Athletic" <%= assessmentData && assessmentData.scholarshipType === 'Athletic' ? 'selected' : '' %>>Athletic (Sports)</option>
                     <option value="Leadership" <%= assessmentData && assessmentData.scholarshipType === 'Leadership' ? 'selected' : '' %>>Leadership</option>
+                    <option value="Arts" <%= assessmentData && assessmentData.scholarshipType === 'Arts' ? 'selected' : '' %>>Arts & Creativity</option>
+                    <option value="STEM" <%= assessmentData && assessmentData.scholarshipType === 'STEM' ? 'selected' : '' %>>STEM (Science & Technology)</option>
+                    <option value="Community Service" <%= assessmentData && assessmentData.scholarshipType === 'Community Service' ? 'selected' : '' %>>Community Service</option>
                   </select>
                 </div>
               </div>
 
-              <div class="section">
-                <h2 class="section-title">Skills & Experience</h2>
+              <!-- Skills & Qualities -->
+              <div class="form-section">
+                <h2 class="section-title">
+                  Skills & Qualities
+                </h2>
+
                 <div class="form-group">
-                  <label>Skills, Talents & Achievements</label>
-                  <textarea name="skills" id="skills" placeholder="List your relevant skills, talents, and achievements..."><%= assessmentData && assessmentData.skills ? assessmentData.skills : '' %></textarea>
+                  <label>Select your skills and qualities (check all that apply)</label>
+                  <div class="checkbox-grid">
+                    <%
+                      const skillOptions = [
+                        'Leadership', 'Communication', 'Teamwork', 'Problem Solving',
+                        'Critical Thinking', 'Programming', 'Research', 'Writing',
+                        'Public Speaking', 'Innovation', 'Creativity', 'Time Management',
+                        'Community Service', 'Sports', 'Music', 'Arts'
+                      ];
+                      const savedSkills = assessmentData && assessmentData.skills ? (Array.isArray(assessmentData.skills) ? assessmentData.skills : assessmentData.skills.split(',').map(s => s.trim())) : [];
+                    %>
+                    <% skillOptions.forEach(skill => { %>
+                      <div class="checkbox-item <%= savedSkills.includes(skill) ? 'checked' : '' %>" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" name="skills" value="<%= skill %>" <%= savedSkills.includes(skill) ? 'checked' : '' %>>
+                        <label><%= skill %></label>
+                      </div>
+                    <% }) %>
+                  </div>
                 </div>
+
                 <div class="form-group">
-                  <label>Community Involvement</label>
-                  <textarea name="involvement" id="involvement" placeholder="Describe your community service and extracurricular activities..."><%= assessmentData && assessmentData.involvement ? assessmentData.involvement : '' %></textarea>
+                  <label>Other Achievements & Experiences</label>
+                  <textarea name="achievements" id="achievements" placeholder="List any awards, certifications, or notable achievements..."><%= assessmentData && assessmentData.achievements ? assessmentData.achievements : '' %></textarea>
                 </div>
               </div>
 
-              <div class="section">
-                <h2 class="section-title">Essay</h2>
+              <!-- Community Involvement -->
+              <div class="form-section">
+                <h2 class="section-title">
+                  Community Involvement
+                </h2>
+
                 <div class="form-group">
-                  <label>Why are you applying for this scholarship? <span class="required">*</span></label>
-                  <textarea name="essayReason" id="essayReason" placeholder="Share your story and reasons for applying..." required><%= assessmentData && assessmentData.essayReason ? assessmentData.essayReason : '' %></textarea>
+                  <label>Extracurricular Activities & Volunteer Work</label>
+                  <textarea name="involvement" id="involvement" placeholder="Describe your community service, organizations, and extracurricular activities..."><%= assessmentData && assessmentData.involvement ? assessmentData.involvement : '' %></textarea>
+                  <div class="form-hint">This is important for leadership and community service scholarships</div>
                 </div>
               </div>
 
-              <div class="section">
-                <h2 class="section-title">Document Uploads</h2>
+              <!-- Essay -->
+              <div class="form-section">
+                <h2 class="section-title">
+                  Personal Statement
+                </h2>
+
                 <div class="form-group">
+                  <label>Why are you applying for a scholarship? <span class="required">*</span></label>
+                  <textarea name="essayReason" id="essayReason" placeholder="Share your story, goals, and why you deserve this scholarship..." required><%= assessmentData && assessmentData.essayReason ? assessmentData.essayReason : '' %></textarea>
+                  <div class="form-hint">Minimum 100 characters. Be authentic and specific about your goals.</div>
+                </div>
+              </div>
+
+              <!-- Document Uploads -->
+              <div class="form-section">
+                <h2 class="section-title">
+                  Required Documents
+                </h2>
+
+                <div class="form-group file-upload">
                   <label>Transcript of Grades <span class="required">*</span></label>
                   <input type="file" name="grades" id="grades" accept=".pdf,.jpg,.jpeg,.png" <%= hasCompletedAssessment ? '' : 'required' %>>
-                  <span class="file-label">PDF, JPG, or PNG format <%= hasCompletedAssessment ? '(Leave empty to keep current file)' : '' %></span>
+                  <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
+                  <% if (hasCompletedAssessment && assessmentData && assessmentData.gradesFile) { %>
+                    <div class="current-file">
+                      <span>✅</span> Current file uploaded - leave empty to keep
+                    </div>
+                  <% } %>
                 </div>
-                <div class="form-group">
+
+                <div class="form-group file-upload">
                   <label>Certificate of Enrollment <span class="required">*</span></label>
                   <input type="file" name="coe" id="coe" accept=".pdf,.jpg,.jpeg,.png" <%= hasCompletedAssessment ? '' : 'required' %>>
-                  <span class="file-label">PDF, JPG, or PNG format <%= hasCompletedAssessment ? '(Leave empty to keep current file)' : '' %></span>
+                  <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
+                  <% if (hasCompletedAssessment && assessmentData && assessmentData.coeFile) { %>
+                    <div class="current-file">
+                      <span>✅</span> Current file uploaded - leave empty to keep
+                    </div>
+                  <% } %>
                 </div>
-                <div class="form-group">
+
+                <div class="form-group file-upload">
                   <label>School ID <span class="required">*</span></label>
                   <input type="file" name="schoolId" id="schoolId" accept=".pdf,.jpg,.jpeg,.png" <%= hasCompletedAssessment ? '' : 'required' %>>
-                  <span class="file-label">PDF, JPG, or PNG format <%= hasCompletedAssessment ? '(Leave empty to keep current file)' : '' %></span>
+                  <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
+                  <% if (hasCompletedAssessment && assessmentData && assessmentData.schoolIdFile) { %>
+                    <div class="current-file">
+                      <span>✅</span> Current file uploaded - leave empty to keep
+                    </div>
+                  <% } %>
                 </div>
-                <div class="form-group">
+
+                <div class="form-group file-upload">
                   <label>Other Supporting Documents (Optional)</label>
                   <input type="file" name="otherDocuments" id="otherDocuments" accept=".pdf,.jpg,.jpeg,.png" multiple>
-                  <span class="file-label">You may upload multiple files</span>
+                  <div class="form-hint">You may upload multiple files - certificates, awards, etc.</div>
                 </div>
               </div>
 
-              <button type="submit" class="submit-btn" id="submitBtn">
-                <%= hasCompletedAssessment ? 'Save Edits' : 'Submit Assessment' %>
-              </button>
+              <!-- Submit -->
+              <div class="submit-section">
+                <button type="submit" class="btn-submit" id="submitBtn">
+                  <span><%= hasCompletedAssessment ? '💾' : '🚀' %></span>
+                  <%= hasCompletedAssessment ? 'Save Changes' : 'Submit Assessment' %>
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -313,11 +525,55 @@
     const form = document.getElementById('assessmentForm');
     const submitBtn = document.getElementById('submitBtn');
     const hasCompletedAssessment = <%= hasCompletedAssessment ? 'true' : 'false' %>;
+    const progressFill = document.getElementById('progressFill');
 
+    // Toggle checkbox styling
+    function toggleCheckbox(item) {
+      const checkbox = item.querySelector('input[type="checkbox"]');
+      checkbox.checked = !checkbox.checked;
+      item.classList.toggle('checked', checkbox.checked);
+      updateProgress();
+    }
+
+    // Update progress bar
+    function updateProgress() {
+      const requiredFields = form.querySelectorAll('[required]');
+      let filled = 0;
+      let total = requiredFields.length;
+
+      requiredFields.forEach(field => {
+        if (field.type === 'file') {
+          if (field.files.length > 0 || hasCompletedAssessment) filled++;
+        } else if (field.value.trim() !== '') {
+          filled++;
+        }
+      });
+
+      const percentage = Math.round((filled / total) * 100);
+      progressFill.style.width = percentage + '%';
+    }
+
+    // Listen for input changes
+    form.querySelectorAll('input, select, textarea').forEach(field => {
+      field.addEventListener('change', updateProgress);
+      field.addEventListener('input', updateProgress);
+    });
+
+    // Initial progress update
+    updateProgress();
+
+    // Form submission
     form.addEventListener('submit', function(e) {
+      // Validate essay length
+      const essay = document.getElementById('essayReason').value;
+      if (essay.length < 100) {
+        e.preventDefault();
+        alert('Your personal statement must be at least 100 characters long.');
+        return;
+      }
+
       submitBtn.disabled = true;
-      submitBtn.textContent = hasCompletedAssessment ? 'Saving...' : 'Submitting...';
-      console.log('Form submitting for user: <%= email %>');
+      submitBtn.innerHTML = '<span>⏳</span> ' + (hasCompletedAssessment ? 'Saving...' : 'Submitting...');
     });
   </script>
 </body>
