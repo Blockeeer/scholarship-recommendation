@@ -39,7 +39,7 @@
     }
     .summary-label {
       font-size: 0.75rem;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
       margin-top: 0.25rem;
       text-transform: uppercase;
     }
@@ -122,7 +122,7 @@
       margin-bottom: 0.25rem;
     }
     .applicant-email {
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
       font-size: 0.875rem;
     }
     .status-badges {
@@ -173,7 +173,7 @@
     }
     .meta-label {
       font-size: 0.7rem;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
       text-transform: uppercase;
     }
     .meta-value {
@@ -250,7 +250,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
       text-decoration: none;
       margin-bottom: 1rem;
       font-weight: 500;
@@ -289,7 +289,7 @@
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
     }
     .profile-section {
       margin-bottom: 1.5rem;
@@ -297,7 +297,7 @@
     .profile-section h4 {
       font-size: 0.875rem;
       font-weight: 600;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
       text-transform: uppercase;
       margin-bottom: 0.75rem;
       padding-bottom: 0.5rem;
@@ -309,7 +309,7 @@
       padding: 0.5rem 0;
     }
     .profile-label {
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
     }
     .profile-value {
       font-weight: 500;
@@ -437,7 +437,7 @@
 
           <div class="scholarship-summary">
             <h2 style="font-size: 1.5rem; font-weight: 600; color: #1f2937;"><%= scholarship.scholarshipName %></h2>
-            <p style="color: #6b7280;">by <%= scholarship.organizationName %></p>
+            <p style="color: var(--text-secondary, #4b5563);">by <%= scholarship.organizationName %></p>
 
             <%
               const acceptedApps = applications.filter(a => a.status === 'accepted');
@@ -514,7 +514,7 @@
             <div class="empty-state">
               <div class="empty-icon">📭</div>
               <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No Applications Yet</h3>
-              <p style="color: #6b7280;">Students haven't applied to this scholarship yet.</p>
+              <p style="color: var(--text-secondary, #4b5563);">Students haven't applied to this scholarship yet.</p>
             </div>
           <% } else { %>
 
@@ -767,7 +767,7 @@
             } else {
               html += `
                 <div class="profile-section">
-                  <p style="color: #6b7280; text-align: center; padding: 1rem;">Student has not completed their assessment yet.</p>
+                  <p style="color: var(--text-secondary, #4b5563); text-align: center; padding: 1rem;">Student has not completed their assessment yet.</p>
                 </div>
               `;
             }

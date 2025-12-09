@@ -52,7 +52,7 @@
 
     .section-title {
       font-size: 1.3rem;
-      color: #333;
+      color: var(--text-primary, #1f2937);
       margin-bottom: 1.5rem;
       padding-bottom: 0.5rem;
       border-bottom: 2px solid #e0e0e0;
@@ -73,13 +73,13 @@
     .profile-item label {
       display: block;
       font-size: 0.85rem;
-      color: #666;
+      color: var(--text-secondary, #4b5563);
       margin-bottom: 0.25rem;
     }
 
     .profile-item span {
       font-weight: 600;
-      color: #333;
+      color: var(--text-primary, #1f2937);
     }
 
     .form-group {
@@ -89,7 +89,7 @@
     .form-group label {
       display: block;
       font-weight: 600;
-      color: #333;
+      color: var(--text-primary, #1f2937);
       margin-bottom: 0.5rem;
     }
 
@@ -111,7 +111,7 @@
 
     .form-group .hint {
       font-size: 0.85rem;
-      color: #666;
+      color: var(--text-secondary, #4b5563);
       margin-top: 0.5rem;
     }
 
@@ -123,7 +123,7 @@
 
     .documents-list h4 {
       margin: 0 0 0.5rem 0;
-      color: #333;
+      color: var(--text-primary, #1f2937);
     }
 
     .documents-list ul {
@@ -133,7 +133,7 @@
 
     .documents-list li {
       padding: 0.25rem 0;
-      color: #666;
+      color: var(--text-secondary, #4b5563);
     }
 
     .documents-note {
@@ -161,7 +161,7 @@
 
     .checkbox-group label {
       font-weight: normal;
-      color: #333;
+      color: var(--text-primary, #1f2937);
       line-height: 1.5;
     }
 
@@ -221,7 +221,7 @@
         <form id="applicationForm" action="/student/scholarships/<%= scholarship.id %>/apply" method="POST">
           <div class="form-section">
             <h3 class="section-title">Your Profile Summary</h3>
-            <p style="color: #666; margin-bottom: 1rem;">This information will be included in your application:</p>
+            <p style="color: var(--text-secondary, #4b5563); margin-bottom: 1rem;">This information will be included in your application:</p>
 
             <div class="profile-summary">
               <div class="profile-item">
@@ -250,7 +250,7 @@
               </div>
             </div>
 
-            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary, #4b5563);">
               Need to update your profile? <a href="/student/assessment" style="color: #667eea;">Edit Assessment</a>
             </p>
           </div>

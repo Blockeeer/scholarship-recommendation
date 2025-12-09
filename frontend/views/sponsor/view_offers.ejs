@@ -108,7 +108,7 @@
 
     .card-title {
       font-size: 1.3rem;
-      color: #333;
+      color: var(--text-primary, #1f2937);
       margin-bottom: 0.5rem;
     }
 
@@ -293,7 +293,7 @@
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
     }
 
     .form-group {
@@ -369,7 +369,7 @@
           <div class="empty-state">
             <div class="empty-icon">📋</div>
             <h2>No Scholarship Offers Yet</h2>
-            <p style="color: #6b7280; margin-bottom: 1rem;">Create your first scholarship offer to start helping students</p>
+            <p style="color: var(--text-secondary, #4b5563); margin-bottom: 1rem;">Create your first scholarship offer to start helping students</p>
             <a href="/sponsor/add-offer" class="add-btn">+ Add Scholarship</a>
           </div>
         <% } else { %>
@@ -473,7 +473,7 @@
         <h3 style="font-size: 1.25rem; font-weight: 600;">Request to Close Scholarship</h3>
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
-      <p style="color: #6b7280; margin-bottom: 1rem;">
+      <p style="color: var(--text-secondary, #4b5563); margin-bottom: 1rem;">
         Request admin to close "<span id="closeScholarshipName"></span>". Please provide a reason.
       </p>
       <form id="closeRequestForm">

@@ -31,7 +31,7 @@
       margin-bottom: 0.25rem;
     }
     .scholarship-org {
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
       font-size: 0.9rem;
     }
     .scholarship-meta {
@@ -48,7 +48,7 @@
     }
     .meta-label {
       font-size: 0.75rem;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
       text-transform: uppercase;
       margin-bottom: 0.25rem;
     }
@@ -137,7 +137,7 @@
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
     }
     .detail-row {
       display: flex;
@@ -195,14 +195,14 @@
                 <span class="status-pending" style="margin-left: 0.5rem;"><%= scholarships.length %></span>
               <% } %>
             </h2>
-            <p style="color: #6b7280; margin-top: 0.25rem;">Review and approve scholarship offers submitted by sponsors</p>
+            <p style="color: var(--text-secondary, #4b5563); margin-top: 0.25rem;">Review and approve scholarship offers submitted by sponsors</p>
           </div>
 
           <% if (scholarships.length === 0) { %>
             <div class="empty-state">
               <div class="empty-icon">✅</div>
               <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">All Caught Up!</h3>
-              <p style="color: #6b7280;">No pending scholarship offers to review at the moment.</p>
+              <p style="color: var(--text-secondary, #4b5563);">No pending scholarship offers to review at the moment.</p>
               <a href="/admin/dashboard" class="btn btn-primary" style="margin-top: 1rem;">Back to Dashboard</a>
             </div>
           <% } else { %>
@@ -272,7 +272,7 @@
         <h3 style="font-size: 1.25rem; font-weight: 600;">Reject Scholarship</h3>
         <button class="modal-close" onclick="closeRejectModal()">&times;</button>
       </div>
-      <p style="margin-bottom: 1rem; color: #6b7280;">Please provide a reason for rejecting "<span id="rejectScholarshipName"></span>"</p>
+      <p style="margin-bottom: 1rem; color: var(--text-secondary, #4b5563);">Please provide a reason for rejecting "<span id="rejectScholarshipName"></span>"</p>
       <form id="rejectForm">
         <input type="hidden" id="rejectScholarshipId">
         <div class="form-group">

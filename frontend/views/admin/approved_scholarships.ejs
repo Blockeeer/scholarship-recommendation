@@ -41,7 +41,7 @@
       margin-bottom: 0.25rem;
     }
     .scholarship-org {
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
       font-size: 0.9rem;
     }
     .scholarship-meta {
@@ -58,7 +58,7 @@
     }
     .meta-label {
       font-size: 0.75rem;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
       text-transform: uppercase;
       margin-bottom: 0.25rem;
     }
@@ -225,7 +225,7 @@
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
     }
     .detail-row {
       display: flex;
@@ -235,7 +235,7 @@
     .detail-label {
       width: 140px;
       font-weight: 500;
-      color: #6b7280;
+      color: var(--text-secondary, #4b5563);
     }
     .detail-value {
       flex: 1;
@@ -285,7 +285,7 @@
             <h2 style="font-size: 1.5rem; font-weight: 600; color: #1f2937;">
               Approved Scholarship Offers
             </h2>
-            <p style="color: #6b7280; margin-top: 0.25rem;">Manage active scholarships, view applications, and close/reopen offers</p>
+            <p style="color: var(--text-secondary, #4b5563); margin-top: 0.25rem;">Manage active scholarships, view applications, and close/reopen offers</p>
           </div>
 
           <!-- Filter Tabs -->
@@ -311,7 +311,7 @@
             <div class="empty-state">
               <div class="empty-icon">📋</div>
               <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No Approved Scholarships</h3>
-              <p style="color: #6b7280;">Approved scholarship offers will appear here.</p>
+              <p style="color: var(--text-secondary, #4b5563);">Approved scholarship offers will appear here.</p>
               <a href="/admin/pending-scholarships" class="btn btn-primary" style="margin-top: 1rem;">Review Pending Offers</a>
             </div>
           <% } else { %>
