@@ -4,8 +4,45 @@
 
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { requireAdmin } = require('../middleware/auth');
 const { db } = require('../config/firebaseConfig');
-const { doc, getDoc, collection, getDocs, query, where, updateDoc } = require('firebase/firestore');
+const { doc, getDoc, collection, getDocs, query, where, updateDoc, setDoc } = require('firebase/firestore');
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for avatar uploads
+const avatarStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'avatar-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only .png, .jpg, .jpeg files are allowed!'));
+    }
+  }
+});
 const {
   showAdminDashboard,
   approveScholarship,
@@ -19,19 +56,14 @@ const {
 } = require('../controllers/adminController');
 const { getUserNotifications, getUnreadCount, markAsRead, markAllAsRead, createNotification } = require('../services/notificationService');
 
-// Middleware to check admin
-function isAdmin(req, res, next) {
-  if (!req.session.user || req.session.user.role !== 'admin') {
-    return res.redirect('/login');
-  }
-  next();
-}
+// Apply requireAdmin middleware to all routes
+router.use(requireAdmin);
 
 // Dashboard
 router.get('/dashboard', showAdminDashboard);
 
 // Pending Scholarships Page
-router.get('/pending-scholarships', isAdmin, async (req, res) => {
+router.get('/pending-scholarships', async (req, res) => {
   try {
     const scholarshipsRef = collection(db, 'scholarships');
     const q = query(scholarshipsRef, where('status', '==', 'Pending'));
@@ -55,7 +87,7 @@ router.get('/pending-scholarships', isAdmin, async (req, res) => {
 });
 
 // Approved/Active Scholarships Page
-router.get('/approved-scholarships', isAdmin, async (req, res) => {
+router.get('/approved-scholarships', async (req, res) => {
   try {
     const scholarshipsRef = collection(db, 'scholarships');
     const snapshot = await getDocs(scholarshipsRef);
@@ -115,7 +147,7 @@ router.get('/approved-scholarships', isAdmin, async (req, res) => {
 router.get('/scholarships', getManageScholarships);
 
 // Get scholarship details (JSON)
-router.get('/scholarships/:id/details', isAdmin, async (req, res) => {
+router.get('/scholarships/:id/details', async (req, res) => {
   try {
     const scholarshipRef = doc(db, 'scholarships', req.params.id);
     const scholarshipDoc = await getDoc(scholarshipRef);
@@ -137,7 +169,7 @@ router.post('/scholarships/:id/approve', approveScholarship);
 router.post('/scholarships/:id/reject', rejectScholarship);
 
 // Close scholarship (admin)
-router.post('/scholarships/:id/close', isAdmin, async (req, res) => {
+router.post('/scholarships/:id/close', async (req, res) => {
   try {
     const scholarshipRef = doc(db, 'scholarships', req.params.id);
     const scholarshipDoc = await getDoc(scholarshipRef);
@@ -172,7 +204,7 @@ router.post('/scholarships/:id/close', isAdmin, async (req, res) => {
 });
 
 // Reopen scholarship (admin)
-router.post('/scholarships/:id/reopen', isAdmin, async (req, res) => {
+router.post('/scholarships/:id/reopen', async (req, res) => {
   try {
     const scholarshipRef = doc(db, 'scholarships', req.params.id);
     const scholarshipDoc = await getDoc(scholarshipRef);
@@ -206,7 +238,7 @@ router.post('/scholarships/:id/reopen', isAdmin, async (req, res) => {
 });
 
 // View applications for a scholarship (admin)
-router.get('/scholarships/:id/applications', isAdmin, async (req, res) => {
+router.get('/scholarships/:id/applications', async (req, res) => {
   try {
     const scholarshipRef = doc(db, 'scholarships', req.params.id);
     const scholarshipDoc = await getDoc(scholarshipRef);
@@ -242,7 +274,7 @@ router.get('/scholarships/:id/applications', isAdmin, async (req, res) => {
 });
 
 // Approve student application (fills slot)
-router.post('/applications/:id/approve-slot', isAdmin, async (req, res) => {
+router.post('/applications/:id/approve-slot', async (req, res) => {
   try {
     const applicationRef = doc(db, 'applications', req.params.id);
     const applicationDoc = await getDoc(applicationRef);
@@ -312,7 +344,7 @@ router.get('/applications', getAllApplications);
 router.post('/applications/:id/status', updateApplicationStatus);
 
 // Notify student of acceptance (changes status from 'accepted' to 'notified')
-router.post('/applications/:id/notify', isAdmin, async (req, res) => {
+router.post('/applications/:id/notify', async (req, res) => {
   try {
     const applicationRef = doc(db, 'applications', req.params.id);
     const applicationDoc = await getDoc(applicationRef);
@@ -374,7 +406,7 @@ router.post('/applications/:id/notify', isAdmin, async (req, res) => {
 });
 
 // Mark application as not selected
-router.post('/applications/:id/not-selected', isAdmin, async (req, res) => {
+router.post('/applications/:id/not-selected', async (req, res) => {
   try {
     const applicationRef = doc(db, 'applications', req.params.id);
     const applicationDoc = await getDoc(applicationRef);
@@ -421,7 +453,7 @@ router.post('/applications/:id/not-selected', isAdmin, async (req, res) => {
 });
 
 // Send exam details to all notified students
-router.post('/scholarships/:id/send-exam-details', isAdmin, async (req, res) => {
+router.post('/scholarships/:id/send-exam-details', async (req, res) => {
   try {
     const scholarshipId = req.params.id;
 
@@ -491,7 +523,7 @@ router.post('/scholarships/:id/send-exam-details', isAdmin, async (req, res) => 
 });
 
 // Mark all remaining applications as not selected for a scholarship
-router.post('/scholarships/:id/mark-remaining-not-selected', isAdmin, async (req, res) => {
+router.post('/scholarships/:id/mark-remaining-not-selected', async (req, res) => {
   try {
     const scholarshipId = req.params.id;
 
@@ -553,7 +585,7 @@ router.post('/scholarships/:id/mark-remaining-not-selected', isAdmin, async (req
 
 // User Management
 router.get('/users', getAllUsers);
-router.get('/users/:id/details', isAdmin, async (req, res) => {
+router.get('/users/:id/details', async (req, res) => {
   try {
     const userRef = doc(db, 'users', req.params.id);
     const userDoc = await getDoc(userRef);
@@ -581,7 +613,7 @@ router.get('/users/:id/details', isAdmin, async (req, res) => {
 router.post('/users/:id/toggle-status', toggleUserStatus);
 
 // Reports
-router.get('/reports', isAdmin, async (req, res) => {
+router.get('/reports', async (req, res) => {
   try {
     const usersRef = collection(db, 'users');
     const scholarshipsRef = collection(db, 'scholarships');
@@ -667,7 +699,7 @@ router.get('/reports', isAdmin, async (req, res) => {
 });
 
 // Notifications
-router.get('/notifications', isAdmin, async (req, res) => {
+router.get('/notifications', async (req, res) => {
   try {
     const notifications = await getUserNotifications('admin');
     const unreadCount = await getUnreadCount('admin');
@@ -702,7 +734,7 @@ router.get('/notifications', isAdmin, async (req, res) => {
 
 router.post('/notifications/send', sendSystemNotification);
 
-router.post('/notifications/:id/read', isAdmin, async (req, res) => {
+router.post('/notifications/:id/read', async (req, res) => {
   try {
     await markAsRead(req.params.id, 'admin');
     res.json({ success: true });
@@ -711,7 +743,7 @@ router.post('/notifications/:id/read', isAdmin, async (req, res) => {
   }
 });
 
-router.post('/notifications/read-all', isAdmin, async (req, res) => {
+router.post('/notifications/read-all', async (req, res) => {
   try {
     const count = await markAllAsRead('admin');
     res.json({ success: true, count });
@@ -721,7 +753,7 @@ router.post('/notifications/read-all', isAdmin, async (req, res) => {
 });
 
 // API endpoint for sidebar counts
-router.get('/api/counts', isAdmin, async (req, res) => {
+router.get('/api/counts', async (req, res) => {
   try {
     // Get pending scholarships count
     const scholarshipsRef = collection(db, 'scholarships');
@@ -739,6 +771,152 @@ router.get('/api/counts', isAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error getting counts:', error);
     res.json({ pendingScholarships: 0, unreadNotifications: 0 });
+  }
+});
+
+// Admin Profile page
+router.get('/profile', async (req, res) => {
+  try {
+    // Get platform statistics
+    const usersRef = collection(db, 'users');
+    const scholarshipsRef = collection(db, 'scholarships');
+    const applicationsRef = collection(db, 'applications');
+
+    const [usersSnapshot, scholarshipsSnapshot, applicationsSnapshot] = await Promise.all([
+      getDocs(usersRef),
+      getDocs(scholarshipsRef),
+      getDocs(applicationsRef)
+    ]);
+
+    const stats = {
+      totalUsers: usersSnapshot.size,
+      totalScholarships: scholarshipsSnapshot.size,
+      totalApplications: applicationsSnapshot.size,
+      students: 0,
+      sponsors: 0
+    };
+
+    usersSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.role === 'student') stats.students++;
+      if (data.role === 'sponsor') stats.sponsors++;
+    });
+
+    // Get admin user info
+    const adminRef = doc(db, 'users', req.session.user.uid);
+    const adminDoc = await getDoc(adminRef);
+    const adminData = adminDoc.exists() ? adminDoc.data() : {};
+
+    res.render('admin/profile', {
+      email: req.session.user.email,
+      user: {
+        fullName: req.session.user.fullName || adminData.fullName || 'System Administrator',
+        createdAt: adminData.createdAt || null,
+        profilePicture: adminData.profilePicture || null
+      },
+      stats
+    });
+  } catch (error) {
+    console.error('Error loading admin profile:', error);
+    res.render('admin/profile', {
+      email: req.session.user.email,
+      user: {
+        fullName: 'System Administrator',
+        createdAt: null,
+        profilePicture: null
+      },
+      stats: {
+        totalUsers: 0,
+        totalScholarships: 0,
+        totalApplications: 0,
+        students: 0,
+        sponsors: 0
+      }
+    });
+  }
+});
+
+// Update admin profile
+router.post('/profile/update', async (req, res) => {
+  const adminUid = req.session.user.uid;
+  const { fullName } = req.body;
+
+  if (!fullName || !fullName.trim()) {
+    return res.status(400).json({ error: 'Full name is required' });
+  }
+
+  try {
+    const userRef = doc(db, 'users', adminUid);
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+      await updateDoc(userRef, {
+        fullName: fullName.trim(),
+        updatedAt: new Date().toISOString()
+      });
+    } else {
+      // Create doc if doesn't exist (for hardcoded admin)
+      await setDoc(userRef, {
+        uid: adminUid,
+        email: req.session.user.email,
+        role: 'admin',
+        fullName: fullName.trim(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    // Update session
+    req.session.user.fullName = fullName.trim();
+
+    console.log('Profile updated for admin:', adminUid);
+    res.json({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating admin profile:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// Upload admin avatar
+router.post('/profile/avatar', avatarUpload.single('profilePicture'), async (req, res) => {
+  const adminUid = req.session.user.uid;
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  try {
+    const profilePictureUrl = `/uploads/${req.file.filename}`;
+
+    const userRef = doc(db, 'users', adminUid);
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+      await updateDoc(userRef, {
+        profilePicture: profilePictureUrl,
+        updatedAt: new Date().toISOString()
+      });
+    } else {
+      // Create doc if doesn't exist (for hardcoded admin)
+      await setDoc(userRef, {
+        uid: adminUid,
+        email: req.session.user.email,
+        role: 'admin',
+        fullName: 'System Administrator',
+        profilePicture: profilePictureUrl,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    // Update session so sidebar updates immediately
+    req.session.user.profilePicture = profilePictureUrl;
+
+    console.log('Profile picture updated for admin:', adminUid);
+    res.json({ success: true, message: 'Profile picture updated', url: profilePictureUrl });
+  } catch (error) {
+    console.error('Error uploading admin avatar:', error);
+    res.status(500).json({ error: 'Failed to upload profile picture' });
   }
 });
 

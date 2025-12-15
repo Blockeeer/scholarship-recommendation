@@ -1,5 +1,42 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { requireSponsor } = require('../middleware/auth');
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for avatar uploads
+const avatarStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'avatar-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only .png, .jpg, .jpeg files are allowed!'));
+    }
+  }
+});
 const {
   showAddScholarshipForm,
   addScholarshipOffer,
@@ -19,6 +56,9 @@ const {
 const { getUserNotifications, markAsRead, markAllAsRead, getUnreadCount, createNotification } = require('../services/notificationService');
 const { db } = require('../config/firebaseConfig');
 const { collection, query, where, getDocs, doc, getDoc, updateDoc } = require('firebase/firestore');
+
+// Apply requireSponsor middleware to all routes
+router.use(requireSponsor);
 
 // Show form to add scholarship
 router.get('/add-offer', showAddScholarshipForm);
@@ -58,9 +98,7 @@ router.post('/offers/:id/delete', deleteScholarship);
 
 // Save exam schedule for scholarship
 router.post('/offers/:id/exam-schedule', async (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'sponsor') {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  // Already protected by router.use(requireSponsor)
 
   const scholarshipId = req.params.id;
   const { date, time, venue, notes } = req.body;
@@ -104,10 +142,7 @@ router.post('/offers/:id/exam-schedule', async (req, res) => {
 
 // Request to close scholarship (sponsor requests admin to close)
 router.post('/offers/:id/request-close', async (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'sponsor') {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+  // Already protected by router.use(requireSponsor)
   const scholarshipId = req.params.id;
   const { reason } = req.body;
   const sponsorUid = req.session.user.uid;
@@ -152,10 +187,7 @@ router.post('/offers/:id/request-close', async (req, res) => {
 
 // Resubmit rejected scholarship for review
 router.post('/offers/:id/resubmit', async (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'sponsor') {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+  // Already protected by router.use(requireSponsor)
   const scholarshipId = req.params.id;
   const sponsorUid = req.session.user.uid;
 
@@ -205,10 +237,7 @@ router.post('/offers/:id/resubmit', async (req, res) => {
 
 // Sponsor Dashboard with real data
 router.get('/dashboard', async (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'sponsor') {
-    return res.redirect('/login');
-  }
-
+  // Already protected by router.use(requireSponsor)
   const sponsorUid = req.session.user.uid;
 
   try {
@@ -286,9 +315,7 @@ router.get('/dashboard', async (req, res) => {
 
 // Notifications for sponsor
 router.get('/notifications', async (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'sponsor') {
-    return res.redirect('/login');
-  }
+  // Already protected by router.use(requireSponsor)
   try {
     const notifications = await getUserNotifications(req.session.user.uid);
     res.render('sponsor/notifications', {
@@ -302,9 +329,7 @@ router.get('/notifications', async (req, res) => {
 });
 
 router.post('/notifications/:id/read', async (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  // Already protected by router.use(requireSponsor)
   try {
     await markAsRead(req.params.id, req.session.user.uid);
     res.json({ success: true });
@@ -314,9 +339,7 @@ router.post('/notifications/:id/read', async (req, res) => {
 });
 
 router.post('/notifications/read-all', async (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  // Already protected by router.use(requireSponsor)
   try {
     const count = await markAllAsRead(req.session.user.uid);
     res.json({ success: true, count });
@@ -327,14 +350,146 @@ router.post('/notifications/read-all', async (req, res) => {
 
 // API endpoint for sidebar counts
 router.get('/api/counts', async (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'sponsor') {
-    return res.json({ unreadNotifications: 0 });
-  }
+  // Already protected by router.use(requireSponsor)
   try {
     const unreadNotifications = await getUnreadCount(req.session.user.uid);
     res.json({ unreadNotifications });
   } catch (error) {
     res.json({ unreadNotifications: 0 });
+  }
+});
+
+// Profile page
+router.get('/profile', async (req, res) => {
+  // Already protected by router.use(requireSponsor)
+  const sponsorUid = req.session.user.uid;
+
+  try {
+    // Get sponsor's user document
+    const userRef = doc(db, 'users', sponsorUid);
+    const userDoc = await getDoc(userRef);
+    const userData = userDoc.exists() ? userDoc.data() : {};
+
+    // Get sponsor's scholarships count
+    const scholarshipsRef = collection(db, 'scholarships');
+    const scholarshipQuery = query(scholarshipsRef, where('sponsorUid', '==', sponsorUid));
+    const scholarshipSnapshot = await getDocs(scholarshipQuery);
+
+    let totalScholarships = scholarshipSnapshot.size;
+    let totalApplications = 0;
+
+    // Get scholarship IDs for application count
+    const scholarshipIds = [];
+    scholarshipSnapshot.forEach(doc => {
+      scholarshipIds.push(doc.id);
+    });
+
+    // Count applications for sponsor's scholarships
+    if (scholarshipIds.length > 0) {
+      const applicationsRef = collection(db, 'applications');
+      const applicationsSnapshot = await getDocs(applicationsRef);
+      applicationsSnapshot.forEach(doc => {
+        const app = doc.data();
+        if (scholarshipIds.includes(app.scholarshipId)) {
+          totalApplications++;
+        }
+      });
+    }
+
+    // Pass Firebase config for credential linking (Google-only users)
+    const firebaseConfig = {
+      apiKey: process.env.FIREBASE_API_KEY,
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.FIREBASE_PROJECT_ID
+    };
+
+    res.render('sponsor/profile', {
+      email: req.session.user.email,
+      user: {
+        fullName: req.session.user.fullName || userData.fullName || '',
+        authProvider: userData.authProvider || 'email',
+        emailVerified: userData.emailVerified || false,
+        createdAt: userData.createdAt || null,
+        profilePicture: userData.profilePicture || null
+      },
+      stats: {
+        totalScholarships,
+        totalApplications
+      },
+      firebaseConfig
+    });
+  } catch (error) {
+    console.error('Error loading sponsor profile:', error);
+    res.render('sponsor/profile', {
+      email: req.session.user.email,
+      user: {
+        fullName: req.session.user.fullName || '',
+        authProvider: 'email',
+        emailVerified: false,
+        createdAt: null,
+        profilePicture: null
+      },
+      stats: {
+        totalScholarships: 0,
+        totalApplications: 0
+      },
+      firebaseConfig: {}
+    });
+  }
+});
+
+// Update profile
+router.post('/profile/update', async (req, res) => {
+  const sponsorUid = req.session.user.uid;
+  const { fullName } = req.body;
+
+  if (!fullName || !fullName.trim()) {
+    return res.status(400).json({ error: 'Organization name is required' });
+  }
+
+  try {
+    const userRef = doc(db, 'users', sponsorUid);
+    await updateDoc(userRef, {
+      fullName: fullName.trim(),
+      updatedAt: new Date().toISOString()
+    });
+
+    // Update session
+    req.session.user.fullName = fullName.trim();
+
+    console.log('Profile updated for sponsor:', sponsorUid);
+    res.json({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// Upload avatar
+router.post('/profile/avatar', avatarUpload.single('profilePicture'), async (req, res) => {
+  const sponsorUid = req.session.user.uid;
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  try {
+    const profilePictureUrl = `/uploads/${req.file.filename}`;
+
+    const userRef = doc(db, 'users', sponsorUid);
+    await updateDoc(userRef, {
+      profilePicture: profilePictureUrl,
+      updatedAt: new Date().toISOString()
+    });
+
+    // Update session so sidebar updates immediately
+    req.session.user.profilePicture = profilePictureUrl;
+
+    console.log('Profile picture updated for sponsor:', sponsorUid);
+    res.json({ success: true, message: 'Profile picture updated', url: profilePictureUrl });
+  } catch (error) {
+    console.error('Error uploading avatar:', error);
+    res.status(500).json({ error: 'Failed to upload profile picture' });
   }
 });
 

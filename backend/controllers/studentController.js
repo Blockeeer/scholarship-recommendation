@@ -8,6 +8,7 @@ const {
   doc,
   getDoc,
   setDoc,
+  updateDoc,
   collection,
   getDocs,
   query,
@@ -591,15 +592,93 @@ async function getProfile(req, res) {
     const assessmentDoc = await getDoc(assessmentRef);
     const assessment = assessmentDoc.exists() ? assessmentDoc.data() : null;
 
+    // Pass Firebase config for credential linking (Google-only users)
+    const firebaseConfig = {
+      apiKey: process.env.FIREBASE_API_KEY,
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.FIREBASE_PROJECT_ID
+    };
+
     res.render("student/profile", {
       email: req.session.user.email,
       user,
-      assessment
+      assessment,
+      firebaseConfig
     });
 
   } catch (error) {
     console.error("❌ Error loading profile:", error);
     res.status(500).send("Error loading profile");
+  }
+}
+
+/**
+ * Update student profile
+ */
+async function updateProfile(req, res) {
+  if (!req.session.user || req.session.user.role !== "student") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const studentUid = req.session.user.uid;
+  const { fullName } = req.body;
+
+  if (!fullName || !fullName.trim()) {
+    return res.status(400).json({ error: "Full name is required" });
+  }
+
+  try {
+    const userRef = doc(db, "users", studentUid);
+    await updateDoc(userRef, {
+      fullName: fullName.trim(),
+      updatedAt: new Date().toISOString()
+    });
+
+    // Update session
+    req.session.user.fullName = fullName.trim();
+
+    console.log("Profile updated for student:", studentUid);
+    res.json({ success: true, message: "Profile updated successfully" });
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({ error: "Failed to update profile" });
+  }
+}
+
+/**
+ * Upload profile picture
+ */
+async function uploadAvatar(req, res) {
+  if (!req.session.user || req.session.user.role !== "student") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const studentUid = req.session.user.uid;
+
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  try {
+    // Generate the URL path for the uploaded file
+    const profilePictureUrl = `/uploads/${req.file.filename}`;
+
+    const userRef = doc(db, "users", studentUid);
+    await updateDoc(userRef, {
+      profilePicture: profilePictureUrl,
+      updatedAt: new Date().toISOString()
+    });
+
+    // Update session so sidebar updates immediately
+    req.session.user.profilePicture = profilePictureUrl;
+
+    console.log("Profile picture updated for student:", studentUid);
+    res.json({ success: true, message: "Profile picture updated", url: profilePictureUrl });
+
+  } catch (error) {
+    console.error("Error uploading avatar:", error);
+    res.status(500).json({ error: "Failed to upload profile picture" });
   }
 }
 
@@ -615,5 +694,7 @@ module.exports = {
   getNotifications,
   markNotificationRead,
   markAllNotificationsRead,
-  getProfile
+  getProfile,
+  updateProfile,
+  uploadAvatar
 };

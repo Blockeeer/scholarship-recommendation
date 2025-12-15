@@ -1,4 +1,4 @@
-const { registerUser, loginUser, logoutUser, signInWithGoogle, resetPassword, resendVerificationEmail } = require("../services/firebaseAuthService");
+const { registerUser, loginUser, logoutUser, signInWithGoogle, resetPassword, resendVerificationEmail, updateAuthProviderStatus, setPasswordForGoogleUser } = require("../services/firebaseAuthService");
 const { db } = require("../config/firebaseConfig");
 const { doc, getDoc } = require("firebase/firestore");
 
@@ -386,14 +386,20 @@ async function login(req, res) {
 
 // Google Sign-In
 async function googleSignIn(req, res) {
-  const { idToken, role = "student" } = req.body;
+  const { uid, email, displayName, role = "student" } = req.body;
 
-  if (!idToken) {
-    return res.status(400).json({ success: false, error: "Google ID token is required" });
+  console.log("Google Sign-In request received:", { uid, email, displayName, role });
+
+  if (!uid || !email) {
+    console.log("Missing uid or email");
+    return res.status(400).json({ success: false, error: "Google user data is required" });
   }
 
   try {
-    const { user, role: userRole, userData, isNewUser } = await signInWithGoogle(idToken, role);
+    const googleUser = { uid, email, displayName };
+    console.log("Calling signInWithGoogle service...");
+    const { user, role: userRole, userData, isNewUser } = await signInWithGoogle(googleUser, role);
+    console.log("signInWithGoogle returned:", { userRole, isNewUser });
 
     // Store in session
     req.session.user = {
@@ -479,6 +485,59 @@ async function logout(req, res) {
   req.session.destroy(() => res.redirect("/"));
 }
 
+// Update auth provider after linking email/password credentials
+async function linkEmailPassword(req, res) {
+  if (!req.session.user) {
+    return res.status(401).json({ success: false, error: "Not authenticated" });
+  }
+
+  const { uid } = req.session.user;
+
+  try {
+    await updateAuthProviderStatus(uid);
+
+    // Update session
+    req.session.user.authProvider = "both";
+
+    return res.json({
+      success: true,
+      message: "Email/password login enabled successfully!"
+    });
+  } catch (error) {
+    console.error("Link email/password error:", error);
+    return res.status(400).json({ success: false, error: error.message });
+  }
+}
+
+// Set password for Google-only users
+async function setPasswordForGoogleUserController(req, res) {
+  if (!req.session.user) {
+    return res.status(401).json({ success: false, error: "Not authenticated" });
+  }
+
+  const { uid, email } = req.session.user;
+  const { password } = req.body;
+
+  if (!password || password.length < 6) {
+    return res.status(400).json({ success: false, error: "Password must be at least 6 characters" });
+  }
+
+  try {
+    await setPasswordForGoogleUser(uid, email, password);
+
+    // Update session to reflect new auth provider
+    req.session.user.authProvider = "both";
+
+    return res.json({
+      success: true,
+      message: "Password set successfully! You can now log in with email and password."
+    });
+  } catch (error) {
+    console.error("Set password for Google user error:", error);
+    return res.status(400).json({ success: false, error: error.message });
+  }
+}
+
 module.exports = {
   showIndex,
   showDashboard,
@@ -489,4 +548,6 @@ module.exports = {
   googleSignIn,
   forgotPassword,
   resendVerification,
+  linkEmailPassword,
+  setPasswordForGoogleUserController,
 };

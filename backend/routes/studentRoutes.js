@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { requireStudent, requireAuth } = require('../middleware/auth');
 const { showAssessmentForm, submitAssessment } = require('../controllers/assessmentController');
 const {
   showStudentDashboard,
@@ -16,7 +17,9 @@ const {
   getNotifications,
   markNotificationRead,
   markAllNotificationsRead,
-  getProfile
+  getProfile,
+  updateProfile,
+  uploadAvatar
 } = require('../controllers/studentController');
 const {
   createApplication,
@@ -40,14 +43,14 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: function (req, file, cb) {
     const allowedTypes = /jpeg|jpg|png|pdf/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
-    
+
     if (mimetype && extname) {
       return cb(null, true);
     } else {
@@ -56,42 +59,70 @@ const upload = multer({
   }
 });
 
-// Show assessment form
-router.get('/assessment', showAssessmentForm);
-
-// Submit assessment with file uploads
-router.post('/assessment', upload.fields([
+// Assessment routes - require auth (user logged in but might not have completed assessment yet)
+router.get('/assessment', requireAuth, showAssessmentForm);
+router.post('/assessment', requireAuth, upload.fields([
   { name: 'grades', maxCount: 1 },
   { name: 'coe', maxCount: 1 },
   { name: 'schoolId', maxCount: 1 },
   { name: 'otherDocuments', maxCount: 5 }
 ]), submitAssessment);
 
-// Student dashboard route
-router.get('/student_dashboard', showStudentDashboard);
-router.get('/dashboard', showStudentDashboard);
+// Student dashboard route - require student role
+router.get('/student_dashboard', requireStudent, showStudentDashboard);
+router.get('/dashboard', requireStudent, showStudentDashboard);
 
-// Profile
-router.get('/profile', getProfile);
+// Profile - require student role
+router.get('/profile', requireStudent, getProfile);
+router.post('/profile/update', requireStudent, updateProfile);
 
-// Scholarship search and browse
-router.get('/scholarships', searchScholarships);
-router.get('/scholarships/:id', viewScholarshipDetails);
-router.get('/scholarships/:id/apply', showApplyForm);
+// Configure multer for avatar uploads (images only, 5MB limit)
+const avatarStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'avatar-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
 
-// Applications
-router.post('/scholarships/:id/apply', createApplication);
-router.get('/applications', getMyApplications);
-router.get('/applications/:id', viewApplicationDetails);
-router.post('/applications/:id/withdraw', withdrawApplication);
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
 
-// Recommendations (GPT-powered)
-router.get('/recommendations', getRecommendations);
-router.post('/recommendations/generate', generateAndSaveRecommendations);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only .png, .jpg, .jpeg files are allowed!'));
+    }
+  }
+});
 
-// Notifications
-router.get('/notifications', getNotifications);
-router.post('/notifications/:id/read', markNotificationRead);
-router.post('/notifications/read-all', markAllNotificationsRead);
+router.post('/profile/avatar', requireStudent, avatarUpload.single('profilePicture'), uploadAvatar);
+
+// Scholarship search and browse - require student role
+router.get('/scholarships', requireStudent, searchScholarships);
+router.get('/scholarships/:id', requireStudent, viewScholarshipDetails);
+router.get('/scholarships/:id/apply', requireStudent, showApplyForm);
+
+// Applications - require student role
+router.post('/scholarships/:id/apply', requireStudent, createApplication);
+router.get('/applications', requireStudent, getMyApplications);
+router.get('/applications/:id', requireStudent, viewApplicationDetails);
+router.post('/applications/:id/withdraw', requireStudent, withdrawApplication);
+
+// Recommendations (GPT-powered) - require student role
+router.get('/recommendations', requireStudent, getRecommendations);
+router.post('/recommendations/generate', requireStudent, generateAndSaveRecommendations);
+
+// Notifications - require student role
+router.get('/notifications', requireStudent, getNotifications);
+router.post('/notifications/:id/read', requireStudent, markNotificationRead);
+router.post('/notifications/read-all', requireStudent, markAllNotificationsRead);
 
 module.exports = router;

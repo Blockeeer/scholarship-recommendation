@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile - ScholarPath</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .profile-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .profile-card {
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .profile-avatar-wrapper {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 1rem;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-edit-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 32px;
+      height: 32px;
+      background: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+
+    .avatar-edit-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .avatar-edit-btn svg {
+      width: 16px;
+      height: 16px;
+      color: var(--primary-color);
+    }
+
+    .profile-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .profile-email {
+      opacity: 0.9;
+      font-size: 0.9375rem;
+    }
+
+    .profile-edit-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius);
+      color: white;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .profile-edit-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-body {
+      padding: 1.5rem 2rem;
+    }
+
+    .profile-section {
+      margin-bottom: 2rem;
+    }
+
+    .profile-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .profile-section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .profile-info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .profile-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .profile-info-item {
+      padding: 0.75rem;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+    }
+
+    .profile-info-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .profile-info-value {
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .security-section {
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      padding: 1.5rem 2rem;
+    }
+
+    .security-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .security-item:last-child {
+      border-bottom: none;
+    }
+
+    .security-info h4 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .security-info p {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .btn-change-password {
+      padding: 0.5rem 1rem;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-change-password:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-change-password:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .auth-provider-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      background: #f3f4f6;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .auth-provider-badge.google {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .auth-provider-badge.both {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-container {
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-xl);
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-header h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 1.5rem 2rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 2rem;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .success-message {
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      color: #166534;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-secondary {
+      padding: 0.5rem 1rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-200);
+    }
+
+    .btn-primary {
+      padding: 0.5rem 1rem;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Avatar Upload */
+    .avatar-upload-area {
+      text-align: center;
+      padding: 2rem;
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .avatar-upload-area:hover {
+      border-color: var(--primary-color);
+      background: var(--primary-50);
+    }
+
+    .avatar-upload-area.dragover {
+      border-color: var(--primary-color);
+      background: var(--primary-50);
+    }
+
+    .avatar-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      overflow: hidden;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-preview-placeholder {
+      font-size: 3rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_student') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'My Profile' }) %>
+
+    <main class="page-content">
+      <div class="container">
+        <div class="profile-container">
+          <!-- Profile Card -->
+          <div class="profile-card">
+            <div class="profile-header">
+              <button class="profile-edit-btn" onclick="openEditProfileModal()">Edit Profile</button>
+              <div class="profile-avatar-wrapper">
+                <div class="profile-avatar">
+                  <% if (user.profilePicture) { %>
+                    <img src="<%= user.profilePicture %>" alt="Profile Picture">
+                  <% } else { %>
+                    <%= user.fullName ? user.fullName.charAt(0).toUpperCase() : 'S' %>
+                  <% } %>
+                </div>
+                <button class="avatar-edit-btn" onclick="openAvatarModal()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="profile-name"><%= user.fullName || 'Student' %></div>
+              <div class="profile-email"><%= email %></div>
+              <% if (user.authProvider === 'google') { %>
+                <div style="margin-top: 0.75rem;">
+                  <span class="auth-provider-badge google">
+                    <svg width="14" height="14" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/></svg>
+                    Signed in with Google
+                  </span>
+                </div>
+              <% } else if (user.authProvider === 'both') { %>
+                <div style="margin-top: 0.75rem;">
+                  <span class="auth-provider-badge both">
+                    Google + Email/Password
+                  </span>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="profile-body">
+              <div class="profile-section">
+                <h3 class="profile-section-title">Account Information</h3>
+                <div class="profile-info-grid">
+                  <div class="profile-info-item">
+                    <div class="profile-info-label">Full Name</div>
+                    <div class="profile-info-value"><%= user.fullName || 'Not set' %></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div class="profile-info-label">Email</div>
+                    <div class="profile-info-value"><%= email %></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div class="profile-info-label">Role</div>
+                    <div class="profile-info-value">Student</div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div class="profile-info-label">Member Since</div>
+                    <div class="profile-info-value"><%= user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A' %></div>
+                  </div>
+                </div>
+              </div>
+
+              <% if (assessment) { %>
+              <div class="profile-section">
+                <h3 class="profile-section-title">Assessment Information</h3>
+                <div class="profile-info-grid">
+                  <div class="profile-info-item">
+                    <div class="profile-info-label">GPA</div>
+                    <div class="profile-info-value"><%= assessment.gpa || 'Not provided' %></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div class="profile-info-label">Year Level</div>
+                    <div class="profile-info-value"><%= assessment.yearLevel || 'Not provided' %></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div class="profile-info-label">Course</div>
+                    <div class="profile-info-value"><%= assessment.course || 'Not provided' %></div>
+                  </div>
+                  <div class="profile-info-item">
+                    <div class="profile-info-label">Family Income</div>
+                    <div class="profile-info-value"><%= assessment.familyIncome || 'Not provided' %></div>
+                  </div>
+                </div>
+              </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Security Section -->
+          <div class="security-section">
+            <h3 class="profile-section-title">Security Settings</h3>
+
+            <div class="security-item">
+              <div class="security-info">
+                <h4>Password</h4>
+                <% if (user.authProvider === 'google') { %>
+                  <p>You signed up with Google. You can set a password to enable email/password login.</p>
+                <% } else if (user.authProvider === 'both') { %>
+                  <p>You can log in with both Google and email/password</p>
+                <% } else { %>
+                  <p>Change your account password</p>
+                <% } %>
+              </div>
+              <button class="btn-change-password" onclick="openChangePasswordModal()">
+                <% if (user.authProvider === 'google') { %>
+                  Set Password
+                <% } else { %>
+                  Change Password
+                <% } %>
+              </button>
+            </div>
+
+            <div class="security-item">
+              <div class="security-info">
+                <h4>Email Verification</h4>
+                <p><%= user.emailVerified ? 'Your email is verified' : 'Your email is not verified' %></p>
+              </div>
+              <% if (!user.emailVerified && user.authProvider !== 'google' && user.authProvider !== 'both') { %>
+                <button class="btn-change-password" onclick="resendVerification()" id="resendVerifyBtn">
+                  Resend Verification
+                </button>
+              <% } else { %>
+                <span class="auth-provider-badge" style="background: #dcfce7; color: #166534;">Verified</span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <!-- Edit Profile Modal -->
+  <div class="modal-overlay" id="editProfileModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Edit Profile</h3>
+      </div>
+      <div class="modal-body">
+        <div id="editProfileError" class="error-message" style="display: none;"></div>
+        <div id="editProfileSuccess" class="success-message" style="display: none;"></div>
+
+        <form id="editProfileForm" onsubmit="handleEditProfile(event)">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="editFullName" value="<%= user.fullName || '' %>" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" value="<%= email %>" disabled>
+            <small style="color: var(--text-muted); font-size: 0.75rem;">Email cannot be changed</small>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeEditProfileModal()">Cancel</button>
+        <button class="btn-primary" onclick="handleEditProfile(event)" id="saveProfileBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Avatar Upload Modal -->
+  <div class="modal-overlay" id="avatarModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Change Profile Picture</h3>
+      </div>
+      <div class="modal-body">
+        <div id="avatarError" class="error-message" style="display: none;"></div>
+        <div id="avatarSuccess" class="success-message" style="display: none;"></div>
+
+        <div class="avatar-upload-area" id="avatarDropZone" onclick="document.getElementById('avatarInput').click()">
+          <div class="avatar-preview" id="avatarPreview">
+            <% if (user.profilePicture) { %>
+              <img src="<%= user.profilePicture %>" alt="Current avatar" id="previewImg">
+            <% } else { %>
+              <span class="avatar-preview-placeholder" id="previewPlaceholder"><%= user.fullName ? user.fullName.charAt(0).toUpperCase() : 'S' %></span>
+            <% } %>
+          </div>
+          <p style="margin: 0; color: var(--text-secondary);">Click to upload or drag and drop</p>
+          <p style="margin: 0.25rem 0 0; font-size: 0.75rem; color: var(--text-muted);">PNG, JPG up to 5MB</p>
+        </div>
+        <input type="file" id="avatarInput" accept="image/png,image/jpeg,image/jpg" style="display: none;" onchange="handleAvatarSelect(event)">
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeAvatarModal()">Cancel</button>
+        <button class="btn-primary" onclick="handleAvatarUpload()" id="uploadAvatarBtn" disabled>Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><%= user.authProvider === 'google' ? 'Set Password' : 'Change Password' %></h3>
+      </div>
+      <div class="modal-body">
+        <div id="passwordError" class="error-message" style="display: none;"></div>
+        <div id="passwordSuccess" class="success-message" style="display: none;"></div>
+
+        <% if (user.authProvider === 'google') { %>
+          <!-- Google-only users: Set a new password -->
+          <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+            Set a password to enable email/password login for your account.
+          </p>
+
+          <form id="setPasswordForm" onsubmit="handleSetPassword(event)">
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" class="form-control" id="newPassword" minlength="6" required placeholder="At least 6 characters">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password</label>
+              <input type="password" class="form-control" id="confirmNewPassword" minlength="6" required placeholder="Confirm your password">
+            </div>
+            <button type="submit" class="btn-change-password" style="width: 100%;" id="setPasswordBtn">
+              Set Password
+            </button>
+          </form>
+          <div style="text-align: center; margin-top: 1rem;">
+            <a href="#" onclick="sendForgotPassword(event)" style="font-size: 0.875rem; color: var(--primary-color);">
+              Already have a password? Reset it here
+            </a>
+          </div>
+        <% } else { %>
+          <!-- Email/password users: Send reset email -->
+          <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+            A password reset link will be sent to your email address: <strong><%= email %></strong>
+          </p>
+
+          <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
+            <button type="submit" class="btn-change-password" style="width: 100%;" id="sendResetBtn">
+              Send Password Reset Email
+            </button>
+          </form>
+        <% } %>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeChangePasswordModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedAvatarFile = null;
+
+    // Edit Profile Modal
+    function openEditProfileModal() {
+      document.getElementById('editProfileModal').classList.add('active');
+      document.getElementById('editProfileError').style.display = 'none';
+      document.getElementById('editProfileSuccess').style.display = 'none';
+    }
+
+    function closeEditProfileModal() {
+      document.getElementById('editProfileModal').classList.remove('active');
+    }
+
+    async function handleEditProfile(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('saveProfileBtn');
+      const errorDiv = document.getElementById('editProfileError');
+      const successDiv = document.getElementById('editProfileSuccess');
+      const fullName = document.getElementById('editFullName').value.trim();
+
+      if (!fullName) {
+        errorDiv.textContent = 'Full name is required';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      try {
+        const response = await fetch('/student/profile/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ fullName })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          successDiv.textContent = 'Profile updated successfully!';
+          successDiv.style.display = 'block';
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else {
+          errorDiv.textContent = data.error || 'Failed to update profile.';
+          errorDiv.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Save Changes';
+        }
+      } catch (error) {
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Save Changes';
+      }
+    }
+
+    // Avatar Modal
+    function openAvatarModal() {
+      document.getElementById('avatarModal').classList.add('active');
+      document.getElementById('avatarError').style.display = 'none';
+      document.getElementById('avatarSuccess').style.display = 'none';
+      selectedAvatarFile = null;
+      document.getElementById('uploadAvatarBtn').disabled = true;
+    }
+
+    function closeAvatarModal() {
+      document.getElementById('avatarModal').classList.remove('active');
+      selectedAvatarFile = null;
+    }
+
+    function handleAvatarSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!['image/png', 'image/jpeg', 'image/jpg'].includes(file.type)) {
+        document.getElementById('avatarError').textContent = 'Please select a PNG or JPG image';
+        document.getElementById('avatarError').style.display = 'block';
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        document.getElementById('avatarError').textContent = 'Image must be less than 5MB';
+        document.getElementById('avatarError').style.display = 'block';
+        return;
+      }
+
+      selectedAvatarFile = file;
+      document.getElementById('avatarError').style.display = 'none';
+      document.getElementById('uploadAvatarBtn').disabled = false;
+
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('avatarPreview');
+        preview.innerHTML = `<img src="${e.target.result}" alt="Preview" id="previewImg">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleAvatarUpload() {
+      if (!selectedAvatarFile) return;
+
+      const btn = document.getElementById('uploadAvatarBtn');
+      const errorDiv = document.getElementById('avatarError');
+      const successDiv = document.getElementById('avatarSuccess');
+
+      btn.disabled = true;
+      btn.textContent = 'Uploading...';
+      errorDiv.style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('profilePicture', selectedAvatarFile);
+
+      try {
+        const response = await fetch('/student/profile/avatar', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          successDiv.textContent = 'Profile picture updated!';
+          successDiv.style.display = 'block';
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else {
+          errorDiv.textContent = data.error || 'Failed to upload image.';
+          errorDiv.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Upload';
+        }
+      } catch (error) {
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Upload';
+      }
+    }
+
+    // Drag and drop for avatar
+    const dropZone = document.getElementById('avatarDropZone');
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        document.getElementById('avatarInput').files = e.dataTransfer.files;
+        handleAvatarSelect({ target: { files: [file] } });
+      }
+    });
+
+    // Change Password Modal
+    function openChangePasswordModal() {
+      document.getElementById('changePasswordModal').classList.add('active');
+      document.getElementById('passwordError').style.display = 'none';
+      document.getElementById('passwordSuccess').style.display = 'none';
+    }
+
+    function closeChangePasswordModal() {
+      document.getElementById('changePasswordModal').classList.remove('active');
+    }
+
+    async function handleChangePassword(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('sendResetBtn');
+      const errorDiv = document.getElementById('passwordError');
+      const successDiv = document.getElementById('passwordSuccess');
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      try {
+        const response = await fetch('/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: '<%= email %>' })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          successDiv.textContent = 'Password reset email sent! Please check your inbox.';
+          successDiv.style.display = 'block';
+          btn.textContent = 'Email Sent';
+        } else {
+          errorDiv.textContent = data.error || 'Failed to send reset email.';
+          errorDiv.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Send Password Reset Email';
+        }
+      } catch (error) {
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Send Password Reset Email';
+      }
+    }
+
+    // Handle setting password for Google-only users
+    async function handleSetPassword(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('setPasswordBtn');
+      const errorDiv = document.getElementById('passwordError');
+      const successDiv = document.getElementById('passwordSuccess');
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+      // Validation
+      if (newPassword.length < 6) {
+        errorDiv.textContent = 'Password must be at least 6 characters.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        errorDiv.textContent = 'Passwords do not match.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Setting password...';
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      try {
+        // Call backend to create email/password account and link it
+        const response = await fetch('/auth/set-password-for-google-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ password: newPassword })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          successDiv.textContent = 'Password set successfully! You can now log in with email and password.';
+          successDiv.style.display = 'block';
+          btn.textContent = 'Password Set!';
+
+          // Reload page after 2 seconds to update UI
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          throw new Error(data.error || 'Failed to set password');
+        }
+      } catch (error) {
+        console.error('Set password error:', error);
+        errorDiv.textContent = error.message || 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Set Password';
+      }
+    }
+
+    // Send forgot password email for Google users with existing email/password account
+    async function sendForgotPassword(event) {
+      event.preventDefault();
+      const errorDiv = document.getElementById('passwordError');
+      const successDiv = document.getElementById('passwordSuccess');
+
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      try {
+        const response = await fetch('/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: '<%= email %>' })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          successDiv.textContent = 'Password reset email sent! Check your inbox.';
+          successDiv.style.display = 'block';
+        } else {
+          throw new Error(data.error || 'Failed to send reset email');
+        }
+      } catch (error) {
+        errorDiv.textContent = error.message || 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    async function resendVerification() {
+      const btn = document.getElementById('resendVerifyBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      try {
+        const response = await fetch('/auth/resend-verification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          btn.textContent = 'Email Sent!';
+        } else {
+          btn.textContent = 'Failed';
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = 'Resend Verification';
+          }, 2000);
+        }
+      } catch (error) {
+        btn.textContent = 'Failed';
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Resend Verification';
+        }, 2000);
+      }
+    }
+
+    // Close modals when clicking outside
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.remove('active');
+        }
+      });
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+          modal.classList.remove('active');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

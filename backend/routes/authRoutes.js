@@ -8,7 +8,9 @@ const {
   logout,
   googleSignIn,
   forgotPassword,
-  resendVerification
+  resendVerification,
+  linkEmailPassword,
+  setPasswordForGoogleUserController
 } = require("../controllers/authController");
 const {
   showAssessmentForm,
@@ -40,6 +42,12 @@ router.post("/auth/forgot-password", forgotPassword);
 
 // Resend Verification Email
 router.post("/auth/resend-verification", resendVerification);
+
+// Link email/password to Google account
+router.post("/auth/link-email-password", linkEmailPassword);
+
+// Set password for Google-only users
+router.post("/auth/set-password-for-google-user", setPasswordForGoogleUserController);
 
 // // Show form
 // router.get("/student/assessment", showAssessmentForm);
