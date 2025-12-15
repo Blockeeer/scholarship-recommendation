@@ -5,7 +5,10 @@ const {
   registerStudent,
   registerSponsor,
   login,
-  logout
+  logout,
+  googleSignIn,
+  forgotPassword,
+  resendVerification
 } = require("../controllers/authController");
 const {
   showAssessmentForm,
@@ -28,6 +31,15 @@ router.post("/register/student", registerStudent);
 router.post("/register/sponsor", registerSponsor);
 router.post("/login", login);
 router.post("/logout", logout);
+
+// Google Sign-In
+router.post("/auth/google", googleSignIn);
+
+// Password Reset
+router.post("/auth/forgot-password", forgotPassword);
+
+// Resend Verification Email
+router.post("/auth/resend-verification", resendVerification);
 
 // // Show form
 // router.get("/student/assessment", showAssessmentForm);

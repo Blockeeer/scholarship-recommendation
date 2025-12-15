@@ -1,10 +1,46 @@
-const { registerUser, loginUser, logoutUser } = require("../services/firebaseAuthService");
+const { registerUser, loginUser, logoutUser, signInWithGoogle, resetPassword, resendVerificationEmail } = require("../services/firebaseAuthService");
 const { db } = require("../config/firebaseConfig");
 const { doc, getDoc } = require("firebase/firestore");
 
 // ----------------------
 // HELPER FUNCTIONS
 // ----------------------
+
+/**
+ * Validate email format - checks for common issues like .com.com
+ */
+function isValidEmail(email) {
+  // Basic email regex
+  const basicRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!basicRegex.test(email)) {
+    return { valid: false, error: "Please enter a valid email address" };
+  }
+
+  // Check for repeated TLDs like .com.com, .org.org, etc.
+  const repeatedTldRegex = /\.(com|org|net|edu|gov|io|co|ph)\.\1$/i;
+  if (repeatedTldRegex.test(email)) {
+    return { valid: false, error: "Invalid email format: duplicate domain extension detected (e.g., .com.com)" };
+  }
+
+  // Check for common typos in TLDs
+  const suspiciousTldRegex = /\.(com|org|net|edu|gov|io|co|ph)\.(com|org|net|edu|gov|io|co|ph)$/i;
+  if (suspiciousTldRegex.test(email)) {
+    return { valid: false, error: "Invalid email format: please check your email domain" };
+  }
+
+  // Check for multiple @ symbols
+  if ((email.match(/@/g) || []).length > 1) {
+    return { valid: false, error: "Invalid email format: multiple @ symbols detected" };
+  }
+
+  // Check for spaces
+  if (email.includes(' ')) {
+    return { valid: false, error: "Email cannot contain spaces" };
+  }
+
+  return { valid: true };
+}
+
 function getReadableErrorMessage(error) {
   const errorCode = error.code || '';
   const errorMessage = error.message || '';
@@ -127,14 +163,14 @@ async function registerStudent(req, res) {
     });
   }
 
-  // Email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  // Email validation with advanced checks
+  const emailValidation = isValidEmail(email);
+  if (!emailValidation.valid) {
     if (isJsonRequest) {
-      return res.status(400).json({ success: false, error: "Please enter a valid email address" });
+      return res.status(400).json({ success: false, error: emailValidation.error });
     }
     return res.render("register_student", {
-      error: "Please enter a valid email address",
+      error: emailValidation.error,
       formData: { fullName, email }
     });
   }
@@ -169,14 +205,20 @@ async function registerStudent(req, res) {
       uid: user.uid,
       email: user.email,
       role: "student",
-      fullName: fullName
+      fullName: fullName,
+      emailVerified: user.emailVerified || false
     };
 
     console.log("🎓 Student registered with UID:", user.uid);
+    console.log("📧 Verification email sent to:", email);
 
     // Return JSON response for modal or redirect for form
     if (isJsonRequest) {
-      return res.json({ success: true, redirect: "/student/assessment" });
+      return res.json({
+        success: true,
+        redirect: "/student/assessment",
+        message: "Account created! Please check your email to verify your account."
+      });
     }
     return res.redirect("/student/assessment");
   } catch (error) {
@@ -207,14 +249,14 @@ async function registerSponsor(req, res) {
     });
   }
 
-  // Email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  // Email validation with advanced checks
+  const emailValidation = isValidEmail(email);
+  if (!emailValidation.valid) {
     if (isJsonRequest) {
-      return res.status(400).json({ success: false, error: "Please enter a valid email address" });
+      return res.status(400).json({ success: false, error: emailValidation.error });
     }
     return res.render("register_sponsor", {
-      error: "Please enter a valid email address",
+      error: emailValidation.error,
       formData: { fullName, email }
     });
   }
@@ -249,11 +291,16 @@ async function registerSponsor(req, res) {
       uid: user.uid,
       email: user.email,
       role: "sponsor",
-      fullName: fullName
+      fullName: fullName,
+      emailVerified: user.emailVerified || false
     };
 
     if (isJsonRequest) {
-      return res.json({ success: true, redirect: "/dashboard" });
+      return res.json({
+        success: true,
+        redirect: "/dashboard",
+        message: "Account created! Please check your email to verify your account."
+      });
     }
     return res.redirect("/dashboard");
   } catch (error) {
@@ -284,14 +331,14 @@ async function login(req, res) {
     });
   }
 
-  // Basic email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  // Email validation with advanced checks
+  const emailValidation = isValidEmail(email);
+  if (!emailValidation.valid) {
     if (isJsonRequest) {
-      return res.status(400).json({ success: false, error: "Please enter a valid email address" });
+      return res.status(400).json({ success: false, error: emailValidation.error });
     }
     return res.render("login", {
-      error: "Please enter a valid email address",
+      error: emailValidation.error,
       email
     });
   }
@@ -313,7 +360,8 @@ async function login(req, res) {
       uid: user.uid,
       email: user.email,
       role,
-      fullName: userData.fullName || ""
+      fullName: userData.fullName || "",
+      emailVerified: user.emailVerified || false
     };
 
     console.log("🔐 User logged in with UID:", user.uid);
@@ -336,6 +384,95 @@ async function login(req, res) {
   }
 }
 
+// Google Sign-In
+async function googleSignIn(req, res) {
+  const { idToken, role = "student" } = req.body;
+
+  if (!idToken) {
+    return res.status(400).json({ success: false, error: "Google ID token is required" });
+  }
+
+  try {
+    const { user, role: userRole, userData, isNewUser } = await signInWithGoogle(idToken, role);
+
+    // Store in session
+    req.session.user = {
+      uid: user.uid,
+      email: user.email,
+      role: userRole,
+      fullName: userData.fullName || user.displayName || "",
+      emailVerified: true // Google accounts are always verified
+    };
+
+    console.log("🔐 Google user signed in with UID:", user.uid, "isNewUser:", isNewUser);
+
+    // Determine redirect based on role and new user status
+    let redirect = "/dashboard";
+    if (isNewUser && userRole === "student") {
+      redirect = "/student/assessment";
+    }
+
+    return res.json({
+      success: true,
+      redirect,
+      isNewUser,
+      message: isNewUser ? "Account created successfully with Google!" : "Logged in with Google!"
+    });
+  } catch (error) {
+    console.error("Google sign-in error:", error);
+    return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
+  }
+}
+
+// Password Reset
+async function forgotPassword(req, res) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ success: false, error: "Email is required" });
+  }
+
+  // Validate email format
+  const emailValidation = isValidEmail(email);
+  if (!emailValidation.valid) {
+    return res.status(400).json({ success: false, error: emailValidation.error });
+  }
+
+  try {
+    await resetPassword(email);
+    return res.json({
+      success: true,
+      message: "Password reset email sent! Please check your inbox."
+    });
+  } catch (error) {
+    console.error("Password reset error:", error);
+
+    // Don't reveal if email exists or not for security
+    if (error.code === "auth/user-not-found") {
+      return res.json({
+        success: true,
+        message: "If an account with that email exists, a password reset email has been sent."
+      });
+    }
+
+    return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
+  }
+}
+
+// Resend Verification Email
+async function resendVerification(req, res) {
+  try {
+    await resendVerificationEmail();
+    return res.json({
+      success: true,
+      message: "Verification email sent! Please check your inbox."
+    });
+  } catch (error) {
+    console.error("Resend verification error:", error);
+    return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
+  }
+}
+
 // Logout
 async function logout(req, res) {
   await logoutUser();
@@ -349,4 +486,7 @@ module.exports = {
   registerSponsor,
   login,
   logout,
+  googleSignIn,
+  forgotPassword,
+  resendVerification,
 };

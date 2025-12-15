@@ -249,6 +249,86 @@
       margin-top: 0.25rem;
     }
 
+    /* Google Sign-In Button */
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-google:hover {
+      background: var(--bg-secondary);
+      border-color: var(--gray-400);
+    }
+
+    .btn-google:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn-google svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Auth Divider */
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      margin: 1.25rem 0;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-color);
+    }
+
+    .auth-divider span {
+      padding: 0 1rem;
+    }
+
+    /* Forgot Password Link */
+    .forgot-password-link {
+      display: block;
+      text-align: right;
+      font-size: 0.875rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    .forgot-password-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Success Message */
+    .success-message {
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      color: #166534;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
     /* Navbar */
     .navbar {
       position: fixed;
@@ -699,6 +779,21 @@
       </div>
       <div class="modal-content">
         <div id="loginError" class="error-message" style="display: none;"></div>
+        <div id="loginSuccess" class="success-message" style="display: none;"></div>
+
+        <!-- Google Sign-In Button -->
+        <button type="button" class="btn-google" id="googleLoginBtn" onclick="handleGoogleSignIn('login')">
+          <svg viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <div class="auth-divider"><span>or</span></div>
+
         <form id="loginForm" onsubmit="handleLogin(event)">
           <div class="form-group">
             <label class="form-label">Email Address</label>
@@ -711,6 +806,7 @@
               <button type="button" class="toggle-password" onclick="togglePassword('loginPassword', this)">Show</button>
             </div>
           </div>
+          <a class="forgot-password-link" onclick="openForgotPasswordModal()">Forgot password?</a>
           <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
         </form>
       </div>
@@ -731,6 +827,7 @@
       </div>
       <div class="modal-content">
         <div id="registerError" class="error-message" style="display: none;"></div>
+        <div id="registerSuccess" class="success-message" style="display: none;"></div>
 
         <!-- Account Type Selection -->
         <div class="register-type-selection">
@@ -745,6 +842,19 @@
             <div class="type-desc">Offer scholarships</div>
           </button>
         </div>
+
+        <!-- Google Sign-In Button -->
+        <button type="button" class="btn-google" id="googleRegisterBtn" onclick="handleGoogleSignIn('register')">
+          <svg viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <div class="auth-divider"><span>or register with email</span></div>
 
         <form id="registerForm" onsubmit="handleRegister(event)">
           <input type="hidden" name="registerType" id="registerType" value="student">
@@ -780,24 +890,94 @@
     </div>
   </div>
 
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgotPasswordModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeForgotPasswordModal()">&times;</button>
+        <div class="modal-logo">SP</div>
+        <h2>Reset Password</h2>
+        <p>Enter your email to receive reset instructions</p>
+      </div>
+      <div class="modal-content">
+        <div id="forgotPasswordError" class="error-message" style="display: none;"></div>
+        <div id="forgotPasswordSuccess" class="success-message" style="display: none;"></div>
+
+        <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" id="forgotPasswordEmail" class="form-control" placeholder="Enter your email" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" id="forgotPasswordBtn">Send Reset Link</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <p>Remember your password? <a onclick="backToLogin()">Back to Login</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Firebase SDK for Google Sign-In -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
   <script>
+    // Initialize Firebase (using environment variables passed from server)
+    // You need to create a route or include these values
+    const firebaseConfig = {
+      apiKey: "<%= process.env.FIREBASE_API_KEY %>",
+      authDomain: "<%= process.env.FIREBASE_AUTH_DOMAIN %>",
+      projectId: "<%= process.env.FIREBASE_PROJECT_ID %>",
+    };
+
+    // Initialize Firebase if not already initialized
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    // Email Validation (frontend)
+    function isValidEmail(email) {
+      const basicRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!basicRegex.test(email)) {
+        return { valid: false, error: "Please enter a valid email address" };
+      }
+
+      // Check for repeated TLDs like .com.com
+      const repeatedTldRegex = /\.(com|org|net|edu|gov|io|co|ph)\.\1$/i;
+      if (repeatedTldRegex.test(email)) {
+        return { valid: false, error: "Invalid email: duplicate domain extension (e.g., .com.com)" };
+      }
+
+      // Check for suspicious double TLDs
+      const suspiciousTldRegex = /\.(com|org|net|edu|gov|io|co|ph)\.(com|org|net|edu|gov|io|co|ph)$/i;
+      if (suspiciousTldRegex.test(email)) {
+        return { valid: false, error: "Invalid email format: please check your email domain" };
+      }
+
+      return { valid: true };
+    }
+
     // Modal Functions
     function openLoginModal() {
       document.getElementById('loginModal').classList.add('active');
       document.body.style.overflow = 'hidden';
       document.getElementById('loginError').style.display = 'none';
+      document.getElementById('loginSuccess').style.display = 'none';
     }
 
     function closeLoginModal() {
       document.getElementById('loginModal').classList.remove('active');
       document.body.style.overflow = '';
       document.getElementById('loginForm').reset();
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('loginSuccess').style.display = 'none';
     }
 
     function openRegisterModal(type = 'student') {
       document.getElementById('registerModal').classList.add('active');
       document.body.style.overflow = 'hidden';
       document.getElementById('registerError').style.display = 'none';
+      document.getElementById('registerSuccess').style.display = 'none';
       selectRegisterType(type);
     }
 
@@ -805,6 +985,31 @@
       document.getElementById('registerModal').classList.remove('active');
       document.body.style.overflow = '';
       document.getElementById('registerForm').reset();
+      document.getElementById('registerError').style.display = 'none';
+      document.getElementById('registerSuccess').style.display = 'none';
+    }
+
+    function openForgotPasswordModal() {
+      closeLoginModal();
+      setTimeout(() => {
+        document.getElementById('forgotPasswordModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('forgotPasswordError').style.display = 'none';
+        document.getElementById('forgotPasswordSuccess').style.display = 'none';
+      }, 150);
+    }
+
+    function closeForgotPasswordModal() {
+      document.getElementById('forgotPasswordModal').classList.remove('active');
+      document.body.style.overflow = '';
+      document.getElementById('forgotPasswordForm').reset();
+      document.getElementById('forgotPasswordError').style.display = 'none';
+      document.getElementById('forgotPasswordSuccess').style.display = 'none';
+    }
+
+    function backToLogin() {
+      closeForgotPasswordModal();
+      setTimeout(() => openLoginModal(), 150);
     }
 
     function switchToRegister() {
@@ -851,6 +1056,94 @@
       }
     }
 
+    // Handle Google Sign-In
+    async function handleGoogleSignIn(mode) {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const role = document.getElementById('registerType')?.value || 'student';
+
+      try {
+        const result = await firebase.auth().signInWithPopup(provider);
+        const idToken = await result.user.getIdToken();
+
+        // Send token to backend
+        const response = await fetch('/auth/google', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ idToken, role })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = data.redirect || '/dashboard';
+        } else {
+          const errorDiv = mode === 'login' ? document.getElementById('loginError') : document.getElementById('registerError');
+          errorDiv.textContent = data.error || 'Google sign-in failed. Please try again.';
+          errorDiv.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Google sign-in error:', error);
+        const errorDiv = mode === 'login' ? document.getElementById('loginError') : document.getElementById('registerError');
+        if (error.code !== 'auth/popup-closed-by-user') {
+          errorDiv.textContent = 'Google sign-in failed. Please try again.';
+          errorDiv.style.display = 'block';
+        }
+      }
+    }
+
+    // Handle Forgot Password
+    async function handleForgotPassword(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('forgotPasswordBtn');
+      const errorDiv = document.getElementById('forgotPasswordError');
+      const successDiv = document.getElementById('forgotPasswordSuccess');
+      const email = document.getElementById('forgotPasswordEmail').value;
+
+      // Validate email
+      const emailValidation = isValidEmail(email);
+      if (!emailValidation.valid) {
+        errorDiv.textContent = emailValidation.error;
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      try {
+        const response = await fetch('/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          successDiv.textContent = data.message;
+          successDiv.style.display = 'block';
+          btn.textContent = 'Email Sent';
+        } else {
+          errorDiv.textContent = data.error || 'Failed to send reset email.';
+          errorDiv.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Send Reset Link';
+        }
+      } catch (error) {
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Send Reset Link';
+      }
+    }
+
     // Handle Login
     async function handleLogin(event) {
       event.preventDefault();
@@ -859,6 +1152,14 @@
       const errorDiv = document.getElementById('loginError');
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
+
+      // Validate email
+      const emailValidation = isValidEmail(email);
+      if (!emailValidation.valid) {
+        errorDiv.textContent = emailValidation.error;
+        errorDiv.style.display = 'block';
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = 'Logging in...';
@@ -897,11 +1198,20 @@
 
       const btn = document.getElementById('registerBtn');
       const errorDiv = document.getElementById('registerError');
+      const successDiv = document.getElementById('registerSuccess');
       const type = document.getElementById('registerType').value;
       const fullName = document.getElementById('registerName').value;
       const email = document.getElementById('registerEmail').value;
       const password = document.getElementById('registerPassword').value;
       const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+      // Validate email
+      const emailValidation = isValidEmail(email);
+      if (!emailValidation.valid) {
+        errorDiv.textContent = emailValidation.error;
+        errorDiv.style.display = 'block';
+        return;
+      }
 
       if (password !== confirmPassword) {
         errorDiv.textContent = 'Passwords do not match.';
@@ -956,11 +1266,16 @@
       if (e.target === this) closeRegisterModal();
     });
 
+    document.getElementById('forgotPasswordModal').addEventListener('click', function(e) {
+      if (e.target === this) closeForgotPasswordModal();
+    });
+
     // Close modal with Escape key
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeLoginModal();
         closeRegisterModal();
+        closeForgotPasswordModal();
       }
     });
   </script>
