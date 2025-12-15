@@ -11,6 +11,244 @@
       background: #ffffff;
     }
 
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-container {
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-xl);
+      max-width: 440px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      background: var(--primary-color);
+      color: white;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-header h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+      color: white;
+    }
+
+    .modal-header p {
+      opacity: 0.9;
+      font-size: 0.9375rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .modal-logo {
+      width: 56px;
+      height: 56px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .modal-content {
+      padding: 1.5rem 2rem;
+    }
+
+    .modal-footer {
+      text-align: center;
+      padding: 1rem 2rem 1.5rem;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .modal-footer p {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .modal-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .modal-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Form Styles for Modal */
+    .modal-content .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .modal-content .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-content .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .modal-content .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-input-wrapper input {
+      flex: 1;
+      padding-right: 3.5rem;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0.25rem 0.5rem;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .toggle-password:hover {
+      color: var(--text-secondary);
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    /* Register Type Selection */
+    .register-type-selection {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .register-type-btn {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius);
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .register-type-btn:hover {
+      border-color: var(--primary-color);
+    }
+
+    .register-type-btn.active {
+      border-color: var(--primary-color);
+      background: var(--primary-50);
+    }
+
+    .register-type-btn .type-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .register-type-btn .type-label {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .register-type-btn .type-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
     /* Navbar */
     .navbar {
       position: fixed;
@@ -362,8 +600,8 @@
       Scholar<span>Path</span>
     </a>
     <div class="navbar-nav">
-      <a href="/login" class="btn btn-ghost">Log In</a>
-      <a href="/register/student" class="btn btn-primary">Get Started</a>
+      <button onclick="openLoginModal()" class="btn btn-ghost">Log In</button>
+      <button onclick="openRegisterModal()" class="btn btn-primary">Get Started</button>
     </div>
   </nav>
 
@@ -374,8 +612,8 @@
         <h1>Find Your <span>Perfect</span> Scholarship Match</h1>
         <p>Our AI-powered platform connects students with the right scholarship opportunities. Get personalized recommendations and increase your chances of funding your education.</p>
         <div class="hero-buttons">
-          <a href="/register/student" class="btn btn-primary btn-lg">Apply as Student</a>
-          <a href="/register/sponsor" class="btn btn-outline btn-lg">Become a Sponsor</a>
+          <button onclick="openRegisterModal('student')" class="btn btn-primary btn-lg">Apply as Student</button>
+          <button onclick="openRegisterModal('sponsor')" class="btn btn-outline btn-lg">Become a Sponsor</button>
         </div>
       </div>
       <div class="hero-visual">
@@ -439,8 +677,8 @@
       <h2>Ready to Start Your Journey?</h2>
       <p>Join thousands of students who have found their perfect scholarship match through ScholarPath.</p>
       <div class="cta-buttons">
-        <a href="/register/student" class="btn btn-white btn-lg">Create Free Account</a>
-        <a href="/login" class="btn btn-outline-white btn-lg">Sign In</a>
+        <button onclick="openRegisterModal()" class="btn btn-white btn-lg">Create Free Account</button>
+        <button onclick="openLoginModal()" class="btn btn-outline-white btn-lg">Sign In</button>
       </div>
     </div>
   </section>
@@ -449,5 +687,282 @@
   <footer class="landing-footer">
     <p>2024 ScholarPath. All rights reserved.</p>
   </footer>
+
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeLoginModal()">&times;</button>
+        <div class="modal-logo">SP</div>
+        <h2>Welcome Back</h2>
+        <p>Log in to access your account</p>
+      </div>
+      <div class="modal-content">
+        <div id="loginError" class="error-message" style="display: none;"></div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" id="loginEmail" class="form-control" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" name="password" id="loginPassword" class="form-control" placeholder="Enter your password" required>
+              <button type="button" class="toggle-password" onclick="togglePassword('loginPassword', this)">Show</button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <p>Don't have an account? <a onclick="switchToRegister()">Create Account</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div class="modal-overlay" id="registerModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeRegisterModal()">&times;</button>
+        <div class="modal-logo">SP</div>
+        <h2>Create Account</h2>
+        <p>Join ScholarPath today</p>
+      </div>
+      <div class="modal-content">
+        <div id="registerError" class="error-message" style="display: none;"></div>
+
+        <!-- Account Type Selection -->
+        <div class="register-type-selection">
+          <button type="button" class="register-type-btn active" id="studentTypeBtn" onclick="selectRegisterType('student')">
+            <div class="type-icon">S</div>
+            <div class="type-label">Student</div>
+            <div class="type-desc">Find scholarships</div>
+          </button>
+          <button type="button" class="register-type-btn" id="sponsorTypeBtn" onclick="selectRegisterType('sponsor')">
+            <div class="type-icon">O</div>
+            <div class="type-label">Sponsor</div>
+            <div class="type-desc">Offer scholarships</div>
+          </button>
+        </div>
+
+        <form id="registerForm" onsubmit="handleRegister(event)">
+          <input type="hidden" name="registerType" id="registerType" value="student">
+
+          <div class="form-group">
+            <label class="form-label" id="nameLabel">Full Name</label>
+            <input type="text" name="fullName" id="registerName" class="form-control" placeholder="Enter your full name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" id="registerEmail" class="form-control" placeholder="Enter your email" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" name="password" id="registerPassword" class="form-control" placeholder="Create a password (min. 6 characters)" required minlength="6">
+              <button type="button" class="toggle-password" onclick="togglePassword('registerPassword', this)">Show</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" name="confirmPassword" id="registerConfirmPassword" class="form-control" placeholder="Confirm your password" required>
+              <button type="button" class="toggle-password" onclick="togglePassword('registerConfirmPassword', this)">Show</button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" id="registerBtn">Create Account</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <p>Already have an account? <a onclick="switchToLogin()">Log In</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal Functions
+    function openLoginModal() {
+      document.getElementById('loginModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('loginError').style.display = 'none';
+    }
+
+    function closeLoginModal() {
+      document.getElementById('loginModal').classList.remove('active');
+      document.body.style.overflow = '';
+      document.getElementById('loginForm').reset();
+    }
+
+    function openRegisterModal(type = 'student') {
+      document.getElementById('registerModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('registerError').style.display = 'none';
+      selectRegisterType(type);
+    }
+
+    function closeRegisterModal() {
+      document.getElementById('registerModal').classList.remove('active');
+      document.body.style.overflow = '';
+      document.getElementById('registerForm').reset();
+    }
+
+    function switchToRegister() {
+      closeLoginModal();
+      setTimeout(() => openRegisterModal(), 150);
+    }
+
+    function switchToLogin() {
+      closeRegisterModal();
+      setTimeout(() => openLoginModal(), 150);
+    }
+
+    // Register Type Selection
+    function selectRegisterType(type) {
+      document.getElementById('registerType').value = type;
+
+      const studentBtn = document.getElementById('studentTypeBtn');
+      const sponsorBtn = document.getElementById('sponsorTypeBtn');
+      const nameLabel = document.getElementById('nameLabel');
+      const nameInput = document.getElementById('registerName');
+
+      if (type === 'student') {
+        studentBtn.classList.add('active');
+        sponsorBtn.classList.remove('active');
+        nameLabel.textContent = 'Full Name';
+        nameInput.placeholder = 'Enter your full name';
+      } else {
+        sponsorBtn.classList.add('active');
+        studentBtn.classList.remove('active');
+        nameLabel.textContent = 'Organization Name';
+        nameInput.placeholder = 'Enter your organization name';
+      }
+    }
+
+    // Toggle Password Visibility
+    function togglePassword(inputId, button) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = 'Hide';
+      } else {
+        input.type = 'password';
+        button.textContent = 'Show';
+      }
+    }
+
+    // Handle Login
+    async function handleLogin(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('loginBtn');
+      const errorDiv = document.getElementById('loginError');
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Logging in...';
+      errorDiv.style.display = 'none';
+
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = data.redirect || '/dashboard';
+        } else {
+          errorDiv.textContent = data.error || 'Login failed. Please try again.';
+          errorDiv.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Log In';
+        }
+      } catch (error) {
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Log In';
+      }
+    }
+
+    // Handle Register
+    async function handleRegister(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('registerBtn');
+      const errorDiv = document.getElementById('registerError');
+      const type = document.getElementById('registerType').value;
+      const fullName = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+      if (password !== confirmPassword) {
+        errorDiv.textContent = 'Passwords do not match.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      if (password.length < 6) {
+        errorDiv.textContent = 'Password must be at least 6 characters.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Creating Account...';
+      errorDiv.style.display = 'none';
+
+      try {
+        const endpoint = type === 'student' ? '/register/student' : '/register/sponsor';
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ fullName, email, password, confirmPassword })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          window.location.href = data.redirect || '/dashboard';
+        } else {
+          errorDiv.textContent = data.error || 'Registration failed. Please try again.';
+          errorDiv.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Create Account';
+        }
+      } catch (error) {
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('loginModal').addEventListener('click', function(e) {
+      if (e.target === this) closeLoginModal();
+    });
+
+    document.getElementById('registerModal').addEventListener('click', function(e) {
+      if (e.target === this) closeRegisterModal();
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeLoginModal();
+        closeRegisterModal();
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,9 +1,6 @@
 const express = require("express");
 const {
   showIndex,
-  showLogin,
-  showStudentRegister,
-  showSponsorRegister,
   showDashboard,
   registerStudent,
   registerSponsor,
@@ -20,9 +17,10 @@ const router = express.Router();
 
 // Pages
 router.get("/", showIndex);
-router.get("/login", showLogin);
-router.get("/register/student", showStudentRegister);
-router.get("/register/sponsor", showSponsorRegister);
+// Redirect old login/register pages to home page (now using modals)
+router.get("/login", (req, res) => res.redirect("/"));
+router.get("/register/student", (req, res) => res.redirect("/"));
+router.get("/register/sponsor", (req, res) => res.redirect("/"));
 router.get("/dashboard", showDashboard);
 
 // Auth Actions

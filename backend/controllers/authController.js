@@ -78,29 +78,8 @@ function showIndex(req, res) {
   res.render("index");
 }
 
-function showLogin(req, res) {
-  res.render("login", {
-    error: null,
-    email: ""
-  });
-}
-
-function showStudentRegister(req, res) {
-  res.render("register_student", {
-    error: null,
-    formData: {}
-  });
-}
-
-function showSponsorRegister(req, res) {
-  res.render("register_sponsor", {
-    error: null,
-    formData: {}
-  });
-}
-
 async function showDashboard(req, res) {
-  if (!req.session.user) return res.redirect("/login");
+  if (!req.session.user) return res.redirect("/");
 
   const { role, uid, email } = req.session.user;
 
@@ -135,9 +114,13 @@ async function showDashboard(req, res) {
 // Student Registration
 async function registerStudent(req, res) {
   const { fullName, email, password, confirmPassword } = req.body;
+  const isJsonRequest = req.headers['content-type']?.includes('application/json');
 
   // Server-side validation
   if (!fullName || !email || !password || !confirmPassword) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "All fields are required" });
+    }
     return res.render("register_student", {
       error: "All fields are required",
       formData: { fullName, email }
@@ -147,6 +130,9 @@ async function registerStudent(req, res) {
   // Email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "Please enter a valid email address" });
+    }
     return res.render("register_student", {
       error: "Please enter a valid email address",
       formData: { fullName, email }
@@ -155,6 +141,9 @@ async function registerStudent(req, res) {
 
   // Password length validation
   if (password.length < 6) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "Password must be at least 6 characters long" });
+    }
     return res.render("register_student", {
       error: "Password must be at least 6 characters long",
       formData: { fullName, email }
@@ -163,6 +152,9 @@ async function registerStudent(req, res) {
 
   // Password match validation
   if (password !== confirmPassword) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "Passwords do not match" });
+    }
     return res.render("register_student", {
       error: "Passwords do not match",
       formData: { fullName, email }
@@ -181,10 +173,17 @@ async function registerStudent(req, res) {
     };
 
     console.log("🎓 Student registered with UID:", user.uid);
-    // After registration → go to assessment
+
+    // Return JSON response for modal or redirect for form
+    if (isJsonRequest) {
+      return res.json({ success: true, redirect: "/student/assessment" });
+    }
     return res.redirect("/student/assessment");
   } catch (error) {
     console.error("Registration error:", error);
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
+    }
     return res.render("register_student", {
       error: getReadableErrorMessage(error),
       formData: { fullName, email }
@@ -195,9 +194,13 @@ async function registerStudent(req, res) {
 // Sponsor Registration
 async function registerSponsor(req, res) {
   const { fullName, email, password, confirmPassword } = req.body;
+  const isJsonRequest = req.headers['content-type']?.includes('application/json');
 
   // Server-side validation
   if (!fullName || !email || !password || !confirmPassword) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "All fields are required" });
+    }
     return res.render("register_sponsor", {
       error: "All fields are required",
       formData: { fullName, email }
@@ -207,6 +210,9 @@ async function registerSponsor(req, res) {
   // Email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "Please enter a valid email address" });
+    }
     return res.render("register_sponsor", {
       error: "Please enter a valid email address",
       formData: { fullName, email }
@@ -215,6 +221,9 @@ async function registerSponsor(req, res) {
 
   // Password length validation
   if (password.length < 6) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "Password must be at least 6 characters long" });
+    }
     return res.render("register_sponsor", {
       error: "Password must be at least 6 characters long",
       formData: { fullName, email }
@@ -223,6 +232,9 @@ async function registerSponsor(req, res) {
 
   // Password match validation
   if (password !== confirmPassword) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "Passwords do not match" });
+    }
     return res.render("register_sponsor", {
       error: "Passwords do not match",
       formData: { fullName, email }
@@ -240,9 +252,15 @@ async function registerSponsor(req, res) {
       fullName: fullName
     };
 
+    if (isJsonRequest) {
+      return res.json({ success: true, redirect: "/dashboard" });
+    }
     return res.redirect("/dashboard");
   } catch (error) {
     console.error("Registration error:", error);
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
+    }
     return res.render("register_sponsor", {
       error: getReadableErrorMessage(error),
       formData: { fullName, email }
@@ -253,9 +271,13 @@ async function registerSponsor(req, res) {
 // Login
 async function login(req, res) {
   const { email, password } = req.body;
+  const isJsonRequest = req.headers['content-type']?.includes('application/json');
 
   // Server-side validation
   if (!email || !password) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "Please provide both email and password" });
+    }
     return res.render("login", {
       error: "Please provide both email and password",
       email: email || ""
@@ -265,6 +287,9 @@ async function login(req, res) {
   // Basic email format validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: "Please enter a valid email address" });
+    }
     return res.render("login", {
       error: "Please enter a valid email address",
       email
@@ -274,6 +299,9 @@ async function login(req, res) {
   // Hardcoded Admin
   if (email === "admin@example.com" && password === "admin123") {
     req.session.user = { uid: "admin", email, role: "admin", fullName: "System Administrator" };
+    if (isJsonRequest) {
+      return res.json({ success: true, redirect: "/dashboard" });
+    }
     return res.redirect("/dashboard");
   }
 
@@ -289,10 +317,17 @@ async function login(req, res) {
     };
 
     console.log("🔐 User logged in with UID:", user.uid);
+
+    if (isJsonRequest) {
+      return res.json({ success: true, redirect: "/dashboard" });
+    }
     return res.redirect("/dashboard");
   } catch (error) {
     console.error("Login error:", error);
 
+    if (isJsonRequest) {
+      return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
+    }
     // Return to login with user-friendly error message and preserve email
     return res.render("login", {
       error: getReadableErrorMessage(error),
@@ -304,14 +339,11 @@ async function login(req, res) {
 // Logout
 async function logout(req, res) {
   await logoutUser();
-  req.session.destroy(() => res.redirect("/login"));
+  req.session.destroy(() => res.redirect("/"));
 }
 
 module.exports = {
   showIndex,
-  showLogin,
-  showStudentRegister,
-  showSponsorRegister,
   showDashboard,
   registerStudent,
   registerSponsor,
