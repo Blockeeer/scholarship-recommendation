@@ -219,6 +219,7 @@
         <div id="errorAlert" class="alert alert-error" style="display: none;"></div>
 
         <form id="applicationForm" action="/student/scholarships/<%= scholarship.id %>/apply" method="POST">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
           <div class="form-section">
             <h3 class="section-title">Your Profile Summary</h3>
             <p style="color: var(--text-secondary, #4b5563); margin-bottom: 1rem;">This information will be included in your application:</p>

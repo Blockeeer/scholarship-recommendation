@@ -284,6 +284,7 @@
             </div>
 
             <form action="/student/assessment" method="POST" enctype="multipart/form-data" id="assessmentForm">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
               <% if (typeof redirectScholarshipId !== 'undefined' && redirectScholarshipId) { %>
                 <input type="hidden" name="redirectScholarshipId" value="<%= redirectScholarshipId %>">
               <% } %>

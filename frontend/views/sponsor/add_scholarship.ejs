@@ -215,6 +215,7 @@
 
           <div class="form-body">
             <form action="/sponsor/add-offer" method="POST" id="scholarshipForm">
+              <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
               <!-- Scholarship Information -->
               <div class="form-section">

@@ -1,17 +1,17 @@
 <nav class="navbar">
   <div class="navbar-container">
     <div class="navbar-brand">
-      <span class="navbar-logo">™</span>
+      <span class="navbar-logo">ï¿½</span>
       <span class="navbar-title">Admin Portal</span>
     </div>
 
     <div class="navbar-menu">
       <a href="/dashboard" class="navbar-item">
-        <span class="navbar-icon">=Ê</span>
+        <span class="navbar-icon">=ï¿½</span>
         Dashboard
       </a>
       <a href="/admin/pending-scholarships" class="navbar-item">
-        <span class="navbar-icon">ó</span>
+        <span class="navbar-icon">ï¿½</span>
         Pending
       </a>
       <a href="/admin/approved-scholarships" class="navbar-item">
@@ -23,7 +23,7 @@
         Users
       </a>
       <a href="/admin/analytics" class="navbar-item">
-        <span class="navbar-icon">=È</span>
+        <span class="navbar-icon">=ï¿½</span>
         Analytics
       </a>
     </div>
@@ -31,6 +31,7 @@
     <div class="navbar-user">
       <span class="navbar-email"><%= email %></span>
       <form action="/logout" method="POST" style="display: inline;">
+        <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
         <button type="submit" class="btn-logout">Logout</button>
       </form>
     </div>

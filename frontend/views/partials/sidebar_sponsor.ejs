@@ -64,6 +64,7 @@
 
   <div class="sidebar-footer">
     <form action="/logout" method="POST" id="logoutForm">
+      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
       <button type="button" class="logout-btn" data-tooltip="Logout" onclick="showLogoutModal(event)">
         <span class="nav-text">Logout</span>
       </button>

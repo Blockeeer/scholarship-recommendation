@@ -449,11 +449,13 @@
                     <a href="/sponsor/offers/<%= scholarship.id %>" class="btn btn-view">View Details</a>
                     <a href="/sponsor/offers/<%= scholarship.id %>/edit" class="btn btn-edit">Edit</a>
                     <form action="/sponsor/offers/<%= scholarship.id %>/delete" method="POST" style="flex: 1;" onsubmit="return confirm('Are you sure you want to delete this scholarship?')">
+                      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                       <button type="submit" class="btn btn-delete" style="width: 100%;">Delete</button>
                     </form>
                   <% } else if (scholarship.status === 'Rejected') { %>
                     <a href="/sponsor/offers/<%= scholarship.id %>/edit" class="btn btn-edit">Edit & Resubmit</a>
                     <form action="/sponsor/offers/<%= scholarship.id %>/delete" method="POST" style="flex: 1;" onsubmit="return confirm('Are you sure you want to delete this scholarship?')">
+                      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
                       <button type="submit" class="btn btn-delete" style="width: 100%;">Delete</button>
                     </form>
                   <% } else if (scholarship.status === 'Closed') { %>
