@@ -17,6 +17,7 @@ const {
   submitAssessment
 } = require("../controllers/assessmentController");
 const { initializeAdmin } = require("../services/firebaseAuthService");
+const { authLimiter, passwordResetLimiter } = require("../middleware/rateLimiter");
 
 const router = express.Router();
 
@@ -28,26 +29,26 @@ router.get("/register/student", (req, res) => res.redirect("/"));
 router.get("/register/sponsor", (req, res) => res.redirect("/"));
 router.get("/dashboard", showDashboard);
 
-// Auth Actions
-router.post("/register/student", registerStudent);
-router.post("/register/sponsor", registerSponsor);
-router.post("/login", login);
+// Auth Actions (with rate limiting)
+router.post("/register/student", authLimiter, registerStudent);
+router.post("/register/sponsor", authLimiter, registerSponsor);
+router.post("/login", authLimiter, login);
 router.post("/logout", logout);
 
-// Google Sign-In
-router.post("/auth/google", googleSignIn);
+// Google Sign-In (with rate limiting)
+router.post("/auth/google", authLimiter, googleSignIn);
 
-// Password Reset
-router.post("/auth/forgot-password", forgotPassword);
+// Password Reset (with stricter rate limiting)
+router.post("/auth/forgot-password", passwordResetLimiter, forgotPassword);
 
-// Resend Verification Email
-router.post("/auth/resend-verification", resendVerification);
+// Resend Verification Email (with rate limiting)
+router.post("/auth/resend-verification", authLimiter, resendVerification);
 
-// Link email/password to Google account
-router.post("/auth/link-email-password", linkEmailPassword);
+// Link email/password to Google account (with rate limiting)
+router.post("/auth/link-email-password", authLimiter, linkEmailPassword);
 
-// Set password for Google-only users
-router.post("/auth/set-password-for-google-user", setPasswordForGoogleUserController);
+// Set password for Google-only users (with rate limiting)
+router.post("/auth/set-password-for-google-user", authLimiter, setPasswordForGoogleUserController);
 
 // // Show form
 // router.get("/student/assessment", showAssessmentForm);

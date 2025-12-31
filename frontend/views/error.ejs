@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || 'Error' %> - ScholarPath</title>
+  <link rel="stylesheet" href="/css/global.css">
+  <style>
+    .error-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2rem;
+    }
+
+    .error-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 3rem;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    .error-icon {
+      width: 80px;
+      height: 80px;
+      background: #fee2e2;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2.5rem;
+    }
+
+    .error-code {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+
+    .error-title {
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .error-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container">
+    <div class="error-card">
+      <div class="error-icon">
+        <% if (error && error.status === 404) { %>
+          🔍
+        <% } else if (error && error.status === 403) { %>
+          🔒
+        <% } else if (error && error.status === 401) { %>
+          🚫
+        <% } else { %>
+          ⚠️
+        <% } %>
+      </div>
+
+      <% if (error && error.status) { %>
+        <div class="error-code"><%= error.status %></div>
+      <% } %>
+
+      <h1 class="error-title"><%= title || 'Something went wrong' %></h1>
+
+      <p class="error-message">
+        <%= message || 'An unexpected error occurred. Please try again later.' %>
+      </p>
+
+      <div class="error-actions">
+        <a href="/" class="btn btn-primary">Go Home</a>
+        <button onclick="history.back()" class="btn btn-secondary">Go Back</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

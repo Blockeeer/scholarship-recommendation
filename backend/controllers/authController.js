@@ -343,8 +343,11 @@ async function login(req, res) {
     });
   }
 
-  // Hardcoded Admin
-  if (email === "admin@example.com" && password === "admin123") {
+  // Admin login via environment variables (secure)
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (adminEmail && adminPassword && email === adminEmail && password === adminPassword) {
     req.session.user = { uid: "admin", email, role: "admin", fullName: "System Administrator" };
     if (isJsonRequest) {
       return res.json({ success: true, redirect: "/dashboard" });

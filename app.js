@@ -7,6 +7,8 @@ const authRoutes = require("./backend/routes/authRoutes");
 const studentRoutes = require("./backend/routes/studentRoutes");
 const sponsorRoutes = require("./backend/routes/sponsorRoutes");
 const adminRoutes = require("./backend/routes/adminRoutes");
+const { csrfProtection } = require("./backend/middleware/csrf");
+const { sanitizeInputs } = require("./backend/middleware/sanitizer");
 const { db } = require("./backend/config/firebaseConfig");
 const { doc, getDoc } = require("firebase/firestore");
 
@@ -22,13 +24,24 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
 
+// Require SESSION_SECRET in production
+if (!process.env.SESSION_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('FATAL: SESSION_SECRET environment variable is required in production');
+    process.exit(1);
+  } else {
+    console.warn('WARNING: Using default session secret. Set SESSION_SECRET in .env for production.');
+  }
+}
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || "superSecretKey123",
+  secret: process.env.SESSION_SECRET || "dev-only-secret-change-in-production",
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+    sameSite: 'strict',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
@@ -39,6 +52,12 @@ app.set("views", path.join(__dirname, "frontend/views"));
 // Serve static files from frontend
 app.use(express.static(path.join(__dirname, 'frontend/public')));
 app.use('/uploads', express.static(path.join(__dirname, 'backend/uploads')));
+
+// Input sanitization middleware (XSS protection)
+app.use(sanitizeInputs);
+
+// CSRF Protection middleware
+app.use(csrfProtection);
 
 // Middleware to pass user profile picture to all views
 app.use(async (req, res, next) => {
@@ -70,6 +89,27 @@ app.use("/", authRoutes);
 app.use("/student", studentRoutes);
 app.use("/sponsor", sponsorRoutes);
 app.use("/admin", adminRoutes);
+
+// 404 Error Handler
+app.use((req, res, next) => {
+  res.status(404).render('error', {
+    title: 'Page Not Found',
+    message: 'The page you are looking for does not exist.',
+    error: { status: 404 }
+  });
+});
+
+// General Error Handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(err.status || 500).render('error', {
+    title: 'Server Error',
+    message: process.env.NODE_ENV === 'production'
+      ? 'An unexpected error occurred. Please try again later.'
+      : err.message,
+    error: { status: err.status || 500 }
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
