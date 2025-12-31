@@ -293,7 +293,7 @@
           </form>
         </div>
 
-        <p class="results-count">Found <%= scholarships.length %> scholarship(s)</p>
+        <p class="results-count"><%= typeof paginationInfo !== 'undefined' ? paginationInfo : 'Found ' + scholarships.length + ' scholarship(s)' %></p>
 
         <% if (scholarships.length > 0) { %>
           <div class="scholarships-grid">
@@ -332,6 +332,8 @@
               </div>
             <% }); %>
           </div>
+
+          <%- include('../partials/pagination') %>
         <% } else { %>
           <div class="empty-state">
             <h3>No Scholarships Found</h3>

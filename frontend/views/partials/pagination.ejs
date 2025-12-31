@@ -1,0 +1,49 @@
+<% if (typeof pagination !== 'undefined' && pagination.totalPages > 1) { %>
+<nav class="pagination" aria-label="Pagination">
+  <% if (typeof paginationInfo !== 'undefined') { %>
+    <span class="pagination-info"><%= paginationInfo %></span>
+  <% } %>
+
+  <div class="pagination-nav">
+    <!-- Previous button -->
+    <a href="<%= pagination.prevUrl || '#' %>"
+       class="pagination-link <%= !pagination.hasPrevPage ? 'disabled' : '' %>"
+       aria-label="Go to previous page"
+       <% if (!pagination.hasPrevPage) { %>aria-disabled="true"<% } %>>
+      &laquo;
+    </a>
+
+    <!-- First page + ellipsis -->
+    <% if (pagination.showFirst) { %>
+      <a href="<%= pagination.firstUrl %>" class="pagination-link" aria-label="Go to page 1">1</a>
+      <span class="pagination-ellipsis">&hellip;</span>
+    <% } %>
+
+    <!-- Page numbers -->
+    <% pagination.pageNumbers.forEach(function(page) { %>
+      <a href="<%= page.url %>"
+         class="pagination-link <%= page.isActive ? 'active' : '' %>"
+         aria-label="<%= page.isActive ? 'Current page, page ' + page.number : 'Go to page ' + page.number %>"
+         <% if (page.isActive) { %>aria-current="page"<% } %>>
+        <%= page.number %>
+      </a>
+    <% }); %>
+
+    <!-- Last page + ellipsis -->
+    <% if (pagination.showLast) { %>
+      <span class="pagination-ellipsis">&hellip;</span>
+      <a href="<%= pagination.lastUrl %>" class="pagination-link" aria-label="Go to page <%= pagination.totalPages %>">
+        <%= pagination.totalPages %>
+      </a>
+    <% } %>
+
+    <!-- Next button -->
+    <a href="<%= pagination.nextUrl || '#' %>"
+       class="pagination-link <%= !pagination.hasNextPage ? 'disabled' : '' %>"
+       aria-label="Go to next page"
+       <% if (!pagination.hasNextPage) { %>aria-disabled="true"<% } %>>
+      &raquo;
+    </a>
+  </div>
+</nav>
+<% } %>

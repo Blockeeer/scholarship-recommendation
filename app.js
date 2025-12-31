@@ -34,17 +34,49 @@ if (!process.env.SESSION_SECRET) {
   }
 }
 
+// Session configuration with timeout
+const SESSION_MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
+const SESSION_INACTIVITY_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours of inactivity
+
 app.use(session({
   secret: process.env.SESSION_SECRET || "dev-only-secret-change-in-production",
-  resave: false,
+  resave: true, // Enable resave to update session on each request
   saveUninitialized: false,
+  rolling: true, // Reset maxAge on each request (extends session on activity)
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: 'strict',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: SESSION_MAX_AGE
   }
 }));
+
+// Session inactivity timeout middleware
+app.use((req, res, next) => {
+  if (req.session && req.session.user) {
+    const now = Date.now();
+    const lastActivity = req.session.lastActivity || now;
+
+    // Check if session has been inactive too long
+    if (now - lastActivity > SESSION_INACTIVITY_TIMEOUT) {
+      // Destroy session due to inactivity
+      return req.session.destroy((err) => {
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+          return res.status(401).json({
+            success: false,
+            error: 'Session expired due to inactivity. Please log in again.',
+            redirect: '/'
+          });
+        }
+        return res.redirect('/?sessionExpired=true');
+      });
+    }
+
+    // Update last activity timestamp
+    req.session.lastActivity = now;
+  }
+  next();
+});
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "frontend/views"));

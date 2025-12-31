@@ -26,6 +26,7 @@
       color: var(--text-secondary, #666);
       position: relative;
       transition: all 0.3s;
+      text-decoration: none;
     }
     .tab-btn:hover {
       color: var(--primary-color, #4f46e5);
@@ -128,6 +129,11 @@
       border-radius: 8px;
       font-size: 1rem;
     }
+    .results-info {
+      color: var(--text-secondary, #666);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
     .modal {
       display: none;
       position: fixed;
@@ -227,13 +233,14 @@
 
           <!-- Tabs -->
           <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('all')">All Users <span class="tab-badge"><%= stats.total %></span></button>
-            <button class="tab-btn" onclick="showTab('students')">Students <span class="tab-badge"><%= stats.students %></span></button>
-            <button class="tab-btn" onclick="showTab('sponsors')">Sponsors <span class="tab-badge"><%= stats.sponsors %></span></button>
+            <a href="/admin/users" class="tab-btn <%= typeof activeTab === 'undefined' || activeTab === 'all' ? 'active' : '' %>">All Users <span class="tab-badge"><%= stats.total %></span></a>
+            <a href="/admin/users?tab=students" class="tab-btn <%= activeTab === 'students' ? 'active' : '' %>">Students <span class="tab-badge"><%= stats.students %></span></a>
+            <a href="/admin/users?tab=sponsors" class="tab-btn <%= activeTab === 'sponsors' ? 'active' : '' %>">Sponsors <span class="tab-badge"><%= stats.sponsors %></span></a>
           </div>
 
           <!-- All Users Tab -->
-          <div id="tab-all" class="tab-content active">
+          <% const currentTab = typeof activeTab !== 'undefined' ? activeTab : 'all'; %>
+          <div id="tab-all" class="tab-content <%= currentTab === 'all' ? 'active' : '' %>">
             <% if (users.length === 0) { %>
               <div class="empty-state">
                 <div class="empty-state-icon"></div>
@@ -241,6 +248,9 @@
                 <p>No users have registered yet.</p>
               </div>
             <% } else { %>
+              <% if (typeof paginationInfo !== 'undefined' && currentTab === 'all') { %>
+                <p class="results-info"><%= paginationInfo %></p>
+              <% } %>
               <table class="users-table" id="allUsersTable">
                 <thead>
                   <tr>
@@ -282,11 +292,14 @@
                   <% }); %>
                 </tbody>
               </table>
+              <% if (currentTab === 'all') { %>
+                <%- include('../partials/pagination') %>
+              <% } %>
             <% } %>
           </div>
 
           <!-- Students Tab -->
-          <div id="tab-students" class="tab-content">
+          <div id="tab-students" class="tab-content <%= currentTab === 'students' ? 'active' : '' %>">
             <% if (students.length === 0) { %>
               <div class="empty-state">
                 <div class="empty-state-icon"></div>
@@ -294,6 +307,9 @@
                 <p>No students have registered yet.</p>
               </div>
             <% } else { %>
+              <% if (typeof paginationInfo !== 'undefined' && currentTab === 'students') { %>
+                <p class="results-info"><%= paginationInfo %></p>
+              <% } %>
               <table class="users-table">
                 <thead>
                   <tr>
@@ -331,11 +347,14 @@
                   <% }); %>
                 </tbody>
               </table>
+              <% if (currentTab === 'students') { %>
+                <%- include('../partials/pagination') %>
+              <% } %>
             <% } %>
           </div>
 
           <!-- Sponsors Tab -->
-          <div id="tab-sponsors" class="tab-content">
+          <div id="tab-sponsors" class="tab-content <%= currentTab === 'sponsors' ? 'active' : '' %>">
             <% if (sponsors.length === 0) { %>
               <div class="empty-state">
                 <div class="empty-state-icon"></div>
@@ -343,6 +362,9 @@
                 <p>No sponsors have registered yet.</p>
               </div>
             <% } else { %>
+              <% if (typeof paginationInfo !== 'undefined' && currentTab === 'sponsors') { %>
+                <p class="results-info"><%= paginationInfo %></p>
+              <% } %>
               <table class="users-table">
                 <thead>
                   <tr>
@@ -380,6 +402,9 @@
                   <% }); %>
                 </tbody>
               </table>
+              <% if (currentTab === 'sponsors') { %>
+                <%- include('../partials/pagination') %>
+              <% } %>
             <% } %>
           </div>
         </div>

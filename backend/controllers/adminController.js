@@ -17,6 +17,7 @@ const {
   orderBy
 } = require("firebase/firestore");
 const { createNotification, sendNotificationToRole } = require("../services/notificationService");
+const { getPaginationParams, paginateArray, buildPaginationUI, getPaginationInfo } = require("../utils/pagination");
 
 // Middleware to check admin role
 function isAdmin(req, res, next) {
@@ -35,38 +36,46 @@ async function showAdminDashboard(req, res) {
   }
 
   try {
-    // Get counts for dashboard
+    // Get counts for dashboard using parallel queries for better performance
     const usersRef = collection(db, "users");
     const scholarshipsRef = collection(db, "scholarships");
     const applicationsRef = collection(db, "applications");
 
-    // Count students
-    const studentsQuery = query(usersRef, where("role", "==", "student"));
-    const studentsSnapshot = await getDocs(studentsQuery);
-    const totalStudents = studentsSnapshot.size;
+    // Execute all independent queries in parallel
+    const [
+      usersSnapshot,
+      scholarshipsSnapshot,
+      applicationsSnapshot
+    ] = await Promise.all([
+      getDocs(usersRef),
+      getDocs(scholarshipsRef),
+      getDocs(applicationsRef)
+    ]);
 
-    // Count sponsors
-    const sponsorsQuery = query(usersRef, where("role", "==", "sponsor"));
-    const sponsorsSnapshot = await getDocs(sponsorsQuery);
-    const totalSponsors = sponsorsSnapshot.size;
+    // Process users by role
+    let totalStudents = 0;
+    let totalSponsors = 0;
+    usersSnapshot.forEach(doc => {
+      const role = doc.data().role;
+      if (role === 'student') totalStudents++;
+      else if (role === 'sponsor') totalSponsors++;
+    });
 
-    // Count scholarships
-    const scholarshipsSnapshot = await getDocs(scholarshipsRef);
-    const totalScholarships = scholarshipsSnapshot.size;
+    // Process scholarships by status
+    let totalScholarships = 0;
+    let pendingScholarships = 0;
+    scholarshipsSnapshot.forEach(doc => {
+      totalScholarships++;
+      if (doc.data().status === 'Pending') pendingScholarships++;
+    });
 
-    // Count pending scholarships
-    const pendingQuery = query(scholarshipsRef, where("status", "==", "Pending"));
-    const pendingSnapshot = await getDocs(pendingQuery);
-    const pendingScholarships = pendingSnapshot.size;
-
-    // Count applications
-    const applicationsSnapshot = await getDocs(applicationsRef);
-    const totalApplications = applicationsSnapshot.size;
-
-    // Count approved applications
-    const approvedQuery = query(applicationsRef, where("status", "==", "approved"));
-    const approvedSnapshot = await getDocs(approvedQuery);
-    const approvedApplications = approvedSnapshot.size;
+    // Process applications by status
+    let totalApplications = 0;
+    let approvedApplications = 0;
+    applicationsSnapshot.forEach(doc => {
+      totalApplications++;
+      if (doc.data().status === 'approved') approvedApplications++;
+    });
 
     res.render("admin/admin_dashboard", {
       email: req.session.user.email,
@@ -349,6 +358,9 @@ async function getAllUsers(req, res) {
     return res.redirect("/login");
   }
 
+  const { page, limit } = getPaginationParams(req.query, 15);
+  const { tab } = req.query; // 'all', 'students', or 'sponsors'
+
   try {
     const usersRef = collection(db, "users");
     const snapshot = await getDocs(usersRef);
@@ -358,23 +370,42 @@ async function getAllUsers(req, res) {
       users.push({ id: doc.id, ...doc.data() });
     });
 
+    // Sort by createdAt descending
+    users.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
     // Separate by role
     const students = users.filter(u => u.role === "student");
     const sponsors = users.filter(u => u.role === "sponsor");
     const admins = users.filter(u => u.role === "admin");
 
+    // Paginate based on active tab
+    let activeList = users;
+    let baseUrl = '/admin/users';
+    if (tab === 'students') {
+      activeList = students;
+    } else if (tab === 'sponsors') {
+      activeList = sponsors;
+    }
+
+    const { data: paginatedUsers, pagination } = paginateArray(activeList, page, limit);
+    const paginationUI = buildPaginationUI(pagination, baseUrl, tab ? { tab } : {});
+    const paginationInfo = getPaginationInfo(pagination);
+
     res.render("admin/manage_users", {
       email: req.session.user.email,
-      users,
-      students,
-      sponsors,
+      users: tab ? paginatedUsers : users,
+      students: tab === 'students' ? paginatedUsers : students,
+      sponsors: tab === 'sponsors' ? paginatedUsers : sponsors,
       admins,
       stats: {
         total: users.length,
         students: students.length,
         sponsors: sponsors.length,
         admins: admins.length
-      }
+      },
+      pagination: paginationUI,
+      paginationInfo,
+      activeTab: tab || 'all'
     });
 
   } catch (error) {

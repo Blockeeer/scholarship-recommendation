@@ -212,6 +212,12 @@
       color: white;
       padding: 0.75rem 1.5rem;
     }
+
+    .results-info {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -248,6 +254,9 @@
 
         <% if (applications.length > 0) { %>
           <div class="applications-list">
+            <% if (typeof paginationInfo !== 'undefined') { %>
+              <p class="results-info"><%= paginationInfo %></p>
+            <% } %>
             <% applications.forEach(app => { %>
               <div class="application-card">
                 <div class="application-content">
@@ -290,6 +299,7 @@
               </div>
             <% }); %>
           </div>
+          <%- include('../partials/pagination') %>
         <% } else { %>
           <div class="empty-state">
             <div class="icon"></div>

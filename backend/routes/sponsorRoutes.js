@@ -275,19 +275,25 @@ router.get('/dashboard', async (req, res) => {
       rejected: 0
     };
 
+    // Use batched queries for scholarshipIds (Firestore 'in' supports max 30 items)
     if (scholarshipIds.length > 0) {
       const applicationsRef = collection(db, 'applications');
-      const applicationsSnapshot = await getDocs(applicationsRef);
 
-      applicationsSnapshot.forEach(doc => {
-        const app = doc.data();
-        if (scholarshipIds.includes(app.scholarshipId)) {
+      // Process in batches of 30 (Firestore 'in' limit)
+      const batchSize = 30;
+      for (let i = 0; i < scholarshipIds.length; i += batchSize) {
+        const batch = scholarshipIds.slice(i, i + batchSize);
+        const appQuery = query(applicationsRef, where('scholarshipId', 'in', batch));
+        const batchSnapshot = await getDocs(appQuery);
+
+        batchSnapshot.forEach(doc => {
+          const app = doc.data();
           applicationStats.total++;
           if (app.status === 'pending' || app.status === 'under_review') applicationStats.pending++;
           else if (app.status === 'approved') applicationStats.approved++;
           else if (app.status === 'rejected') applicationStats.rejected++;
-        }
-      });
+        });
+      }
     }
 
     // Get unread notifications
@@ -384,16 +390,18 @@ router.get('/profile', async (req, res) => {
       scholarshipIds.push(doc.id);
     });
 
-    // Count applications for sponsor's scholarships
+    // Count applications for sponsor's scholarships using efficient batched queries
     if (scholarshipIds.length > 0) {
       const applicationsRef = collection(db, 'applications');
-      const applicationsSnapshot = await getDocs(applicationsRef);
-      applicationsSnapshot.forEach(doc => {
-        const app = doc.data();
-        if (scholarshipIds.includes(app.scholarshipId)) {
-          totalApplications++;
-        }
-      });
+
+      // Process in batches of 30 (Firestore 'in' limit)
+      const batchSize = 30;
+      for (let i = 0; i < scholarshipIds.length; i += batchSize) {
+        const batch = scholarshipIds.slice(i, i + batchSize);
+        const appQuery = query(applicationsRef, where('scholarshipId', 'in', batch));
+        const batchSnapshot = await getDocs(appQuery);
+        totalApplications += batchSnapshot.size;
+      }
     }
 
     // Pass Firebase config for credential linking (Google-only users)

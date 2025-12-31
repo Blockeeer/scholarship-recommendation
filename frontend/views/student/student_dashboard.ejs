@@ -35,7 +35,7 @@
         </div>
 
         <% if (!assessment) { %>
-          <div style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #ffc107;">
+          <div class="alert alert-warning">
             <strong>Complete Your Profile!</strong> To get personalized scholarship recommendations, please complete your assessment.
             <a href="/student/assessment" style="color: inherit; font-weight: bold; margin-left: 0.5rem;">Complete Now →</a>
           </div>
@@ -44,7 +44,7 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-header">
-              <div class="stat-icon"></div>
+              <div class="stat-icon">📄</div>
             </div>
             <div class="stat-value"><%= stats.total %></div>
             <div class="stat-label">Total Applications</div>
@@ -53,7 +53,7 @@
 
           <div class="stat-card">
             <div class="stat-header">
-              <div class="stat-icon"></div>
+              <div class="stat-icon">✅</div>
             </div>
             <div class="stat-value"><%= stats.approved %></div>
             <div class="stat-label">Approved</div>
@@ -62,7 +62,7 @@
 
           <div class="stat-card">
             <div class="stat-header">
-              <div class="stat-icon"></div>
+              <div class="stat-icon">🎓</div>
             </div>
             <div class="stat-value"><%= scholarships %></div>
             <div class="stat-label">Available</div>
@@ -71,7 +71,7 @@
 
           <div class="stat-card">
             <div class="stat-header">
-              <div class="stat-icon"></div>
+              <div class="stat-icon">🔔</div>
             </div>
             <div class="stat-value"><%= notifications %></div>
             <div class="stat-label">Notifications</div>

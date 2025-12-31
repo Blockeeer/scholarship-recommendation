@@ -16,6 +16,7 @@ const {
 } = require("firebase/firestore");
 const { matchStudentToScholarships } = require("../services/gptMatchingService");
 const { getUserNotifications, getUnreadCount, markAsRead, markAllAsRead } = require("../services/notificationService");
+const { getPaginationParams, paginateArray, buildPaginationUI, getPaginationInfo } = require("../utils/pagination");
 
 /**
  * Show student dashboard
@@ -28,15 +29,27 @@ async function showStudentDashboard(req, res) {
   const studentUid = req.session.user.uid;
 
   try {
-    // Get student's assessment status
+    // Run all independent queries in parallel for better performance
     const assessmentRef = doc(db, "users", studentUid, "assessment", "main");
-    const assessmentDoc = await getDoc(assessmentRef);
-    const hasAssessment = assessmentDoc.exists();
-
-    // Get application counts
     const applicationsRef = collection(db, "applications");
+    const scholarshipsRef = collection(db, "scholarships");
+
     const appQuery = query(applicationsRef, where("studentUid", "==", studentUid));
-    const appSnapshot = await getDocs(appQuery);
+    const scholarshipQuery = query(scholarshipsRef, where("status", "==", "Open"));
+
+    const [
+      assessmentDoc,
+      appSnapshot,
+      scholarshipSnapshot,
+      unreadCount
+    ] = await Promise.all([
+      getDoc(assessmentRef),
+      getDocs(appQuery),
+      getDocs(scholarshipQuery),
+      getUnreadCount(studentUid)
+    ]);
+
+    const hasAssessment = assessmentDoc.exists();
 
     let applicationStats = {
       total: 0,
@@ -53,14 +66,7 @@ async function showStudentDashboard(req, res) {
       else if (app.status === "rejected") applicationStats.rejected++;
     });
 
-    // Get available scholarships count
-    const scholarshipsRef = collection(db, "scholarships");
-    const scholarshipQuery = query(scholarshipsRef, where("status", "==", "Open"));
-    const scholarshipSnapshot = await getDocs(scholarshipQuery);
     const availableScholarships = scholarshipSnapshot.size;
-
-    // Get unread notifications count
-    const unreadCount = await getUnreadCount(studentUid);
 
     res.render("student/student_dashboard", {
       email: req.session.user.email,
@@ -93,6 +99,7 @@ async function searchScholarships(req, res) {
   }
 
   const { type, course, minGPA, search } = req.query;
+  const { page, limit } = getPaginationParams(req.query, 9); // 9 items per page (3x3 grid)
 
   try {
     const scholarshipsRef = collection(db, "scholarships");
@@ -143,12 +150,27 @@ async function searchScholarships(req, res) {
     const scholarshipTypes = [...new Set(allScholarships.map(s => s.scholarshipType))];
     const courses = [...new Set(allScholarships.flatMap(s => s.eligibleCourses || []))];
 
+    // Paginate the filtered results
+    const { data: paginatedScholarships, pagination } = paginateArray(scholarships, page, limit);
+
+    // Build pagination UI with current query params preserved
+    const queryParams = { type, course, minGPA, search };
+    // Remove empty params
+    Object.keys(queryParams).forEach(key => {
+      if (!queryParams[key]) delete queryParams[key];
+    });
+    const paginationUI = buildPaginationUI(pagination, '/student/scholarships', queryParams);
+    const paginationInfo = getPaginationInfo(pagination);
+
     res.render("student/search_scholarships", {
       email: req.session.user.email,
-      scholarships,
+      scholarships: paginatedScholarships,
+      totalResults: scholarships.length,
       filters: { type, course, minGPA, search },
       scholarshipTypes,
-      courses
+      courses,
+      pagination: paginationUI,
+      paginationInfo
     });
 
   } catch (error) {
@@ -431,6 +453,7 @@ async function getMyApplications(req, res) {
   }
 
   const studentUid = req.session.user.uid;
+  const { page, limit } = getPaginationParams(req.query, 10);
 
   try {
     const applicationsRef = collection(db, "applications");
@@ -449,7 +472,7 @@ async function getMyApplications(req, res) {
     // Sort by createdAt in JavaScript (descending)
     applications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    // Calculate stats
+    // Calculate stats (before pagination)
     const stats = {
       total: applications.length,
       pending: applications.filter(a => a.status === "pending" || a.status === "under_review" || a.status === "accepted").length,
@@ -457,10 +480,17 @@ async function getMyApplications(req, res) {
       notSelected: applications.filter(a => a.status === "not_selected").length
     };
 
+    // Paginate applications
+    const { data: paginatedApplications, pagination } = paginateArray(applications, page, limit);
+    const paginationUI = buildPaginationUI(pagination, '/student/applications', {});
+    const paginationInfo = getPaginationInfo(pagination);
+
     res.render("student/my_applications", {
       email: req.session.user.email,
-      applications,
-      stats
+      applications: paginatedApplications,
+      stats,
+      pagination: paginationUI,
+      paginationInfo
     });
 
   } catch (error) {
