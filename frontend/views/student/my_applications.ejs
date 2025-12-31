@@ -20,12 +20,12 @@
     }
 
     .page-header h1 {
-      color: #333;
+      color: var(--text-primary);
       margin-bottom: 0.5rem;
     }
 
     .page-header p {
-      color: #666;
+      color: var(--text-secondary);
     }
 
     .stats-grid {
@@ -36,29 +36,30 @@
     }
 
     .stat-card {
-      background: white;
+      background: var(--bg-primary);
       padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
       text-align: center;
+      border: 1px solid var(--border-color);
     }
 
     .stat-value {
       font-size: 2rem;
       font-weight: bold;
-      color: #667eea;
+      color: var(--primary-color);
     }
 
     .stat-label {
-      color: #666;
+      color: var(--text-secondary);
       font-size: 0.9rem;
       margin-top: 0.25rem;
     }
 
-    .stat-card.pending .stat-value { color: #f39c12; }
-    .stat-card.approved .stat-value { color: #27ae60; }
-    .stat-card.notified .stat-value { color: #10b981; }
-    .stat-card.not-selected .stat-value { color: #6b7280; }
+    .stat-card.pending .stat-value { color: var(--status-pending); }
+    .stat-card.approved .stat-value { color: var(--status-approved); }
+    .stat-card.notified .stat-value { color: var(--success-500); }
+    .stat-card.not-selected .stat-value { color: var(--gray-500); }
 
     .applications-list {
       display: flex;
@@ -67,16 +68,17 @@
     }
 
     .application-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
       overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all var(--transition);
+      border: 1px solid var(--border-color);
     }
 
     .application-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-md);
     }
 
     .application-content {
@@ -88,12 +90,12 @@
     }
 
     .application-info h3 {
-      color: #333;
+      color: var(--text-primary);
       margin: 0 0 0.5rem 0;
     }
 
     .application-org {
-      color: #667eea;
+      color: var(--primary-color);
       font-weight: 600;
       margin-bottom: 0.5rem;
     }
@@ -102,7 +104,7 @@
       display: flex;
       gap: 1.5rem;
       flex-wrap: wrap;
-      color: #666;
+      color: var(--text-secondary);
       font-size: 0.9rem;
     }
 
@@ -113,86 +115,80 @@
     .status-badge {
       display: inline-block;
       padding: 0.5rem 1rem;
-      border-radius: 20px;
+      border-radius: var(--radius-full);
       font-weight: 600;
       font-size: 0.9rem;
     }
 
     .status-pending {
-      background: #fff3cd;
+      background: var(--status-pending-bg);
       color: #856404;
     }
 
     .status-under_review {
-      background: #d1ecf1;
-      color: #0c5460;
-    }
-
-    .status-approved, .status-accepted {
-      background: #dbeafe;
+      background: var(--status-review-bg);
       color: #1e40af;
     }
 
+    .status-approved, .status-accepted {
+      background: var(--status-approved-bg);
+      color: #166534;
+    }
+
     .status-notified {
-      background: #d1fae5;
-      color: #065f46;
+      background: var(--primary-100);
+      color: var(--primary-700);
     }
 
     .status-not_selected {
-      background: #e5e7eb;
-      color: #374151;
+      background: var(--gray-100);
+      color: var(--gray-700);
     }
 
     .rank-badge {
       display: block;
       margin-top: 0.5rem;
       font-size: 0.85rem;
-      color: #666;
+      color: var(--text-secondary);
     }
 
     .rank-badge strong {
-      color: #667eea;
+      color: var(--primary-color);
     }
 
     .card-actions {
-      background: #f8f9fa;
+      background: var(--bg-secondary);
       padding: 1rem 1.5rem;
       display: flex;
       gap: 1rem;
       justify-content: flex-end;
     }
 
-    .btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: transform 0.2s;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-
     .btn-view {
-      background: #667eea;
+      background: var(--primary-color);
       color: white;
+    }
+
+    .btn-view:hover {
+      background: var(--primary-hover);
     }
 
     .btn-withdraw {
-      background: #e74c3c;
+      background: var(--danger-500);
       color: white;
+    }
+
+    .btn-withdraw:hover {
+      background: var(--danger-600);
     }
 
     .empty-state {
       text-align: center;
       padding: 4rem 2rem;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
     }
 
     .empty-state .icon {

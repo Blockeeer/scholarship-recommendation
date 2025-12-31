@@ -1,6 +1,7 @@
 const { db } = require("../config/firebaseConfig");
 const { doc, setDoc, getDoc, collection, addDoc, getDocs, query, where, updateDoc, deleteDoc } = require("firebase/firestore");
 const { createNotification } = require("../services/notificationService");
+const { validateGPA, validateDateRange, validateSlots, validateIncome, SCHOLARSHIP_TYPES } = require("../utils/constants");
 
 // Show form to add scholarship offer
 function showAddScholarshipForm(req, res) {
@@ -49,7 +50,36 @@ async function addScholarshipOffer(req, res) {
 
   // Validate required fields
   if (!scholarshipName || !organizationName || !scholarshipType || !minGPA || !slotsAvailable || !startDate || !endDate) {
-    return res.status(400).send("Please fill in all required fields");
+    return res.status(400).json({ success: false, error: "Please fill in all required fields" });
+  }
+
+  // Validate GPA
+  const gpaValidation = validateGPA(minGPA);
+  if (!gpaValidation.valid) {
+    return res.status(400).json({ success: false, error: gpaValidation.error });
+  }
+
+  // Validate date range
+  const dateValidation = validateDateRange(startDate, endDate);
+  if (!dateValidation.valid) {
+    return res.status(400).json({ success: false, error: dateValidation.error });
+  }
+
+  // Validate slots
+  const slotsValidation = validateSlots(slotsAvailable);
+  if (!slotsValidation.valid) {
+    return res.status(400).json({ success: false, error: slotsValidation.error });
+  }
+
+  // Validate income limit if provided
+  if (incomeLimit && incomeLimit.trim()) {
+    const incomeNum = parseFloat(incomeLimit);
+    if (!isNaN(incomeNum)) {
+      const incomeValidation = validateIncome(incomeNum);
+      if (!incomeValidation.valid) {
+        return res.status(400).json({ success: false, error: incomeValidation.error });
+      }
+    }
   }
 
   // Helper function to normalize arrays (checkboxes send arrays, old form sent comma strings)
