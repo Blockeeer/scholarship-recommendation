@@ -471,6 +471,27 @@ async function forgotPassword(req, res) {
 // Resend Verification Email
 async function resendVerification(req, res) {
   try {
+    // Check if user is logged in
+    if (!req.session.user) {
+      return res.status(401).json({ success: false, error: "Not authenticated" });
+    }
+
+    // Check if user already verified
+    if (req.session.user.emailVerified) {
+      return res.json({
+        success: true,
+        message: "Your email is already verified!"
+      });
+    }
+
+    // Check if user signed up with Google (already verified)
+    if (req.session.user.authProvider === 'google') {
+      return res.json({
+        success: true,
+        message: "Google accounts are automatically verified!"
+      });
+    }
+
     await resendVerificationEmail();
     return res.json({
       success: true,

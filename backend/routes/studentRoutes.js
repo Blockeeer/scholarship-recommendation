@@ -19,11 +19,14 @@ const {
   markAllNotificationsRead,
   getProfile,
   updateProfile,
-  uploadAvatar
+  uploadAvatar,
+  downloadScholarshipCalendar
 } = require('../controllers/studentController');
 const {
   createApplication,
-  withdrawApplication
+  withdrawApplication,
+  getDraftApplication,
+  deleteDraftApplication
 } = require('../controllers/applicationController');
 
 // Create uploads directory if it doesn't exist
@@ -109,12 +112,15 @@ router.post('/profile/avatar', requireStudent, avatarUpload.single('profilePictu
 router.get('/scholarships', requireStudent, searchScholarships);
 router.get('/scholarships/:id', requireStudent, viewScholarshipDetails);
 router.get('/scholarships/:id/apply', requireStudent, showApplyForm);
+router.get('/scholarships/:id/calendar', requireStudent, downloadScholarshipCalendar);
 
 // Applications - require student role
 router.post('/scholarships/:id/apply', requireStudent, createApplication);
+router.get('/scholarships/:scholarshipId/draft', requireStudent, getDraftApplication);
 router.get('/applications', requireStudent, getMyApplications);
 router.get('/applications/:id', requireStudent, viewApplicationDetails);
 router.post('/applications/:id/withdraw', requireStudent, withdrawApplication);
+router.delete('/applications/:id/draft', requireStudent, deleteDraftApplication);
 
 // Recommendations (GPT-powered) - require student role
 router.get('/recommendations', requireStudent, getRecommendations);

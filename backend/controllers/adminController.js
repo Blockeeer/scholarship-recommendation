@@ -64,30 +64,84 @@ async function showAdminDashboard(req, res) {
     // Process scholarships by status
     let totalScholarships = 0;
     let pendingScholarships = 0;
+    let openScholarships = 0;
+    let closedScholarships = 0;
     scholarshipsSnapshot.forEach(doc => {
       totalScholarships++;
-      if (doc.data().status === 'Pending') pendingScholarships++;
+      const status = doc.data().status;
+      if (status === 'Pending') pendingScholarships++;
+      else if (status === 'Open') openScholarships++;
+      else if (status === 'Closed') closedScholarships++;
     });
 
     // Process applications by status
     let totalApplications = 0;
     let approvedApplications = 0;
+    let rejectedApplications = 0;
+    let pendingApplications = 0;
     applicationsSnapshot.forEach(doc => {
       totalApplications++;
-      if (doc.data().status === 'approved') approvedApplications++;
+      const status = doc.data().status;
+      if (status === 'approved') approvedApplications++;
+      else if (status === 'rejected') rejectedApplications++;
+      else if (status === 'pending' || status === 'under_review') pendingApplications++;
     });
+
+    // Get recent activity (last 5 actions)
+    const recentActivity = [];
+
+    // Add recent scholarship submissions
+    const recentScholarships = [];
+    scholarshipsSnapshot.forEach(doc => {
+      recentScholarships.push({ id: doc.id, ...doc.data(), type: 'scholarship' });
+    });
+    recentScholarships
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 3)
+      .forEach(s => {
+        recentActivity.push({
+          title: `New Scholarship: ${s.scholarshipName}`,
+          description: `Status: ${s.status}`,
+          time: new Date(s.createdAt).toLocaleDateString()
+        });
+      });
+
+    // Add recent applications
+    const recentApps = [];
+    applicationsSnapshot.forEach(doc => {
+      recentApps.push({ id: doc.id, ...doc.data(), type: 'application' });
+    });
+    recentApps
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 2)
+      .forEach(a => {
+        recentActivity.push({
+          title: `New Application`,
+          description: `For: ${a.scholarshipName || 'Scholarship'}`,
+          time: new Date(a.createdAt).toLocaleDateString()
+        });
+      });
+
+    // Sort all activity by time
+    recentActivity.sort((a, b) => new Date(b.time) - new Date(a.time));
 
     res.render("admin/admin_dashboard", {
       email: req.session.user.email,
       fullName: req.session.user.fullName || "Admin",
+      profilePicture: req.session.user.profilePicture,
       stats: {
         totalStudents,
         totalSponsors,
         totalScholarships,
         pendingScholarships,
+        openScholarships,
+        closedScholarships,
         totalApplications,
-        approvedApplications
-      }
+        approvedApplications,
+        rejectedApplications,
+        pendingApplications
+      },
+      recentActivity: recentActivity.slice(0, 5)
     });
 
   } catch (error) {
@@ -529,6 +583,84 @@ async function toggleUserStatus(req, res) {
 }
 
 /**
+ * Bulk action on multiple users (suspend/activate)
+ */
+async function bulkUserAction(req, res) {
+  const { userIds, action } = req.body;
+
+  if (!req.session.user || req.session.user.role !== "admin") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+    return res.status(400).json({ error: "No users specified" });
+  }
+
+  if (!action || !["suspend", "activate"].includes(action)) {
+    return res.status(400).json({ error: "Invalid action" });
+  }
+
+  try {
+    const newStatus = action === "suspend";
+    let successCount = 0;
+    let failCount = 0;
+
+    // Process each user
+    for (const userId of userIds) {
+      try {
+        const userRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userRef);
+
+        if (!userDoc.exists()) {
+          failCount++;
+          continue;
+        }
+
+        const user = userDoc.data();
+
+        // Skip admins
+        if (user.role === "admin") {
+          failCount++;
+          continue;
+        }
+
+        await updateDoc(userRef, {
+          suspended: newStatus,
+          updatedAt: new Date().toISOString()
+        });
+
+        // Notify user
+        await createNotification(
+          userId,
+          "system",
+          newStatus ? "Account Suspended" : "Account Reactivated",
+          newStatus
+            ? "Your account has been suspended. Please contact support for more information."
+            : "Your account has been reactivated. You can now access all features.",
+          null
+        );
+
+        successCount++;
+      } catch (err) {
+        console.error(`Error processing user ${userId}:`, err);
+        failCount++;
+      }
+    }
+
+    console.log(`Bulk ${action}: ${successCount} succeeded, ${failCount} failed`);
+
+    res.json({
+      success: true,
+      message: `${successCount} user(s) ${action === "suspend" ? "suspended" : "activated"} successfully${failCount > 0 ? `, ${failCount} failed` : ""}`
+    });
+
+  } catch (error) {
+    console.error("Error in bulk user action:", error);
+    res.status(500).json({ error: "Failed to perform bulk action" });
+  }
+}
+
+/**
  * Get all applications (admin view)
  */
 async function getAllApplications(req, res) {
@@ -796,6 +928,7 @@ module.exports = {
   getAllUsers,
   getUserDetails,
   toggleUserStatus,
+  bulkUserAction,
   getAllApplications,
   getSystemAnalytics,
   sendSystemNotification,

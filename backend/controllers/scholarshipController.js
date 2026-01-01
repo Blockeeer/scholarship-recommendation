@@ -45,39 +45,53 @@ async function addScholarshipOffer(req, res) {
     slotsAvailable,
     startDate,
     endDate,
-    status
+    status,
+    isDraft
   } = req.body;
 
-  // Validate required fields
-  if (!scholarshipName || !organizationName || !scholarshipType || !minGPA || !slotsAvailable || !startDate || !endDate) {
-    return res.status(400).json({ success: false, error: "Please fill in all required fields" });
+  // Check if saving as draft
+  const savingAsDraft = isDraft === 'true';
+
+  // Validate required fields (skip for drafts)
+  if (!savingAsDraft) {
+    if (!scholarshipName || !organizationName || !scholarshipType || !minGPA || !slotsAvailable || !startDate || !endDate) {
+      return res.status(400).json({ success: false, error: "Please fill in all required fields" });
+    }
+  } else {
+    // For drafts, only require scholarship name
+    if (!scholarshipName) {
+      return res.status(400).json({ success: false, error: "Scholarship name is required" });
+    }
   }
 
-  // Validate GPA
-  const gpaValidation = validateGPA(minGPA);
-  if (!gpaValidation.valid) {
-    return res.status(400).json({ success: false, error: gpaValidation.error });
-  }
+  // Skip validation for drafts
+  if (!savingAsDraft) {
+    // Validate GPA
+    const gpaValidation = validateGPA(minGPA);
+    if (!gpaValidation.valid) {
+      return res.status(400).json({ success: false, error: gpaValidation.error });
+    }
 
-  // Validate date range
-  const dateValidation = validateDateRange(startDate, endDate);
-  if (!dateValidation.valid) {
-    return res.status(400).json({ success: false, error: dateValidation.error });
-  }
+    // Validate date range
+    const dateValidation = validateDateRange(startDate, endDate);
+    if (!dateValidation.valid) {
+      return res.status(400).json({ success: false, error: dateValidation.error });
+    }
 
-  // Validate slots
-  const slotsValidation = validateSlots(slotsAvailable);
-  if (!slotsValidation.valid) {
-    return res.status(400).json({ success: false, error: slotsValidation.error });
-  }
+    // Validate slots
+    const slotsValidation = validateSlots(slotsAvailable);
+    if (!slotsValidation.valid) {
+      return res.status(400).json({ success: false, error: slotsValidation.error });
+    }
 
-  // Validate income limit if provided
-  if (incomeLimit && incomeLimit.trim()) {
-    const incomeNum = parseFloat(incomeLimit);
-    if (!isNaN(incomeNum)) {
-      const incomeValidation = validateIncome(incomeNum);
-      if (!incomeValidation.valid) {
-        return res.status(400).json({ success: false, error: incomeValidation.error });
+    // Validate income limit if provided
+    if (incomeLimit && incomeLimit.trim()) {
+      const incomeNum = parseFloat(incomeLimit);
+      if (!isNaN(incomeNum)) {
+        const incomeValidation = validateIncome(incomeNum);
+        if (!incomeValidation.valid) {
+          return res.status(400).json({ success: false, error: incomeValidation.error });
+        }
       }
     }
   }
@@ -123,8 +137,9 @@ async function addScholarshipOffer(req, res) {
       startDate: startDate,
       endDate: endDate,
 
-      // Status - Default to "Pending" for admin review
-      status: "Pending",
+      // Status - "Draft" if saving as draft, otherwise "Pending" for admin review
+      status: savingAsDraft ? "Draft" : "Pending",
+      isDraft: savingAsDraft,
 
       // Sponsor Information
       sponsorUid: sponsorUid,
@@ -144,16 +159,19 @@ async function addScholarshipOffer(req, res) {
 
     console.log("✅ Scholarship added with ID:", docRef.id);
 
-    // Notify admin about new scholarship submission
-    await createNotification(
-      'admin',
-      'new_scholarship',
-      'New Scholarship Submitted for Review',
-      `"${scholarshipName}" by ${organizationName} is awaiting your review.`,
-      docRef.id
-    );
-
-    console.log("📧 Admin notified about new scholarship");
+    // Only notify admin if not a draft
+    if (!savingAsDraft) {
+      await createNotification(
+        'admin',
+        'new_scholarship',
+        'New Scholarship Submitted for Review',
+        `"${scholarshipName}" by ${organizationName} is awaiting your review.`,
+        docRef.id
+      );
+      console.log("📧 Admin notified about new scholarship");
+    } else {
+      console.log("📝 Scholarship saved as draft");
+    }
 
     return res.redirect("/sponsor/offers");
   } catch (err) {
@@ -271,7 +289,7 @@ async function updateScholarshipStatus(req, res) {
   }
 }
 
-// Delete scholarship
+// Delete scholarship (soft delete - archives instead of permanent deletion)
 async function deleteScholarship(req, res) {
   const scholarshipId = req.params.id;
 
@@ -299,19 +317,112 @@ async function deleteScholarship(req, res) {
       await createNotification(
         'admin',
         'scholarship_deleted',
-        'Scholarship Deleted by Sponsor',
-        `"${scholarshipData.scholarshipName}" by ${scholarshipData.organizationName} has been deleted by the sponsor.`,
+        'Scholarship Archived by Sponsor',
+        `"${scholarshipData.scholarshipName}" by ${scholarshipData.organizationName} has been archived by the sponsor.`,
         null
       );
     }
 
-    await deleteDoc(scholarshipRef);
+    // Soft delete: update status to Archived instead of deleting
+    await updateDoc(scholarshipRef, {
+      status: 'Archived',
+      isArchived: true,
+      archivedAt: new Date().toISOString(),
+      previousStatus: scholarshipData.status,
+      updatedAt: new Date().toISOString()
+    });
 
-    console.log("✅ Scholarship deleted");
+    console.log("✅ Scholarship archived (soft deleted)");
     res.redirect("/sponsor/offers");
   } catch (err) {
-    console.error("❌ Error deleting scholarship:", err);
-    res.status(500).send("Error deleting scholarship");
+    console.error("❌ Error archiving scholarship:", err);
+    res.status(500).send("Error archiving scholarship");
+  }
+}
+
+// Restore archived scholarship
+async function restoreScholarship(req, res) {
+  const scholarshipId = req.params.id;
+
+  if (!req.session.user || req.session.user.role !== "sponsor") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const scholarshipRef = doc(db, "scholarships", scholarshipId);
+    const scholarshipDoc = await getDoc(scholarshipRef);
+
+    if (!scholarshipDoc.exists()) {
+      return res.status(404).json({ error: "Scholarship not found" });
+    }
+
+    const scholarshipData = scholarshipDoc.data();
+
+    // Check ownership
+    if (scholarshipData.sponsorUid !== req.session.user.uid) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Only archived scholarships can be restored
+    if (scholarshipData.status !== 'Archived') {
+      return res.status(400).json({ error: "Only archived scholarships can be restored" });
+    }
+
+    // Restore to previous status or Draft if no previous status
+    const restoredStatus = scholarshipData.previousStatus || 'Draft';
+
+    await updateDoc(scholarshipRef, {
+      status: restoredStatus,
+      isArchived: false,
+      archivedAt: null,
+      previousStatus: null,
+      restoredAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+
+    console.log("✅ Scholarship restored from archive");
+    res.json({ success: true, message: "Scholarship restored successfully" });
+  } catch (err) {
+    console.error("❌ Error restoring scholarship:", err);
+    res.status(500).json({ error: "Error restoring scholarship" });
+  }
+}
+
+// Permanently delete scholarship (for archived scholarships only)
+async function permanentlyDeleteScholarship(req, res) {
+  const scholarshipId = req.params.id;
+
+  if (!req.session.user || req.session.user.role !== "sponsor") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const scholarshipRef = doc(db, "scholarships", scholarshipId);
+    const scholarshipDoc = await getDoc(scholarshipRef);
+
+    if (!scholarshipDoc.exists()) {
+      return res.status(404).json({ error: "Scholarship not found" });
+    }
+
+    const scholarshipData = scholarshipDoc.data();
+
+    // Check ownership
+    if (scholarshipData.sponsorUid !== req.session.user.uid) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Only archived scholarships can be permanently deleted
+    if (scholarshipData.status !== 'Archived') {
+      return res.status(400).json({ error: "Only archived scholarships can be permanently deleted" });
+    }
+
+    await deleteDoc(scholarshipRef);
+
+    console.log("✅ Scholarship permanently deleted");
+    res.json({ success: true, message: "Scholarship permanently deleted" });
+  } catch (err) {
+    console.error("❌ Error permanently deleting scholarship:", err);
+    res.status(500).json({ error: "Error deleting scholarship" });
   }
 }
 
@@ -487,6 +598,8 @@ module.exports = {
   viewScholarshipDetails,
   updateScholarshipStatus,
   deleteScholarship,
+  restoreScholarship,
+  permanentlyDeleteScholarship,
   showEditScholarshipForm,
   updateScholarship,
   viewScholarshipApplications

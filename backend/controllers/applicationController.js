@@ -31,11 +31,13 @@ async function createApplication(req, res) {
   }
 
   const studentUid = req.session.user.uid;
-  const { scholarshipId, applicationLetter } = req.body;
+  const { scholarshipId, applicationLetter, saveAsDraft } = req.body;
 
   if (!scholarshipId) {
     return res.status(400).json({ error: "Scholarship ID is required" });
   }
+
+  const isDraft = saveAsDraft === true || saveAsDraft === 'true';
 
   try {
     // Check if scholarship exists and is open
@@ -52,12 +54,12 @@ async function createApplication(req, res) {
       return res.status(400).json({ error: "This scholarship is no longer accepting applications" });
     }
 
-    // Check if slots are available
-    if ((scholarship.slotsFilled || 0) >= scholarship.slotsAvailable) {
+    // Check if slots are available (only for non-draft submissions)
+    if (!isDraft && (scholarship.slotsFilled || 0) >= scholarship.slotsAvailable) {
       return res.status(400).json({ error: "No slots available for this scholarship" });
     }
 
-    // Check if student already applied
+    // Check if student already has an application (draft or submitted) for this scholarship
     const applicationsRef = collection(db, "applications");
     const existingQuery = query(
       applicationsRef,
@@ -67,6 +69,29 @@ async function createApplication(req, res) {
     const existingApps = await getDocs(existingQuery);
 
     if (!existingApps.empty) {
+      const existingApp = existingApps.docs[0];
+      const existingData = existingApp.data();
+
+      // If existing is a draft, allow updating it
+      if (existingData.status === "draft") {
+        // Update the existing draft
+        await updateDoc(doc(db, "applications", existingApp.id), {
+          applicationLetter: applicationLetter || existingData.applicationLetter,
+          status: isDraft ? "draft" : "pending",
+          updatedAt: new Date().toISOString(),
+          submittedAt: isDraft ? null : new Date().toISOString()
+        });
+
+        console.log(isDraft ? `Draft updated: ${existingApp.id}` : `Draft submitted: ${existingApp.id}`);
+
+        return res.status(200).json({
+          success: true,
+          message: isDraft ? "Draft saved successfully!" : "Application submitted successfully!",
+          applicationId: existingApp.id,
+          isDraft
+        });
+      }
+
       return res.status(400).json({ error: "You have already applied for this scholarship" });
     }
 
@@ -102,8 +127,8 @@ async function createApplication(req, res) {
       skills: assessment.skills,
       involvement: assessment.involvement,
       applicationLetter: applicationLetter || assessment.essayReason,
-      // Application status
-      status: "pending", // pending, under_review, approved, rejected
+      // Application status - draft or pending
+      status: isDraft ? "draft" : "pending",
       matchScore: null, // Will be calculated by GPT
       rankScore: null,
       rank: null,
@@ -111,6 +136,7 @@ async function createApplication(req, res) {
       // Timestamps
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      submittedAt: isDraft ? null : new Date().toISOString(),
       reviewedAt: null
     };
 
@@ -121,8 +147,9 @@ async function createApplication(req, res) {
     // Return success
     res.status(201).json({
       success: true,
-      message: "Application submitted successfully!",
-      applicationId: newAppRef.id
+      message: isDraft ? "Draft saved successfully!" : "Application submitted successfully!",
+      applicationId: newAppRef.id,
+      isDraft
     });
 
   } catch (error) {
@@ -577,6 +604,159 @@ async function getAllApplications(req, res) {
   }
 }
 
+/**
+ * Batch update application status (for sponsors)
+ */
+async function batchUpdateApplicationStatus(req, res) {
+  console.log("Batch updating application status...");
+
+  if (!req.session.user || req.session.user.role !== "sponsor") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const sponsorUid = req.session.user.uid;
+  const { applicationIds, status } = req.body;
+
+  if (!applicationIds || !Array.isArray(applicationIds) || applicationIds.length === 0) {
+    return res.status(400).json({ error: "No applications specified" });
+  }
+
+  if (!status || !["accepted", "not_selected", "under_review"].includes(status)) {
+    return res.status(400).json({ error: "Invalid status" });
+  }
+
+  try {
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const applicationId of applicationIds) {
+      try {
+        const applicationRef = doc(db, "applications", applicationId);
+        const applicationDoc = await getDoc(applicationRef);
+
+        if (!applicationDoc.exists()) {
+          failCount++;
+          continue;
+        }
+
+        const application = applicationDoc.data();
+
+        // Verify the application belongs to a scholarship owned by this sponsor
+        if (application.sponsorUid !== sponsorUid) {
+          failCount++;
+          continue;
+        }
+
+        // Update application status
+        await updateDoc(applicationRef, {
+          status: status,
+          statusUpdatedAt: new Date().toISOString(),
+          statusUpdatedBy: "sponsor",
+          updatedAt: new Date().toISOString()
+        });
+
+        successCount++;
+      } catch (err) {
+        console.error(`Error updating application ${applicationId}:`, err);
+        failCount++;
+      }
+    }
+
+    console.log(`Batch update: ${successCount} succeeded, ${failCount} failed`);
+
+    res.json({
+      success: true,
+      message: `${successCount} application(s) updated successfully${failCount > 0 ? `, ${failCount} failed` : ""}`
+    });
+
+  } catch (error) {
+    console.error("Error in batch update:", error);
+    res.status(500).json({ error: "Failed to update applications" });
+  }
+}
+
+/**
+ * Get draft application for a scholarship (if exists)
+ */
+async function getDraftApplication(req, res) {
+  const scholarshipId = req.params.scholarshipId;
+
+  if (!req.session.user || req.session.user.role !== "student") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const studentUid = req.session.user.uid;
+
+  try {
+    const applicationsRef = collection(db, "applications");
+    const q = query(
+      applicationsRef,
+      where("studentUid", "==", studentUid),
+      where("scholarshipId", "==", scholarshipId),
+      where("status", "==", "draft")
+    );
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      return res.json({ success: true, draft: null });
+    }
+
+    const draftDoc = snapshot.docs[0];
+    const draft = { id: draftDoc.id, ...draftDoc.data() };
+
+    res.json({ success: true, draft });
+
+  } catch (error) {
+    console.error("Error getting draft application:", error);
+    res.status(500).json({ error: "Failed to get draft" });
+  }
+}
+
+/**
+ * Delete draft application
+ */
+async function deleteDraftApplication(req, res) {
+  const applicationId = req.params.id;
+
+  if (!req.session.user || req.session.user.role !== "student") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const applicationRef = doc(db, "applications", applicationId);
+    const applicationDoc = await getDoc(applicationRef);
+
+    if (!applicationDoc.exists()) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    const application = applicationDoc.data();
+
+    // Check ownership
+    if (application.studentUid !== req.session.user.uid) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Can only delete drafts
+    if (application.status !== "draft") {
+      return res.status(400).json({ error: "Cannot delete submitted applications. Use withdraw instead." });
+    }
+
+    await deleteDoc(applicationRef);
+
+    console.log(`Draft application ${applicationId} deleted`);
+
+    res.json({
+      success: true,
+      message: "Draft deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Error deleting draft application:", error);
+    res.status(500).json({ error: "Failed to delete draft" });
+  }
+}
+
 module.exports = {
   createApplication,
   getStudentApplications,
@@ -584,6 +764,9 @@ module.exports = {
   getScholarshipApplications,
   rankApplications,
   updateApplicationStatus,
+  batchUpdateApplicationStatus,
   withdrawApplication,
-  getAllApplications
+  getAllApplications,
+  getDraftApplication,
+  deleteDraftApplication
 };

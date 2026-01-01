@@ -134,6 +134,61 @@
       margin-bottom: 1rem;
       font-size: 0.9rem;
     }
+    /* Bulk Actions */
+    .bulk-actions-bar {
+      display: none;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      color: white;
+    }
+    .bulk-actions-bar.active {
+      display: flex;
+    }
+    .bulk-actions-bar .selected-count {
+      font-weight: 600;
+    }
+    .bulk-actions-bar .bulk-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .bulk-btn-suspend {
+      background: #ef4444;
+      color: white;
+    }
+    .bulk-btn-suspend:hover {
+      background: #dc2626;
+    }
+    .bulk-btn-activate {
+      background: #10b981;
+      color: white;
+    }
+    .bulk-btn-activate:hover {
+      background: #059669;
+    }
+    .bulk-btn-cancel {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+    .bulk-btn-cancel:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    .users-table .checkbox-cell {
+      width: 40px;
+      text-align: center;
+    }
+    .users-table input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
     .modal {
       display: none;
       position: fixed;
@@ -231,16 +286,24 @@
             <input type="text" id="searchInput" placeholder="Search users by name or email..." onkeyup="searchUsers()">
           </div>
 
+          <!-- Bulk Actions Bar -->
+          <div class="bulk-actions-bar" id="bulkActionsBar">
+            <span class="selected-count"><span id="selectedCount">0</span> users selected</span>
+            <button class="bulk-btn bulk-btn-suspend" onclick="bulkAction('suspend')">Suspend Selected</button>
+            <button class="bulk-btn bulk-btn-activate" onclick="bulkAction('activate')">Activate Selected</button>
+            <button class="bulk-btn bulk-btn-cancel" onclick="clearSelection()">Cancel</button>
+          </div>
+
           <!-- Tabs -->
+          <% const tabValue = typeof activeTab !== 'undefined' ? activeTab : 'all'; %>
           <div class="tabs">
-            <a href="/admin/users" class="tab-btn <%= typeof activeTab === 'undefined' || activeTab === 'all' ? 'active' : '' %>">All Users <span class="tab-badge"><%= stats.total %></span></a>
-            <a href="/admin/users?tab=students" class="tab-btn <%= activeTab === 'students' ? 'active' : '' %>">Students <span class="tab-badge"><%= stats.students %></span></a>
-            <a href="/admin/users?tab=sponsors" class="tab-btn <%= activeTab === 'sponsors' ? 'active' : '' %>">Sponsors <span class="tab-badge"><%= stats.sponsors %></span></a>
+            <a href="/admin/users" class="tab-btn <%= tabValue === 'all' ? 'active' : '' %>">All Users <span class="tab-badge"><%= stats.total %></span></a>
+            <a href="/admin/users?tab=students" class="tab-btn <%= tabValue === 'students' ? 'active' : '' %>">Students <span class="tab-badge"><%= stats.students %></span></a>
+            <a href="/admin/users?tab=sponsors" class="tab-btn <%= tabValue === 'sponsors' ? 'active' : '' %>">Sponsors <span class="tab-badge"><%= stats.sponsors %></span></a>
           </div>
 
           <!-- All Users Tab -->
-          <% const currentTab = typeof activeTab !== 'undefined' ? activeTab : 'all'; %>
-          <div id="tab-all" class="tab-content <%= currentTab === 'all' ? 'active' : '' %>">
+          <div id="tab-all" class="tab-content <%= tabValue === 'all' ? 'active' : '' %>">
             <% if (users.length === 0) { %>
               <div class="empty-state">
                 <div class="empty-state-icon"></div>
@@ -248,12 +311,13 @@
                 <p>No users have registered yet.</p>
               </div>
             <% } else { %>
-              <% if (typeof paginationInfo !== 'undefined' && currentTab === 'all') { %>
+              <% if (typeof paginationInfo !== 'undefined' && tabValue === 'all') { %>
                 <p class="results-info"><%= paginationInfo %></p>
               <% } %>
               <table class="users-table" id="allUsersTable">
                 <thead>
                   <tr>
+                    <th class="checkbox-cell"><input type="checkbox" id="selectAllUsers" onchange="toggleSelectAll(this)"></th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
@@ -264,7 +328,12 @@
                 </thead>
                 <tbody>
                   <% users.forEach(function(user) { %>
-                    <tr data-name="<%= user.fullName || '' %>" data-email="<%= user.email || '' %>">
+                    <tr data-name="<%= user.fullName || '' %>" data-email="<%= user.email || '' %>" data-user-id="<%= user.id %>" data-role="<%= user.role %>">
+                      <td class="checkbox-cell">
+                        <% if (user.role !== 'admin') { %>
+                          <input type="checkbox" class="user-checkbox" data-user-id="<%= user.id %>" onchange="updateBulkSelection()">
+                        <% } %>
+                      </td>
                       <td><strong><%= user.fullName || 'N/A' %></strong></td>
                       <td><%= user.email %></td>
                       <td><span class="role-badge role-<%= user.role %>"><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span></td>
@@ -292,14 +361,14 @@
                   <% }); %>
                 </tbody>
               </table>
-              <% if (currentTab === 'all') { %>
+              <% if (tabValue === 'all') { %>
                 <%- include('../partials/pagination') %>
               <% } %>
             <% } %>
           </div>
 
           <!-- Students Tab -->
-          <div id="tab-students" class="tab-content <%= currentTab === 'students' ? 'active' : '' %>">
+          <div id="tab-students" class="tab-content <%= tabValue === 'students' ? 'active' : '' %>">
             <% if (students.length === 0) { %>
               <div class="empty-state">
                 <div class="empty-state-icon"></div>
@@ -307,12 +376,13 @@
                 <p>No students have registered yet.</p>
               </div>
             <% } else { %>
-              <% if (typeof paginationInfo !== 'undefined' && currentTab === 'students') { %>
+              <% if (typeof paginationInfo !== 'undefined' && tabValue === 'students') { %>
                 <p class="results-info"><%= paginationInfo %></p>
               <% } %>
               <table class="users-table">
                 <thead>
                   <tr>
+                    <th class="checkbox-cell"><input type="checkbox" onchange="toggleSelectAll(this, 'student')"></th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Status</th>
@@ -322,7 +392,10 @@
                 </thead>
                 <tbody>
                   <% students.forEach(function(student) { %>
-                    <tr>
+                    <tr data-user-id="<%= student.id %>">
+                      <td class="checkbox-cell">
+                        <input type="checkbox" class="user-checkbox" data-user-id="<%= student.id %>" onchange="updateBulkSelection()">
+                      </td>
                       <td><strong><%= student.fullName || 'N/A' %></strong></td>
                       <td><%= student.email %></td>
                       <td>
@@ -347,14 +420,14 @@
                   <% }); %>
                 </tbody>
               </table>
-              <% if (currentTab === 'students') { %>
+              <% if (tabValue === 'students') { %>
                 <%- include('../partials/pagination') %>
               <% } %>
             <% } %>
           </div>
 
           <!-- Sponsors Tab -->
-          <div id="tab-sponsors" class="tab-content <%= currentTab === 'sponsors' ? 'active' : '' %>">
+          <div id="tab-sponsors" class="tab-content <%= tabValue === 'sponsors' ? 'active' : '' %>">
             <% if (sponsors.length === 0) { %>
               <div class="empty-state">
                 <div class="empty-state-icon"></div>
@@ -362,12 +435,13 @@
                 <p>No sponsors have registered yet.</p>
               </div>
             <% } else { %>
-              <% if (typeof paginationInfo !== 'undefined' && currentTab === 'sponsors') { %>
+              <% if (typeof paginationInfo !== 'undefined' && tabValue === 'sponsors') { %>
                 <p class="results-info"><%= paginationInfo %></p>
               <% } %>
               <table class="users-table">
                 <thead>
                   <tr>
+                    <th class="checkbox-cell"><input type="checkbox" onchange="toggleSelectAll(this, 'sponsor')"></th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Status</th>
@@ -377,7 +451,10 @@
                 </thead>
                 <tbody>
                   <% sponsors.forEach(function(sponsor) { %>
-                    <tr>
+                    <tr data-user-id="<%= sponsor.id %>">
+                      <td class="checkbox-cell">
+                        <input type="checkbox" class="user-checkbox" data-user-id="<%= sponsor.id %>" onchange="updateBulkSelection()">
+                      </td>
                       <td><strong><%= sponsor.fullName || 'N/A' %></strong></td>
                       <td><%= sponsor.email %></td>
                       <td>
@@ -402,7 +479,7 @@
                   <% }); %>
                 </tbody>
               </table>
-              <% if (currentTab === 'sponsors') { %>
+              <% if (tabValue === 'sponsors') { %>
                 <%- include('../partials/pagination') %>
               <% } %>
             <% } %>
@@ -497,6 +574,77 @@
           }
         })
         .catch(function(err) { alert('Error updating user status'); });
+    }
+
+    // Bulk action functions
+    function toggleSelectAll(checkbox, role) {
+      const checkboxes = document.querySelectorAll('.user-checkbox');
+      checkboxes.forEach(function(cb) {
+        const row = cb.closest('tr');
+        if (!role || (row && row.dataset.role === role)) {
+          cb.checked = checkbox.checked;
+        }
+      });
+      updateBulkSelection();
+    }
+
+    function updateBulkSelection() {
+      const selected = document.querySelectorAll('.user-checkbox:checked');
+      const count = selected.length;
+      const bar = document.getElementById('bulkActionsBar');
+      const countEl = document.getElementById('selectedCount');
+
+      countEl.textContent = count;
+      if (count > 0) {
+        bar.classList.add('active');
+      } else {
+        bar.classList.remove('active');
+      }
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.user-checkbox').forEach(function(cb) {
+        cb.checked = false;
+      });
+      document.querySelectorAll('input[type="checkbox"][id^="selectAll"]').forEach(function(cb) {
+        cb.checked = false;
+      });
+      updateBulkSelection();
+    }
+
+    function bulkAction(action) {
+      const selected = document.querySelectorAll('.user-checkbox:checked');
+      const userIds = Array.from(selected).map(function(cb) { return cb.dataset.userId; });
+
+      if (userIds.length === 0) {
+        alert('No users selected');
+        return;
+      }
+
+      const confirmMsg = action === 'suspend'
+        ? 'Are you sure you want to suspend ' + userIds.length + ' user(s)?'
+        : 'Are you sure you want to activate ' + userIds.length + ' user(s)?';
+
+      if (!confirm(confirmMsg)) return;
+
+      fetch('/admin/users/bulk-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds: userIds, action: action })
+      })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.success) {
+            alert(data.message);
+            location.reload();
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .catch(function(err) {
+          console.error(err);
+          alert('Error performing bulk action');
+        });
     }
   </script>
 </body>

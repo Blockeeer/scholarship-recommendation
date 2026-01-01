@@ -291,6 +291,88 @@
       border-left: 3px solid #667eea;
     }
 
+    .why-matched {
+      margin-bottom: 1rem;
+    }
+
+    .why-matched-toggle {
+      background: none;
+      border: none;
+      color: #667eea;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .why-matched-toggle:hover {
+      text-decoration: underline;
+    }
+
+    .why-matched-list {
+      display: none;
+      margin-top: 0.5rem;
+      padding: 0.75rem;
+      background: #f0f4ff;
+      border-radius: 6px;
+    }
+
+    .why-matched-list.show {
+      display: block;
+    }
+
+    .why-reason {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .why-reason:last-child {
+      margin-bottom: 0;
+    }
+
+    .why-reason-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .why-reason.positive .why-reason-icon {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .why-reason.negative .why-reason-icon {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .recommendation-source {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .source-ai {
+      color: #667eea;
+    }
+
+    .source-fallback {
+      color: #6b7280;
+    }
+
     .card-details {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -517,6 +599,29 @@
                       </div>
                     <% } %>
 
+                    <% if (rec.whyMatched && rec.whyMatched.length > 0) { %>
+                      <div class="why-matched">
+                        <button class="why-matched-toggle" onclick="toggleWhyMatched(this)">
+                          <span>Why this match?</span>
+                          <span class="toggle-icon">▼</span>
+                        </button>
+                        <div class="why-matched-list">
+                          <% rec.whyMatched.forEach(reason => { %>
+                            <div class="why-reason <%= reason.type %>">
+                              <span class="why-reason-icon"><%= reason.type === 'positive' ? '✓' : '✗' %></span>
+                              <span><%= reason.text %></span>
+                            </div>
+                          <% }); %>
+                        </div>
+                      </div>
+                    <% } %>
+
+                    <% if (rec.source) { %>
+                      <div class="recommendation-source <%= rec.source === 'ai' ? 'source-ai' : 'source-fallback' %>">
+                        <span><%= rec.source === 'ai' ? '🤖 AI-Powered Analysis' : '📊 Algorithm Analysis' %></span>
+                      </div>
+                    <% } %>
+
                     <% if (rec.scholarship) { %>
                       <div class="card-details">
                         <div class="detail-item">
@@ -565,6 +670,13 @@
 
   <script src="/js/sidebar.js"></script>
   <script>
+    function toggleWhyMatched(button) {
+      const list = button.nextElementSibling;
+      const icon = button.querySelector('.toggle-icon');
+      list.classList.toggle('show');
+      icon.textContent = list.classList.contains('show') ? '▲' : '▼';
+    }
+
     async function generateRecommendations() {
       const btn = document.getElementById('generateBtn');
 

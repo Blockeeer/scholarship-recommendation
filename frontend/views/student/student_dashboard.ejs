@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/css/topbar.css">
   <link rel="stylesheet" href="/css/dashboard.css">
   <link rel="stylesheet" href="/css/footer.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <%
   // Default values for variables if not provided
@@ -79,6 +80,60 @@
           </div>
         </div>
 
+        <!-- Charts Section -->
+        <div class="charts-section">
+          <div class="chart-card">
+            <h3>Application Status</h3>
+            <div class="chart-container">
+              <% if (stats.total > 0) { %>
+                <canvas id="applicationChart"></canvas>
+              <% } else { %>
+                <div class="chart-empty">
+                  <div class="chart-empty-icon">📊</div>
+                  Apply to scholarships to see your status breakdown
+                </div>
+              <% } %>
+            </div>
+            <% if (stats.total > 0) { %>
+            <div class="chart-stats">
+              <div class="chart-stat">
+                <div class="chart-stat-value" style="color: #10b981;"><%= stats.approved %></div>
+                <div class="chart-stat-label">Approved</div>
+              </div>
+              <div class="chart-stat">
+                <div class="chart-stat-value" style="color: #f59e0b;"><%= stats.pending %></div>
+                <div class="chart-stat-label">Pending</div>
+              </div>
+              <div class="chart-stat">
+                <div class="chart-stat-value" style="color: #ef4444;"><%= stats.rejected || 0 %></div>
+                <div class="chart-stat-label">Rejected</div>
+              </div>
+            </div>
+            <% } %>
+          </div>
+          <div class="chart-card">
+            <h3>Success Rate</h3>
+            <div class="chart-container">
+              <% if (stats.total > 0) { %>
+                <canvas id="successChart"></canvas>
+              <% } else { %>
+                <div class="chart-empty">
+                  <div class="chart-empty-icon">🏆</div>
+                  Your success metrics will appear here
+                </div>
+              <% } %>
+            </div>
+            <% if (stats.total > 0) { %>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-dot primary"></span>
+                <span>Approved Applications</span>
+              </div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+
         <div class="action-grid">
           <div class="action-card">
             <div class="action-icon"></div>
@@ -119,5 +174,75 @@
   </div>
 
   <script src="/js/sidebar.js"></script>
+  <script>
+    <% if (stats.total > 0) { %>
+    // Application Status Doughnut Chart
+    new Chart(document.getElementById('applicationChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Approved', 'Pending', 'Rejected'],
+        datasets: [{
+          data: [<%= stats.approved %>, <%= stats.pending %>, <%= stats.rejected || 0 %>],
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+    // Success Rate Chart
+    const successRate = <%= stats.approved %> > 0
+      ? Math.round((<%= stats.approved %> / <%= stats.total %>) * 100)
+      : 0;
+
+    new Chart(document.getElementById('successChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Success', 'Other'],
+        datasets: [{
+          data: [successRate, 100 - successRate],
+          backgroundColor: ['#667eea', '#e5e7eb'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      },
+      plugins: [{
+        id: 'centerText',
+        beforeDraw: function(chart) {
+          const width = chart.width;
+          const height = chart.height;
+          const ctx = chart.ctx;
+          ctx.restore();
+          const fontSize = (height / 114).toFixed(2);
+          ctx.font = 'bold ' + fontSize + 'em sans-serif';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#667eea';
+          const text = successRate + '%';
+          const textX = Math.round((width - ctx.measureText(text).width) / 2);
+          const textY = height / 2;
+          ctx.fillText(text, textX, textY);
+          ctx.save();
+        }
+      }]
+    });
+    <% } %>
+  </script>
 </body>
 </html>

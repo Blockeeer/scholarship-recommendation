@@ -29,6 +29,15 @@ router.get("/register/student", (req, res) => res.redirect("/"));
 router.get("/register/sponsor", (req, res) => res.redirect("/"));
 router.get("/dashboard", showDashboard);
 
+// Public pages (Help, Terms, Privacy, About, Contact)
+// Pass user session info so pages can show appropriate Home link (dashboard vs landing)
+router.get("/help", (req, res) => res.render("pages/help", { user: req.session?.user || null }));
+router.get("/faq", (req, res) => res.render("pages/help", { user: req.session?.user || null })); // Alias for help
+router.get("/terms", (req, res) => res.render("pages/terms", { user: req.session?.user || null }));
+router.get("/privacy", (req, res) => res.render("pages/privacy", { user: req.session?.user || null }));
+router.get("/about", (req, res) => res.render("pages/about", { user: req.session?.user || null }));
+router.get("/contact", (req, res) => res.render("pages/help", { user: req.session?.user || null })); // Redirect to help which has contact info
+
 // Auth Actions (with rate limiting)
 router.post("/register/student", authLimiter, registerStudent);
 router.post("/register/sponsor", authLimiter, registerSponsor);

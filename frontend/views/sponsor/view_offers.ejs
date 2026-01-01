@@ -100,6 +100,45 @@
       opacity: 0.85;
     }
 
+    .scholarship-card.status-draft {
+      border-left-color: #8b5cf6;
+      background: #f5f3ff;
+    }
+
+    .status-draft {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
+    .btn-submit-draft {
+      background: #8b5cf6;
+      color: white;
+    }
+
+    .btn-submit-draft:hover {
+      background: #7c3aed;
+    }
+
+    .scholarship-card.status-archived {
+      border-left-color: #9ca3af;
+      background: #f9fafb;
+      opacity: 0.75;
+    }
+
+    .status-archived {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .btn-restore {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-restore:hover {
+      background: #059669;
+    }
+
     .scholarship-card:hover {
       transform: translateY(-5px);
     }
@@ -380,11 +419,13 @@
         <% } else { %>
           <!-- Filter Tabs -->
           <div class="filter-tabs">
-            <button class="filter-tab active" onclick="filterScholarships('all')">All (<%= scholarships.length %>)</button>
+            <button class="filter-tab active" onclick="filterScholarships('all')">All (<%= scholarships.filter(s => s.status !== 'Archived').length %>)</button>
+            <button class="filter-tab" onclick="filterScholarships('Draft')">Drafts (<%= scholarships.filter(s => s.status === 'Draft').length %>)</button>
             <button class="filter-tab" onclick="filterScholarships('Open')">Open (<%= scholarships.filter(s => s.status === 'Open').length %>)</button>
             <button class="filter-tab" onclick="filterScholarships('Pending')">Pending Review (<%= scholarships.filter(s => s.status === 'Pending').length %>)</button>
             <button class="filter-tab" onclick="filterScholarships('Rejected')">Rejected (<%= scholarships.filter(s => s.status === 'Rejected').length %>)</button>
             <button class="filter-tab" onclick="filterScholarships('Closed')">Closed (<%= scholarships.filter(s => s.status === 'Closed').length %>)</button>
+            <button class="filter-tab" onclick="filterScholarships('Archived')">Archived (<%= scholarships.filter(s => s.status === 'Archived').length %>)</button>
           </div>
 
           <div class="scholarships-grid">
@@ -395,9 +436,11 @@
               else if (slotsPercent >= 75) progressClass = 'warning';
 
               let statusClass = '';
-              if (scholarship.status === 'Pending') statusClass = 'status-pending';
+              if (scholarship.status === 'Draft') statusClass = 'status-draft';
+              else if (scholarship.status === 'Pending') statusClass = 'status-pending';
               else if (scholarship.status === 'Rejected') statusClass = 'status-rejected';
               else if (scholarship.status === 'Closed') statusClass = 'status-closed';
+              else if (scholarship.status === 'Archived') statusClass = 'status-archived';
             %>
               <div class="scholarship-card <%= statusClass %>" data-status="<%= scholarship.status %>">
                 <div class="card-header">
@@ -441,7 +484,14 @@
                 </div>
 
                 <div class="card-actions">
-                  <% if (scholarship.status === 'Open') { %>
+                  <% if (scholarship.status === 'Draft') { %>
+                    <a href="/sponsor/offers/<%= scholarship.id %>/edit" class="btn btn-edit">Edit Draft</a>
+                    <button class="btn btn-submit-draft" onclick="submitDraft('<%= scholarship.id %>')">Submit for Approval</button>
+                    <form action="/sponsor/offers/<%= scholarship.id %>/delete" method="POST" style="flex: 0.5;" onsubmit="return confirm('Are you sure you want to delete this draft?')">
+                      <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                      <button type="submit" class="btn btn-delete" style="width: 100%;">Delete</button>
+                    </form>
+                  <% } else if (scholarship.status === 'Open') { %>
                     <a href="/sponsor/offers/<%= scholarship.id %>/applications" class="btn btn-applications">Applications</a>
                     <a href="/sponsor/offers/<%= scholarship.id %>" class="btn btn-view">Details</a>
                     <button class="btn btn-request-close" onclick="showCloseRequestModal('<%= scholarship.id %>', '<%= scholarship.scholarshipName %>')">Request Close</button>
@@ -461,6 +511,9 @@
                   <% } else if (scholarship.status === 'Closed') { %>
                     <a href="/sponsor/offers/<%= scholarship.id %>" class="btn btn-view">View Details</a>
                     <a href="/sponsor/offers/<%= scholarship.id %>/applications" class="btn btn-applications">View Applications</a>
+                  <% } else if (scholarship.status === 'Archived') { %>
+                    <button class="btn btn-restore" onclick="restoreScholarship('<%= scholarship.id %>')">Restore</button>
+                    <button class="btn btn-delete" onclick="permanentlyDelete('<%= scholarship.id %>', '<%= scholarship.scholarshipName %>')">Delete Permanently</button>
                   <% } %>
                 </div>
               </div>
@@ -504,7 +557,10 @@
       event.target.classList.add('active');
 
       document.querySelectorAll('.scholarship-card').forEach(card => {
-        if (status === 'all' || card.dataset.status === status) {
+        if (status === 'all') {
+          // 'all' excludes archived scholarships
+          card.style.display = card.dataset.status !== 'Archived' ? 'block' : 'none';
+        } else if (card.dataset.status === status) {
           card.style.display = 'block';
         } else {
           card.style.display = 'none';
@@ -544,6 +600,67 @@
         })
         .catch(err => alert('Error submitting request'));
     });
+
+    // Submit draft for approval
+    function submitDraft(id) {
+      if (!confirm('Are you sure you want to submit this draft for admin approval?')) return;
+
+      fetch('/sponsor/offers/' + id + '/submit-draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Draft submitted for approval!');
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to submit draft'));
+          }
+        })
+        .catch(err => alert('Error submitting draft'));
+    }
+
+    // Restore archived scholarship
+    function restoreScholarship(id) {
+      if (!confirm('Are you sure you want to restore this scholarship?')) return;
+
+      fetch('/sponsor/offers/' + id + '/restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Scholarship restored successfully!');
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to restore scholarship'));
+          }
+        })
+        .catch(err => alert('Error restoring scholarship'));
+    }
+
+    // Permanently delete scholarship
+    function permanentlyDelete(id, name) {
+      if (!confirm('Are you sure you want to PERMANENTLY delete "' + name + '"? This action cannot be undone.')) return;
+      if (!confirm('This will permanently remove this scholarship. Are you absolutely sure?')) return;
+
+      fetch('/sponsor/offers/' + id + '/permanent-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Scholarship permanently deleted.');
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to delete scholarship'));
+          }
+        })
+        .catch(err => alert('Error deleting scholarship'));
+    }
   </script>
 </body>
 </html>

@@ -44,6 +44,8 @@ const {
   viewScholarshipDetails,
   updateScholarshipStatus,
   deleteScholarship,
+  restoreScholarship,
+  permanentlyDeleteScholarship,
   showEditScholarshipForm,
   updateScholarship
 } = require('../controllers/scholarshipController');
@@ -51,7 +53,8 @@ const {
   getScholarshipApplications,
   getApplicationDetails,
   rankApplications,
-  updateApplicationStatus
+  updateApplicationStatus,
+  batchUpdateApplicationStatus
 } = require('../controllers/applicationController');
 const { getUserNotifications, markAsRead, markAllAsRead, getUnreadCount, createNotification } = require('../services/notificationService');
 const { db } = require('../config/firebaseConfig');
@@ -84,6 +87,9 @@ router.get('/applications/:id', getApplicationDetails);
 // Update application status (approve/reject)
 router.post('/applications/:id/status', updateApplicationStatus);
 
+// Batch update application status
+router.post('/applications/batch-status', batchUpdateApplicationStatus);
+
 // Show edit scholarship form
 router.get('/offers/:id/edit', showEditScholarshipForm);
 
@@ -93,8 +99,14 @@ router.post('/offers/:id/edit', updateScholarship);
 // Update scholarship status
 router.post('/offers/:id/status', updateScholarshipStatus);
 
-// Delete scholarship
+// Delete scholarship (soft delete - archives)
 router.post('/offers/:id/delete', deleteScholarship);
+
+// Restore archived scholarship
+router.post('/offers/:id/restore', restoreScholarship);
+
+// Permanently delete archived scholarship
+router.post('/offers/:id/permanent-delete', permanentlyDeleteScholarship);
 
 // Save exam schedule for scholarship
 router.post('/offers/:id/exam-schedule', async (req, res) => {
@@ -182,6 +194,61 @@ router.post('/offers/:id/request-close', async (req, res) => {
   } catch (error) {
     console.error('Error requesting close:', error);
     res.status(500).json({ error: 'Failed to submit close request' });
+  }
+});
+
+// Submit draft for approval
+router.post('/offers/:id/submit-draft', async (req, res) => {
+  const scholarshipId = req.params.id;
+  const sponsorUid = req.session.user.uid;
+
+  try {
+    const scholarshipRef = doc(db, 'scholarships', scholarshipId);
+    const scholarshipDoc = await getDoc(scholarshipRef);
+
+    if (!scholarshipDoc.exists()) {
+      return res.status(404).json({ error: 'Scholarship not found' });
+    }
+
+    const scholarship = scholarshipDoc.data();
+
+    // Check ownership
+    if (scholarship.sponsorUid !== sponsorUid) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    // Only drafts can be submitted
+    if (scholarship.status !== 'Draft') {
+      return res.status(400).json({ error: 'Only drafts can be submitted for approval' });
+    }
+
+    // Validate required fields before submitting
+    if (!scholarship.scholarshipName || !scholarship.organizationName || !scholarship.scholarshipType ||
+        !scholarship.minGPA || !scholarship.slotsAvailable || !scholarship.startDate || !scholarship.endDate) {
+      return res.status(400).json({ error: 'Please complete all required fields before submitting' });
+    }
+
+    // Update status to Pending
+    await updateDoc(scholarshipRef, {
+      status: 'Pending',
+      isDraft: false,
+      submittedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+
+    // Notify admin about new scholarship submission
+    await createNotification(
+      'admin',
+      'new_scholarship',
+      'New Scholarship Submitted for Review',
+      `"${scholarship.scholarshipName}" by ${scholarship.organizationName} is awaiting your review.`,
+      scholarshipId
+    );
+
+    res.json({ success: true, message: 'Draft submitted for approval' });
+  } catch (error) {
+    console.error('Error submitting draft:', error);
+    res.status(500).json({ error: 'Failed to submit draft' });
   }
 });
 

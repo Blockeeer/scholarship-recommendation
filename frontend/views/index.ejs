@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ScholarPath - Find Your Perfect Scholarship</title>
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
   <link rel="stylesheet" href="/css/global.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -97,16 +98,22 @@
     }
 
     .modal-logo {
-      width: 56px;
-      height: 56px;
+      width: 64px;
+      height: 64px;
       background: rgba(255, 255, 255, 0.2);
-      border-radius: var(--radius);
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 1rem;
-      font-size: 1.5rem;
-      font-weight: 700;
+      padding: 0.75rem;
+    }
+
+    .modal-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
     }
 
     .modal-content {
@@ -316,6 +323,176 @@
 
     .forgot-password-link:hover {
       text-decoration: underline;
+    }
+
+    /* Terms Checkbox */
+    .terms-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin: 1rem 0 1.25rem;
+      padding: 0.75rem;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+    }
+
+    .terms-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      cursor: pointer;
+      accent-color: var(--primary-color);
+    }
+
+    .terms-checkbox input[type="checkbox"]:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .terms-checkbox label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .terms-checkbox label a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .terms-checkbox label a:hover {
+      text-decoration: underline;
+    }
+
+    .terms-checkbox.error {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    /* Terms Modal - Larger for content */
+    .terms-modal-container {
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-xl);
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    .terms-modal-header {
+      background: var(--primary-color);
+      color: white;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .terms-modal-header h2 {
+      font-size: 1.25rem;
+      margin: 0;
+      color: white;
+    }
+
+    .terms-modal-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      max-height: 50vh;
+      font-size: 0.9375rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .terms-modal-content h3 {
+      color: var(--text-primary);
+      font-size: 1rem;
+      margin: 1.5rem 0 0.75rem;
+    }
+
+    .terms-modal-content h3:first-child {
+      margin-top: 0;
+    }
+
+    .terms-modal-content p {
+      margin-bottom: 1rem;
+    }
+
+    .terms-modal-content ul {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    .terms-modal-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .terms-scroll-indicator {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(to bottom, transparent, var(--bg-secondary));
+      text-align: center;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .terms-scroll-indicator.hidden {
+      display: none;
+    }
+
+    .terms-scroll-indicator svg {
+      width: 16px;
+      height: 16px;
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(4px); }
+    }
+
+    .terms-modal-footer {
+      padding: 1rem 1.5rem;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    .terms-modal-footer .btn {
+      flex: 1;
+    }
+
+    .btn-accept {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-accept:disabled {
+      background: var(--gray-400);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .btn-decline {
+      background: white;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-decline:hover {
+      background: var(--bg-secondary);
     }
 
     /* Success Message */
@@ -677,6 +854,7 @@
   <!-- Navbar -->
   <nav class="navbar">
     <a href="/" class="navbar-brand">
+      <img src="/images/icon.svg" alt="ScholarPath Logo" style="width: 32px; height: 32px;">
       Scholar<span>Path</span>
     </a>
     <div class="navbar-nav">
@@ -765,7 +943,7 @@
 
   <!-- Footer -->
   <footer class="landing-footer">
-    <p>2024 ScholarPath. All rights reserved.</p>
+    <p>&copy; 2025 ScholarPath. All rights reserved.</p>
   </footer>
 
   <!-- Login Modal -->
@@ -773,7 +951,7 @@
     <div class="modal-container">
       <div class="modal-header">
         <button class="modal-close" onclick="closeLoginModal()">&times;</button>
-        <div class="modal-logo">SP</div>
+        <div class="modal-logo"><img src="/images/icon.svg" alt="ScholarPath"></div>
         <h2>Welcome Back</h2>
         <p>Log in to access your account</p>
       </div>
@@ -821,7 +999,7 @@
     <div class="modal-container">
       <div class="modal-header">
         <button class="modal-close" onclick="closeRegisterModal()">&times;</button>
-        <div class="modal-logo">SP</div>
+        <div class="modal-logo"><img src="/images/icon.svg" alt="ScholarPath"></div>
         <h2>Create Account</h2>
         <p>Join ScholarPath today</p>
       </div>
@@ -881,6 +1059,12 @@
               <button type="button" class="toggle-password" onclick="togglePassword('registerConfirmPassword', this)">Show</button>
             </div>
           </div>
+          <div class="terms-checkbox" id="termsCheckboxContainer">
+            <input type="checkbox" id="termsAccepted" name="termsAccepted" disabled>
+            <label for="termsAccepted">
+              I have read and agree to the <a onclick="openTermsModal(event)">Terms and Conditions</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
+            </label>
+          </div>
           <button type="submit" class="btn btn-primary btn-block" id="registerBtn">Create Account</button>
         </form>
       </div>
@@ -895,7 +1079,7 @@
     <div class="modal-container">
       <div class="modal-header">
         <button class="modal-close" onclick="closeForgotPasswordModal()">&times;</button>
-        <div class="modal-logo">SP</div>
+        <div class="modal-logo"><img src="/images/icon.svg" alt="ScholarPath"></div>
         <h2>Reset Password</h2>
         <p>Enter your email to receive reset instructions</p>
       </div>
@@ -913,6 +1097,109 @@
       </div>
       <div class="modal-footer">
         <p>Remember your password? <a onclick="backToLogin()">Back to Login</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms and Conditions Modal -->
+  <div class="modal-overlay" id="termsModal">
+    <div class="terms-modal-container">
+      <div class="terms-modal-header">
+        <h2>Terms and Conditions</h2>
+        <button class="modal-close" onclick="closeTermsModal()">&times;</button>
+      </div>
+      <div class="terms-modal-content" id="termsContent">
+        <h3>1. Acceptance of Terms</h3>
+        <p>By accessing or using the Scholarship Portal ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.</p>
+        <p>These Terms constitute a legally binding agreement between you and Scholarship Portal regarding your use of the Service.</p>
+
+        <h3>2. Description of Service</h3>
+        <p>The Scholarship Portal is an online platform that:</p>
+        <ul>
+          <li>Connects students seeking financial aid with scholarship sponsors</li>
+          <li>Provides AI-powered scholarship matching and recommendations</li>
+          <li>Facilitates the scholarship application and review process</li>
+          <li>Manages communication between students and sponsors</li>
+        </ul>
+
+        <h3>3. Eligibility</h3>
+        <p>To use our Service, you must:</p>
+        <ul>
+          <li>Be at least 16 years of age</li>
+          <li>Be a currently enrolled student (for student accounts) or authorized representative of an organization (for sponsor accounts)</li>
+          <li>Have the legal capacity to enter into these Terms</li>
+          <li>Provide accurate and complete registration information</li>
+        </ul>
+
+        <h3>4. User Accounts</h3>
+        <p>You must create an account to access most features of the Service. You agree to:</p>
+        <ul>
+          <li>Provide accurate, current, and complete information</li>
+          <li>Maintain and promptly update your information</li>
+          <li>Keep your password secure and confidential</li>
+          <li>Notify us immediately of any unauthorized access</li>
+        </ul>
+
+        <h3>5. User Conduct</h3>
+        <p>You agree NOT to:</p>
+        <ul>
+          <li>Submit false or misleading information</li>
+          <li>Impersonate another person or organization</li>
+          <li>Upload malicious files or harmful content</li>
+          <li>Attempt to gain unauthorized access to the Service</li>
+          <li>Use the Service for any illegal purpose</li>
+          <li>Harass, abuse, or harm other users</li>
+          <li>Manipulate or abuse the AI recommendation system</li>
+          <li>Apply for scholarships you know you are not eligible for</li>
+        </ul>
+
+        <h3>6. Scholarship Applications</h3>
+        <p>When applying for scholarships, you:</p>
+        <ul>
+          <li>Certify that all submitted information is accurate</li>
+          <li>Authorize verification of your submitted documents</li>
+          <li>Understand that false information may disqualify your application</li>
+          <li>Accept that scholarship decisions are made by sponsors, not the platform</li>
+        </ul>
+
+        <h3>7. Privacy and Data Protection</h3>
+        <p>Your privacy is important to us. We collect and process your personal data in accordance with our Privacy Policy. By using the Service, you consent to:</p>
+        <ul>
+          <li>Collection of your personal and academic information</li>
+          <li>Sharing of your application data with scholarship sponsors</li>
+          <li>Use of cookies and analytics for service improvement</li>
+        </ul>
+
+        <h3>8. Intellectual Property</h3>
+        <p>All content, features, and functionality of the Service are owned by Scholarship Portal and are protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, or reverse engineer any part of the Service without our written permission.</p>
+
+        <h3>9. Disclaimers</h3>
+        <p>THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. We do not warrant that:</p>
+        <ul>
+          <li>The Service will be uninterrupted or error-free</li>
+          <li>Defects will be corrected</li>
+          <li>The Service is free of viruses or harmful components</li>
+          <li>AI recommendations are perfectly accurate</li>
+        </ul>
+
+        <h3>10. Limitation of Liability</h3>
+        <p>To the maximum extent permitted by law, Scholarship Portal shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Service.</p>
+
+        <h3>11. Changes to Terms</h3>
+        <p>We may modify these Terms at any time. We will notify users of significant changes via email or prominent notice on the Service. Continued use after changes constitutes acceptance of the new Terms.</p>
+
+        <h3>12. Contact Information</h3>
+        <p>For questions about these Terms, please contact us at legal@scholarshipportal.com or visit our Help Center.</p>
+      </div>
+      <div class="terms-scroll-indicator" id="termsScrollIndicator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+        </svg>
+        Scroll down to read all terms
+      </div>
+      <div class="terms-modal-footer">
+        <button class="btn btn-decline" onclick="declineTerms()">Decline</button>
+        <button class="btn btn-accept" id="acceptTermsBtn" onclick="acceptTerms()" disabled>Accept Terms</button>
       </div>
     </div>
   </div>
@@ -987,6 +1274,12 @@
       document.getElementById('registerForm').reset();
       document.getElementById('registerError').style.display = 'none';
       document.getElementById('registerSuccess').style.display = 'none';
+      // Reset terms checkbox
+      const termsCheckbox = document.getElementById('termsAccepted');
+      termsCheckbox.checked = false;
+      termsCheckbox.disabled = true;
+      document.getElementById('termsCheckboxContainer').classList.remove('error');
+      termsRead = false;
     }
 
     function openForgotPasswordModal() {
@@ -1219,6 +1512,8 @@
       const email = document.getElementById('registerEmail').value;
       const password = document.getElementById('registerPassword').value;
       const confirmPassword = document.getElementById('registerConfirmPassword').value;
+      const termsCheckbox = document.getElementById('termsAccepted');
+      const termsContainer = document.getElementById('termsCheckboxContainer');
 
       // Validate email
       const emailValidation = isValidEmail(email);
@@ -1239,6 +1534,15 @@
         errorDiv.style.display = 'block';
         return;
       }
+
+      // Validate terms acceptance
+      if (!termsCheckbox.checked) {
+        errorDiv.textContent = 'Please read and accept the Terms and Conditions to continue.';
+        errorDiv.style.display = 'block';
+        termsContainer.classList.add('error');
+        return;
+      }
+      termsContainer.classList.remove('error');
 
       btn.disabled = true;
       btn.textContent = 'Creating Account...';
@@ -1291,7 +1595,92 @@
         closeLoginModal();
         closeRegisterModal();
         closeForgotPasswordModal();
+        closeTermsModal();
       }
+    });
+
+    // Terms Modal Functions
+    let termsRead = false;
+
+    function openTermsModal(event) {
+      if (event) event.preventDefault();
+      document.getElementById('termsModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Reset scroll position and button state
+      const content = document.getElementById('termsContent');
+      content.scrollTop = 0;
+      termsRead = false;
+      document.getElementById('acceptTermsBtn').disabled = true;
+      document.getElementById('termsScrollIndicator').classList.remove('hidden');
+
+      // Check if content is scrollable
+      checkTermsScrollable();
+    }
+
+    function closeTermsModal() {
+      document.getElementById('termsModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function checkTermsScrollable() {
+      const content = document.getElementById('termsContent');
+      const scrollIndicator = document.getElementById('termsScrollIndicator');
+      const acceptBtn = document.getElementById('acceptTermsBtn');
+
+      // If content is not scrollable (all content visible), enable accept immediately
+      if (content.scrollHeight <= content.clientHeight + 10) {
+        termsRead = true;
+        acceptBtn.disabled = false;
+        scrollIndicator.classList.add('hidden');
+      }
+    }
+
+    function checkTermsScroll() {
+      const content = document.getElementById('termsContent');
+      const scrollIndicator = document.getElementById('termsScrollIndicator');
+      const acceptBtn = document.getElementById('acceptTermsBtn');
+
+      // Calculate how close to bottom (within 50px)
+      const scrolledToBottom = content.scrollHeight - content.scrollTop <= content.clientHeight + 50;
+
+      if (scrolledToBottom && !termsRead) {
+        termsRead = true;
+        acceptBtn.disabled = false;
+        scrollIndicator.classList.add('hidden');
+      }
+    }
+
+    // Add scroll listener to terms content
+    document.getElementById('termsContent').addEventListener('scroll', checkTermsScroll);
+
+    function acceptTerms() {
+      if (!termsRead) return;
+
+      // Enable and check the terms checkbox
+      const checkbox = document.getElementById('termsAccepted');
+      checkbox.disabled = false;
+      checkbox.checked = true;
+
+      // Remove error styling if any
+      document.getElementById('termsCheckboxContainer').classList.remove('error');
+
+      closeTermsModal();
+    }
+
+    function declineTerms() {
+      // Uncheck and disable the checkbox
+      const checkbox = document.getElementById('termsAccepted');
+      checkbox.checked = false;
+      checkbox.disabled = true;
+      termsRead = false;
+
+      closeTermsModal();
+    }
+
+    // Close terms modal when clicking outside
+    document.getElementById('termsModal').addEventListener('click', function(e) {
+      if (e.target === this) closeTermsModal();
     });
   </script>
 </body>

@@ -17,6 +17,7 @@ const {
 const { matchStudentToScholarships } = require("../services/gptMatchingService");
 const { getUserNotifications, getUnreadCount, markAsRead, markAllAsRead } = require("../services/notificationService");
 const { getPaginationParams, paginateArray, buildPaginationUI, getPaginationInfo } = require("../utils/pagination");
+const { generateScholarshipICS } = require("../utils/icalGenerator");
 
 /**
  * Show student dashboard
@@ -408,8 +409,8 @@ async function generateAndSaveRecommendations(req, res) {
     console.log(`📊 Found ${scholarships.length} open scholarships for matching`);
     console.log(`👤 Generating personalized recommendations for: ${assessment.fullName}`);
 
-    // Get GPT recommendations - personalized for this specific student
-    const recommendations = await matchStudentToScholarships(assessment, scholarships);
+    // Get GPT recommendations - personalized for this specific student (with caching)
+    const recommendations = await matchStudentToScholarships(assessment, scholarships, studentUid);
 
     // Sort recommendations by matchScore (highest to lowest)
     recommendations.sort((a, b) => b.matchScore - a.matchScore);
@@ -474,7 +475,8 @@ async function getMyApplications(req, res) {
 
     // Calculate stats (before pagination)
     const stats = {
-      total: applications.length,
+      total: applications.filter(a => a.status !== "draft").length, // Don't count drafts in total
+      draft: applications.filter(a => a.status === "draft").length,
       pending: applications.filter(a => a.status === "pending" || a.status === "under_review" || a.status === "accepted").length,
       notified: applications.filter(a => a.status === "notified").length,
       notSelected: applications.filter(a => a.status === "not_selected").length
@@ -712,6 +714,42 @@ async function uploadAvatar(req, res) {
   }
 }
 
+/**
+ * Download scholarship deadline as iCal file
+ */
+async function downloadScholarshipCalendar(req, res) {
+  const scholarshipId = req.params.id;
+
+  try {
+    const scholarshipRef = doc(db, "scholarships", scholarshipId);
+    const scholarshipDoc = await getDoc(scholarshipRef);
+
+    if (!scholarshipDoc.exists()) {
+      return res.status(404).json({ error: "Scholarship not found" });
+    }
+
+    const scholarship = { id: scholarshipId, ...scholarshipDoc.data() };
+
+    // Generate iCal content
+    const icsContent = generateScholarshipICS(scholarship, {
+      includeReminder: true,
+      reminderDays: 3,
+      portalUrl: `${req.protocol}://${req.get('host')}/student/scholarships/${scholarshipId}`
+    });
+
+    // Set headers for file download
+    const filename = `${scholarship.scholarshipName.replace(/[^a-zA-Z0-9]/g, '_')}_deadline.ics`;
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    res.send(icsContent);
+
+  } catch (error) {
+    console.error("Error generating calendar file:", error);
+    res.status(500).json({ error: "Failed to generate calendar file" });
+  }
+}
+
 module.exports = {
   showStudentDashboard,
   searchScholarships,
@@ -726,5 +764,6 @@ module.exports = {
   markAllNotificationsRead,
   getProfile,
   updateProfile,
-  uploadAvatar
+  uploadAvatar,
+  downloadScholarshipCalendar
 };

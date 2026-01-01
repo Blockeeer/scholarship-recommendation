@@ -197,6 +197,141 @@
       cursor: not-allowed;
       transform: none;
     }
+
+    /* Button group for submit actions */
+    .button-group {
+      display: flex;
+      gap: 1rem;
+    }
+    .btn-draft {
+      flex: 1;
+      padding: 1rem;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-draft:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--primary-color);
+    }
+    .btn-preview {
+      padding: 1rem 1.5rem;
+      background: white;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-preview:hover {
+      background: var(--primary-50);
+    }
+    @media (max-width: 640px) {
+      .button-group {
+        flex-direction: column;
+      }
+    }
+
+    /* Preview Modal */
+    .preview-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .preview-modal.active {
+      display: flex;
+    }
+    .preview-content {
+      background: white;
+      border-radius: var(--radius-md);
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .preview-header {
+      background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+      color: white;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .preview-header h2 {
+      margin: 0;
+      color: white;
+    }
+    .preview-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .preview-body {
+      padding: 1.5rem;
+    }
+    .preview-section {
+      margin-bottom: 1.5rem;
+    }
+    .preview-section h4 {
+      color: var(--primary-color);
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+    }
+    .preview-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .preview-label {
+      font-weight: 500;
+      color: var(--text-secondary);
+      min-width: 140px;
+    }
+    .preview-value {
+      color: var(--text-primary);
+    }
+    .preview-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .preview-tag {
+      background: var(--primary-50);
+      color: var(--primary-700);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+    }
+    .draft-badge {
+      display: inline-block;
+      background: #fbbf24;
+      color: #78350f;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -406,10 +541,19 @@
 
               <!-- Submit -->
               <div class="submit-section">
-                <button type="submit" class="btn-submit" id="submitBtn">
-                  Create Scholarship Offer
-                </button>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                  <button type="button" class="btn-preview" onclick="showPreview()">Preview</button>
+                </div>
+                <div class="button-group">
+                  <button type="button" class="btn-draft" id="draftBtn" onclick="saveAsDraft()">
+                    Save as Draft
+                  </button>
+                  <button type="submit" class="btn-submit" id="submitBtn" style="flex: 2;">
+                    Submit for Approval
+                  </button>
+                </div>
               </div>
+              <input type="hidden" name="isDraft" id="isDraftInput" value="false">
             </form>
           </div>
         </div>
@@ -417,6 +561,19 @@
     </main>
 
     <%- include('../partials/footer') %>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="preview-modal" id="previewModal">
+    <div class="preview-content">
+      <div class="preview-header">
+        <h2>Scholarship Preview</h2>
+        <button class="preview-close" onclick="closePreview()">&times;</button>
+      </div>
+      <div class="preview-body" id="previewBody">
+        <!-- Content will be populated by JavaScript -->
+      </div>
+    </div>
   </div>
 
   <script src="/js/sidebar.js"></script>
@@ -428,20 +585,171 @@
       item.classList.toggle('checked', checkbox.checked);
     }
 
+    // Get form data as object
+    function getFormData() {
+      const form = document.getElementById('scholarshipForm');
+      const data = {};
+
+      data.scholarshipName = form.querySelector('[name="scholarshipName"]').value;
+      data.organizationName = form.querySelector('[name="organizationName"]').value;
+      data.scholarshipType = form.querySelector('[name="scholarshipType"]').value;
+      data.description = form.querySelector('[name="description"]').value;
+      data.minGPA = form.querySelector('[name="minGPA"]').value;
+      data.slotsAvailable = form.querySelector('[name="slotsAvailable"]').value;
+      data.incomeLimit = form.querySelector('[name="incomeLimit"]').value;
+      data.additionalDocuments = form.querySelector('[name="additionalDocuments"]').value;
+      data.startDate = form.querySelector('[name="startDate"]').value;
+      data.endDate = form.querySelector('[name="endDate"]').value;
+      data.status = form.querySelector('[name="status"]').value;
+
+      // Get checked checkboxes
+      data.eligibleCourses = Array.from(form.querySelectorAll('[name="eligibleCourses"]:checked')).map(cb => cb.value);
+      data.eligibleYearLevels = Array.from(form.querySelectorAll('[name="eligibleYearLevels"]:checked')).map(cb => cb.value);
+      data.requiredSkills = Array.from(form.querySelectorAll('[name="requiredSkills"]:checked')).map(cb => cb.value);
+      data.requiredDocuments = Array.from(form.querySelectorAll('[name="requiredDocuments"]:checked')).map(cb => cb.value);
+
+      return data;
+    }
+
+    // Show preview modal
+    function showPreview() {
+      const data = getFormData();
+      const previewBody = document.getElementById('previewBody');
+
+      const formatDate = (dateStr) => {
+        if (!dateStr) return 'Not set';
+        return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      };
+
+      const incomeLimitLabels = {
+        'below_10k': 'Below PHP 10,000/month',
+        'below_20k': 'Below PHP 20,000/month',
+        'below_30k': 'Below PHP 30,000/month',
+        'below_50k': 'Below PHP 50,000/month'
+      };
+
+      let html = `
+        <div class="preview-section">
+          <h4>Scholarship Information</h4>
+          <div class="preview-row">
+            <span class="preview-label">Name:</span>
+            <span class="preview-value">${data.scholarshipName || 'Not provided'}</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-label">Organization:</span>
+            <span class="preview-value">${data.organizationName || 'Not provided'}</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-label">Type:</span>
+            <span class="preview-value">${data.scholarshipType || 'Not selected'}</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-label">Description:</span>
+            <span class="preview-value">${data.description || 'No description'}</span>
+          </div>
+        </div>
+
+        <div class="preview-section">
+          <h4>Qualification Criteria</h4>
+          <div class="preview-row">
+            <span class="preview-label">Minimum GPA:</span>
+            <span class="preview-value">${data.minGPA || 'Not set'}</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-label">Slots Available:</span>
+            <span class="preview-value">${data.slotsAvailable || 'Not set'}</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-label">Income Limit:</span>
+            <span class="preview-value">${data.incomeLimit ? incomeLimitLabels[data.incomeLimit] : 'Any income level'}</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-label">Eligible Courses:</span>
+            <span class="preview-value">
+              ${data.eligibleCourses.length > 0 ? `<div class="preview-tags">${data.eligibleCourses.map(c => `<span class="preview-tag">${c}</span>`).join('')}</div>` : 'Any course'}
+            </span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-label">Year Levels:</span>
+            <span class="preview-value">
+              ${data.eligibleYearLevels.length > 0 ? `<div class="preview-tags">${data.eligibleYearLevels.map(y => `<span class="preview-tag">${y}</span>`).join('')}</div>` : 'Any year level'}
+            </span>
+          </div>
+        </div>
+
+        <div class="preview-section">
+          <h4>Required Skills</h4>
+          <div class="preview-tags">
+            ${data.requiredSkills.length > 0 ? data.requiredSkills.map(s => `<span class="preview-tag">${s}</span>`).join('') : '<span style="color: var(--text-muted);">No specific skills required</span>'}
+          </div>
+        </div>
+
+        <div class="preview-section">
+          <h4>Document Requirements</h4>
+          <div class="preview-tags">
+            ${data.requiredDocuments.length > 0 ? data.requiredDocuments.map(d => `<span class="preview-tag">${d}</span>`).join('') : '<span style="color: var(--text-muted);">No documents specified</span>'}
+          </div>
+          ${data.additionalDocuments ? `<p style="margin-top: 0.5rem; color: var(--text-secondary);"><strong>Additional:</strong> ${data.additionalDocuments}</p>` : ''}
+        </div>
+
+        <div class="preview-section">
+          <h4>Application Period</h4>
+          <div class="preview-row">
+            <span class="preview-label">Start Date:</span>
+            <span class="preview-value">${formatDate(data.startDate)}</span>
+          </div>
+          <div class="preview-row">
+            <span class="preview-label">Deadline:</span>
+            <span class="preview-value">${formatDate(data.endDate)}</span>
+          </div>
+        </div>
+      `;
+
+      previewBody.innerHTML = html;
+      document.getElementById('previewModal').classList.add('active');
+    }
+
+    // Close preview modal
+    function closePreview() {
+      document.getElementById('previewModal').classList.remove('active');
+    }
+
+    // Close modal on outside click
+    document.getElementById('previewModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePreview();
+      }
+    });
+
+    // Save as draft
+    function saveAsDraft() {
+      document.getElementById('isDraftInput').value = 'true';
+      document.getElementById('draftBtn').disabled = true;
+      document.getElementById('draftBtn').textContent = 'Saving...';
+      document.getElementById('scholarshipForm').submit();
+    }
+
     // Form validation
     document.getElementById('scholarshipForm').addEventListener('submit', function(e) {
-      const startDate = new Date(document.querySelector('[name="startDate"]').value);
-      const endDate = new Date(document.querySelector('[name="endDate"]').value);
+      const isDraft = document.getElementById('isDraftInput').value === 'true';
 
-      if (endDate <= startDate) {
-        e.preventDefault();
-        alert('End date must be after start date');
-        return;
+      // Skip validation for drafts
+      if (!isDraft) {
+        const startDate = new Date(document.querySelector('[name="startDate"]').value);
+        const endDate = new Date(document.querySelector('[name="endDate"]').value);
+
+        if (endDate <= startDate) {
+          e.preventDefault();
+          alert('End date must be after start date');
+          return;
+        }
       }
 
       // Disable button to prevent double submission
-      document.getElementById('submitBtn').disabled = true;
-      document.getElementById('submitBtn').textContent = 'Creating...';
+      if (!isDraft) {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').textContent = 'Submitting...';
+      }
     });
   </script>
 </body>

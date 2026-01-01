@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help & FAQ - Scholarship Portal</title>
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <link rel="stylesheet" href="/css/global.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar-brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .navbar-brand img {
+      width: 28px;
+      height: 28px;
+    }
+
+    .navbar-links {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .navbar-links a {
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .navbar-links a:hover,
+    .navbar-links a.active {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 4rem 2rem 6rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .hero-content h1 {
+      color: white;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .hero-content p {
+      color: rgba(255,255,255,0.9);
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .search-box {
+      position: relative;
+      max-width: 550px;
+      margin: 0 auto;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      outline: none;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      transition: box-shadow 0.3s;
+    }
+
+    .search-box input:focus {
+      box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+    }
+
+    .search-box .search-icon {
+      position: absolute;
+      left: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+    }
+
+    .search-box .search-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: -3rem auto 0;
+      padding: 0 1.5rem 3rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .quick-links-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .quick-links-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .quick-link-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      text-decoration: none;
+      color: #1f2937;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .quick-link-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
+      border-color: #2563eb;
+    }
+
+    .quick-link-card .icon-wrapper {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.75rem;
+    }
+
+    .quick-link-card.students .icon-wrapper { background: linear-gradient(135deg, #2563eb20, #2563eb40); }
+    .quick-link-card.sponsors .icon-wrapper { background: linear-gradient(135deg, #10b98120, #10b98140); }
+    .quick-link-card.applications .icon-wrapper { background: linear-gradient(135deg, #f59e0b20, #f59e0b40); }
+    .quick-link-card.account .icon-wrapper { background: linear-gradient(135deg, #ef444420, #ef444440); }
+
+    .quick-link-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .quick-link-card p {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .faq-section {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .faq-section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #f3f4f6;
+    }
+
+    .faq-section-header .section-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .faq-section.students .section-icon { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+    .faq-section.sponsors .section-icon { background: linear-gradient(135deg, #10b981, #059669); }
+    .faq-section.applications .section-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .faq-section.account .section-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+    .faq-section-header h2 {
+      color: #1f2937;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .faq-item {
+      margin-bottom: 0.75rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .faq-item:hover {
+      border-color: #d1d5db;
+    }
+
+    .faq-item.active {
+      border-color: #2563eb;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    }
+
+    .faq-question {
+      width: 100%;
+      text-align: left;
+      padding: 1.25rem 1.5rem;
+      background: #fafafa;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1f2937;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+    }
+
+    .faq-question:hover {
+      background: #f3f4f6;
+    }
+
+    .faq-item.active .faq-question {
+      background: #2563eb;
+      color: white;
+    }
+
+    .faq-question .icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .faq-item.active .faq-question .icon {
+      background: rgba(255,255,255,0.2);
+      transform: rotate(180deg);
+    }
+
+    .faq-question .icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .faq-item.active .faq-question .icon svg {
+      color: white;
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease-out;
+      background: white;
+    }
+
+    .faq-answer-content {
+      padding: 1.5rem;
+      color: #4b5563;
+      line-height: 1.7;
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 600px;
+    }
+
+    .faq-answer ol, .faq-answer ul {
+      margin: 0.75rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .faq-answer li {
+      margin-bottom: 0.5rem;
+    }
+
+    .faq-answer strong {
+      color: #1f2937;
+    }
+
+    .contact-section {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    .contact-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+
+    .contact-section > p {
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      position: relative;
+    }
+
+    .contact-card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .contact-card .icon-box {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .contact-card h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+      color: white;
+    }
+
+    .contact-card p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.95);
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-links {
+      margin-top: 0.75rem;
+    }
+
+    .footer-links a {
+      color: #2563eb;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 500;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+      display: none;
+    }
+
+    .no-results.show {
+      display: block;
+    }
+
+    .no-results svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 600px) {
+      .hero-content h1 {
+        font-size: 1.75rem;
+      }
+      .hero-content p {
+        font-size: 1rem;
+      }
+      .navbar {
+        padding: 1rem;
+      }
+      .navbar-links a {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="<%= typeof user !== 'undefined' && user ? '/dashboard' : '/' %>" class="navbar-brand">
+      <img src="/images/icon.svg" alt="ScholarPath Logo">
+      ScholarPath
+    </a>
+    <div class="navbar-links">
+      <a href="<%= typeof user !== 'undefined' && user ? '/dashboard' : '/' %>">Home</a>
+      <a href="/help" class="active">Help</a>
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+  </nav>
+
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>How can we help you?</h1>
+      <p>Search our knowledge base or browse categories below</p>
+      <div class="search-box">
+        <span class="search-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </span>
+        <input type="text" id="faqSearch" placeholder="Search for answers..." oninput="filterFAQ()">
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="quick-links-grid">
+      <a href="#students" class="quick-link-card students">
+        <div class="icon-wrapper">&#127891;</div>
+        <h3>For Students</h3>
+        <p>Apply & track</p>
+      </a>
+      <a href="#sponsors" class="quick-link-card sponsors">
+        <div class="icon-wrapper">&#127970;</div>
+        <h3>For Sponsors</h3>
+        <p>Create & manage</p>
+      </a>
+      <a href="#applications" class="quick-link-card applications">
+        <div class="icon-wrapper">&#128196;</div>
+        <h3>Applications</h3>
+        <p>Status & tracking</p>
+      </a>
+      <a href="#account" class="quick-link-card account">
+        <div class="icon-wrapper">&#128272;</div>
+        <h3>Account</h3>
+        <p>Security & login</p>
+      </a>
+    </div>
+
+    <div class="no-results" id="noResults">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <h3>No results found</h3>
+      <p>Try different keywords or browse categories above</p>
+    </div>
+
+    <div class="faq-section students" id="students">
+      <div class="faq-section-header">
+        <div class="section-icon">&#127891;</div>
+        <h2>For Students</h2>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How do I apply for a scholarship?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>To apply for a scholarship:</p>
+            <ol>
+              <li>First, complete your student assessment form with your academic details and upload required documents.</li>
+              <li>Browse available scholarships in the "Scholarships" section.</li>
+              <li>Click on a scholarship to view details and eligibility requirements.</li>
+              <li>If eligible, click "Apply Now" and write your application letter.</li>
+              <li>Submit your application and track its status in "My Applications".</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          What documents do I need to upload?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>Required documents typically include:</p>
+            <ul>
+              <li><strong>Grades/Transcript:</strong> Your academic record showing GPA</li>
+              <li><strong>Certificate of Enrollment (COE):</strong> Proof of current enrollment</li>
+              <li><strong>School ID:</strong> Valid student identification</li>
+              <li><strong>Other Documents:</strong> Some scholarships may require additional documents like income certificates</li>
+            </ul>
+            <p>All documents should be in PDF, JPG, or PNG format (max 10MB each).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How does the AI recommendation system work?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>Our AI-powered recommendation system analyzes your profile (GPA, course, year level, skills) and matches you with scholarships where you have the best chance of success. The system considers:</p>
+            <ul>
+              <li>Your GPA vs. scholarship minimum requirements</li>
+              <li>Your course eligibility</li>
+              <li>Your year level</li>
+              <li>Your skills and extracurricular activities</li>
+            </ul>
+            <p>Each recommendation includes a match percentage and explanation of why the scholarship suits you.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          Can I save my application as a draft?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>Yes! When writing your application, you can click "Save as Draft" to save your progress. The system also auto-saves your application letter every 2 seconds while you type. You can return later to complete and submit your application.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How do I add scholarship deadlines to my calendar?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>On any scholarship details page, look for the "Add to Calendar" button. You can:</p>
+            <ul>
+              <li>Download an .ics file (works with any calendar app)</li>
+              <li>Add directly to Google Calendar</li>
+              <li>Add directly to Outlook Calendar</li>
+            </ul>
+            <p>The calendar event includes a reminder 3 days before the deadline.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-section sponsors" id="sponsors">
+      <div class="faq-section-header">
+        <div class="section-icon">&#127970;</div>
+        <h2>For Sponsors</h2>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How do I create a scholarship program?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>To create a new scholarship:</p>
+            <ol>
+              <li>Go to "My Scholarships" in your dashboard.</li>
+              <li>Click "Create New Scholarship".</li>
+              <li>Fill in the scholarship details: name, type, eligibility criteria, slots available, and deadline.</li>
+              <li>Review and submit for publishing.</li>
+            </ol>
+            <p>Your scholarship will be immediately visible to eligible students.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How does the AI ranking work for applicants?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>Our AI system ranks applicants based on multiple factors:</p>
+            <ul>
+              <li>Match with your scholarship criteria</li>
+              <li>Academic performance (GPA)</li>
+              <li>Application letter quality and relevance</li>
+              <li>Overall profile strength</li>
+            </ul>
+            <p>Click "AI Rank Applications" on your scholarship's applications page to generate rankings. You can also manually review and adjust selections.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          Can I process multiple applications at once?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>Yes! Use the batch actions feature:</p>
+            <ul>
+              <li>Check the boxes next to applications you want to update</li>
+              <li>Use "Select All" to select all applications</li>
+              <li>Click "Accept Selected" or "Mark Not Selected" to update multiple applications at once</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-section applications" id="applications">
+      <div class="faq-section-header">
+        <div class="section-icon">&#128196;</div>
+        <h2>Applications & Status</h2>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          What do the application statuses mean?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <ul>
+              <li><strong>Draft:</strong> Application saved but not submitted</li>
+              <li><strong>Pending:</strong> Application submitted, awaiting review</li>
+              <li><strong>Under Review:</strong> Application is being reviewed/ranked</li>
+              <li><strong>Selected:</strong> Congratulations! You've been selected</li>
+              <li><strong>Not Selected:</strong> Not selected for this scholarship</li>
+              <li><strong>Withdrawn:</strong> You withdrew your application</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          Can I withdraw my application?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>Yes, you can withdraw your application if it's still in "Pending" or "Under Review" status. Go to "My Applications", find the application, and click "Withdraw". Note that this action cannot be undone.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-section account" id="account">
+      <div class="faq-section-header">
+        <div class="section-icon">&#128272;</div>
+        <h2>Account & Security</h2>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How do I reset my password?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>Click "Forgot Password" on the login page, enter your email, and we'll send you a password reset link. The link expires in 1 hour for security reasons.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          Can I sign in with Google?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>Yes! Click "Sign in with Google" on the login page. If you've previously registered with email/password, you can link your Google account in your profile settings.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          Why did my session expire?
+          <span class="icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
+        </button>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            <p>For security, sessions expire after 24 hours or 2 hours of inactivity. If your session expires, simply log in again. Your data and applications are safely stored.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-section">
+      <h2>Still need help?</h2>
+      <p>Our support team is here to assist you with any questions.</p>
+      <div class="contact-grid">
+        <div class="contact-card">
+          <div class="icon-box">&#9993;</div>
+          <div>
+            <h4>Email Support</h4>
+            <p>support@scholarshipportal.com</p>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="icon-box">&#128337;</div>
+          <div>
+            <h4>Response Time</h4>
+            <p>Within 24-48 hours</p>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="icon-box">&#128218;</div>
+          <div>
+            <h4>Documentation</h4>
+            <p>Browse all guides</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Scholarship Portal. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="/terms">Terms of Service</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/help">Help Center</a>
+    </div>
+  </footer>
+
+  <script>
+    function toggleFAQ(button) {
+      const item = button.closest('.faq-item');
+      const wasActive = item.classList.contains('active');
+
+      // Close all other items in the same section
+      const section = item.closest('.faq-section');
+      section.querySelectorAll('.faq-item.active').forEach(activeItem => {
+        if (activeItem !== item) {
+          activeItem.classList.remove('active');
+        }
+      });
+
+      // Toggle current item
+      item.classList.toggle('active', !wasActive);
+    }
+
+    function filterFAQ() {
+      const searchTerm = document.getElementById('faqSearch').value.toLowerCase().trim();
+      const items = document.querySelectorAll('.faq-item');
+      const sections = document.querySelectorAll('.faq-section');
+      const noResults = document.getElementById('noResults');
+      let hasResults = false;
+
+      if (searchTerm.length === 0) {
+        // Reset everything
+        items.forEach(item => {
+          item.style.display = 'block';
+          item.classList.remove('active');
+        });
+        sections.forEach(section => section.style.display = 'block');
+        noResults.classList.remove('show');
+        return;
+      }
+
+      items.forEach(item => {
+        const question = item.querySelector('.faq-question').textContent.toLowerCase();
+        const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+
+        if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+          item.style.display = 'block';
+          hasResults = true;
+          if (searchTerm.length > 2) {
+            item.classList.add('active');
+          }
+        } else {
+          item.style.display = 'none';
+          item.classList.remove('active');
+        }
+      });
+
+      // Hide empty sections
+      sections.forEach(section => {
+        const visibleItems = section.querySelectorAll('.faq-item[style="display: block"]');
+        section.style.display = visibleItems.length > 0 ? 'block' : 'none';
+      });
+
+      noResults.classList.toggle('show', !hasResults);
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          const offset = 100;
+          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -49,12 +49,14 @@ const {
   rejectScholarship,
   getAllUsers,
   toggleUserStatus,
+  bulkUserAction,
   getAllApplications,
   sendSystemNotification,
   getManageScholarships,
   updateApplicationStatus
 } = require('../controllers/adminController');
 const { getUserNotifications, getUnreadCount, markAsRead, markAllAsRead, createNotification } = require('../services/notificationService');
+const { runAllScheduledTasks } = require('../services/scheduledTasks');
 
 // Apply requireAdmin middleware to all routes
 router.use(requireAdmin);
@@ -585,6 +587,7 @@ router.post('/scholarships/:id/mark-remaining-not-selected', async (req, res) =>
 
 // User Management
 router.get('/users', getAllUsers);
+router.post('/users/bulk-action', bulkUserAction);
 router.get('/users/:id/details', async (req, res) => {
   try {
     const userRef = doc(db, 'users', req.params.id);
@@ -749,6 +752,22 @@ router.post('/notifications/read-all', async (req, res) => {
     res.json({ success: true, count });
   } catch (error) {
     res.status(500).json({ error: 'Failed to mark all as read' });
+  }
+});
+
+// Manually trigger scheduled tasks (close expired scholarships, send reminders)
+router.post('/api/run-scheduled-tasks', async (req, res) => {
+  try {
+    const result = await runAllScheduledTasks();
+    res.json({
+      success: true,
+      message: 'Scheduled tasks completed',
+      closedCount: result.closedCount,
+      reminderCount: result.reminderCount
+    });
+  } catch (error) {
+    console.error('Error running scheduled tasks:', error);
+    res.status(500).json({ error: 'Failed to run scheduled tasks' });
   }
 });
 

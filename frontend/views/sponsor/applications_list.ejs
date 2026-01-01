@@ -344,6 +344,73 @@
         justify-content: center;
       }
     }
+
+    /* Batch Actions */
+    .batch-actions-bar {
+      display: none;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      color: white;
+      flex-wrap: wrap;
+    }
+    .batch-actions-bar.active {
+      display: flex;
+    }
+    .batch-actions-bar .selected-count {
+      font-weight: 600;
+    }
+    .batch-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .batch-btn-accept {
+      background: #10b981;
+      color: white;
+    }
+    .batch-btn-accept:hover {
+      background: #059669;
+    }
+    .batch-btn-not-selected {
+      background: #6b7280;
+      color: white;
+    }
+    .batch-btn-not-selected:hover {
+      background: #4b5563;
+    }
+    .batch-btn-cancel {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+    .batch-btn-cancel:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    .app-checkbox {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .application-card {
+      grid-template-columns: 30px 60px 1fr auto;
+    }
+    .select-all-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-right: auto;
+    }
+    .select-all-container label {
+      font-weight: 500;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -417,6 +484,10 @@
           </div>
 
           <% if (applications.length > 0) { %>
+            <div class="select-all-container">
+              <input type="checkbox" id="selectAllApps" class="app-checkbox" onchange="toggleSelectAll()">
+              <label for="selectAllApps">Select All</label>
+            </div>
             <button class="btn btn-primary" onclick="rankAllApplications()">
               AI Rank Applications
             </button>
@@ -424,6 +495,14 @@
         </div>
 
         <% if (applications.length > 0) { %>
+          <!-- Batch Actions Bar -->
+          <div class="batch-actions-bar" id="batchActionsBar">
+            <span class="selected-count"><span id="selectedCount">0</span> applications selected</span>
+            <button class="batch-btn batch-btn-accept" onclick="batchAction('accepted')">Accept Selected</button>
+            <button class="batch-btn batch-btn-not-selected" onclick="batchAction('not_selected')">Mark Not Selected</button>
+            <button class="batch-btn batch-btn-cancel" onclick="clearSelection()">Cancel</button>
+          </div>
+
           <div class="applications-list" id="applicationsList">
             <% applications.forEach((app, index) => {
               let rankClass = '';
@@ -437,7 +516,12 @@
               else if (app.status === 'not_selected') statusDisplay = 'Not Selected';
               else statusDisplay = app.status.charAt(0).toUpperCase() + app.status.slice(1);
             %>
-              <div class="application-card status-<%= app.status %>" data-status="<%= app.status %>" data-rank="<%= app.rankScore || 0 %>" data-gpa="<%= app.gpa %>" data-date="<%= app.createdAt %>">
+              <div class="application-card status-<%= app.status %>" data-status="<%= app.status %>" data-rank="<%= app.rankScore || 0 %>" data-gpa="<%= app.gpa %>" data-date="<%= app.createdAt %>" data-app-id="<%= app.id %>">
+                <% if (['pending', 'under_review', 'accepted'].includes(app.status)) { %>
+                  <input type="checkbox" class="app-checkbox app-select" data-app-id="<%= app.id %>" onchange="updateBatchSelection()">
+                <% } else { %>
+                  <div></div>
+                <% } %>
                 <div class="rank-badge <%= rankClass %>">
                   <% if (app.rank) { %>
                     <%= app.rank %>
@@ -621,6 +705,73 @@
         }
       } catch (error) {
         alert('An error occurred');
+      }
+    }
+
+    // Batch selection functions
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('selectAllApps');
+      const checkboxes = document.querySelectorAll('.app-select');
+      checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+      });
+      updateBatchSelection();
+    }
+
+    function updateBatchSelection() {
+      const selected = document.querySelectorAll('.app-select:checked');
+      const count = selected.length;
+      const bar = document.getElementById('batchActionsBar');
+      const countEl = document.getElementById('selectedCount');
+
+      countEl.textContent = count;
+      if (count > 0) {
+        bar.classList.add('active');
+      } else {
+        bar.classList.remove('active');
+      }
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.app-select').forEach(cb => {
+        cb.checked = false;
+      });
+      document.getElementById('selectAllApps').checked = false;
+      updateBatchSelection();
+    }
+
+    async function batchAction(newStatus) {
+      const selected = document.querySelectorAll('.app-select:checked');
+      const applicationIds = Array.from(selected).map(cb => cb.dataset.appId);
+
+      if (applicationIds.length === 0) {
+        alert('No applications selected');
+        return;
+      }
+
+      const statusLabel = newStatus === 'accepted' ? 'accept' : 'mark as not selected';
+      if (!confirm(`Are you sure you want to ${statusLabel} ${applicationIds.length} application(s)?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/sponsor/applications/batch-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ applicationIds, status: newStatus })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert(result.message);
+          window.location.reload();
+        } else {
+          alert('Error: ' + (result.error || 'Failed to update applications'));
+        }
+      } catch (error) {
+        console.error(error);
+        alert('An error occurred while updating applications');
       }
     }
   </script>

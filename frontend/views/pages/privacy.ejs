@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Scholarship Portal</title>
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <link rel="stylesheet" href="/css/global.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar-brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .navbar-brand img {
+      width: 28px;
+      height: 28px;
+    }
+
+    .navbar-links {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .navbar-links a {
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .navbar-links a:hover,
+    .navbar-links a.active {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 3rem 2rem 5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-section h1 {
+      color: white;
+      font-size: 2.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-section p {
+      color: rgba(255,255,255,0.9);
+      font-size: 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: -3rem auto 0;
+      padding: 0 1.5rem 3rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .content-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+
+    .privacy-intro {
+      background: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 100%);
+      border-left: 4px solid #2563eb;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .privacy-intro p {
+      margin: 0;
+      color: #1e40af;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .privacy-intro svg {
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+
+    .toc {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    .toc h3 {
+      color: #1f2937;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toc ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .toc li a {
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: block;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .toc li a:hover {
+      background: white;
+      color: #1d4ed8;
+    }
+
+    .content-card h2 {
+      color: #1f2937;
+      font-size: 1.25rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .content-card h2:first-of-type {
+      margin-top: 0;
+    }
+
+    .section-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .content-card h3 {
+      color: #374151;
+      font-size: 1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .content-card p {
+      color: #4b5563;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .content-card ul, .content-card ol {
+      color: #4b5563;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    .content-card li {
+      margin-bottom: 0.5rem;
+    }
+
+    .content-card strong {
+      color: #1f2937;
+    }
+
+    .highlight-box {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-left: 4px solid #f59e0b;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .highlight-box.info {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border-left-color: #3b82f6;
+    }
+
+    .highlight-box.success {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border-left-color: #10b981;
+    }
+
+    .highlight-box p {
+      margin-bottom: 0;
+      color: #1f2937;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .data-table th, .data-table td {
+      padding: 1rem 1.25rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .data-table th {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      font-weight: 600;
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .data-table td {
+      color: #4b5563;
+    }
+
+    .data-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .data-icon svg {
+      width: 18px;
+      height: 18px;
+      color: #2563eb;
+    }
+
+    .rights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .right-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 12px;
+      padding: 1.25rem;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .right-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .right-card svg {
+      width: 32px;
+      height: 32px;
+      color: #2563eb;
+      margin-bottom: 0.75rem;
+    }
+
+    .right-card h4 {
+      color: #1f2937;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .right-card p {
+      color: #6b7280;
+      font-size: 0.85rem;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .security-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .security-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .security-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .security-icon svg {
+      width: 20px;
+      height: 20px;
+      color: white;
+    }
+
+    .security-text h4 {
+      color: #1f2937;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .security-text p {
+      color: #6b7280;
+      font-size: 0.85rem;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-links {
+      margin-top: 0.75rem;
+    }
+
+    .footer-links a {
+      color: #2563eb;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 500;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .hero-section h1 {
+        font-size: 1.75rem;
+      }
+      .content-card {
+        padding: 1.5rem;
+      }
+      .toc ul {
+        grid-template-columns: 1fr;
+      }
+      .data-table th, .data-table td {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="<%= typeof user !== 'undefined' && user ? '/dashboard' : '/' %>" class="navbar-brand">
+      <img src="/images/icon.svg" alt="ScholarPath Logo">
+      ScholarPath
+    </a>
+    <div class="navbar-links">
+      <a href="<%= typeof user !== 'undefined' && user ? '/dashboard' : '/' %>">Home</a>
+      <a href="/help">Help</a>
+      <a href="/terms">Terms</a>
+      <a href="/privacy" class="active">Privacy</a>
+    </div>
+  </nav>
+
+  <section class="hero-section">
+    <h1>Privacy Policy</h1>
+    <p>Last updated: January 2025</p>
+  </section>
+
+  <div class="container">
+    <div class="content-card">
+      <div class="privacy-intro">
+        <p>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <strong>Your privacy matters.</strong> This policy explains how we collect, use, and protect your personal information when you use the Scholarship Portal.
+        </p>
+      </div>
+
+      <div class="toc">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          Quick Navigation
+        </h3>
+        <ul>
+          <li><a href="#collect">Information We Collect</a></li>
+          <li><a href="#use">How We Use Information</a></li>
+          <li><a href="#share">Information Sharing</a></li>
+          <li><a href="#security">Data Security</a></li>
+          <li><a href="#retention">Data Retention</a></li>
+          <li><a href="#rights">Your Rights</a></li>
+          <li><a href="#cookies">Cookies & Tracking</a></li>
+          <li><a href="#children">Children's Privacy</a></li>
+          <li><a href="#changes">Policy Changes</a></li>
+          <li><a href="#contact">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <h2 id="collect"><span class="section-number">1</span> Information We Collect</h2>
+
+      <h3>1.1 Information You Provide</h3>
+      <p>When you use our Service, we collect information you directly provide:</p>
+      <table class="data-table">
+        <tr>
+          <th>Category</th>
+          <th>Examples</th>
+        </tr>
+        <tr>
+          <td>
+            <span class="data-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Account Information
+            </span>
+          </td>
+          <td>Name, email, password, profile picture</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="data-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              Academic Information
+            </span>
+          </td>
+          <td>GPA, course, year level, school name</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="data-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Financial Information
+            </span>
+          </td>
+          <td>Income range (for need-based scholarships)</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="data-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Documents
+            </span>
+          </td>
+          <td>Transcripts, certificates, school ID</td>
+        </tr>
+        <tr>
+          <td>
+            <span class="data-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Application Content
+            </span>
+          </td>
+          <td>Application letters, essays, skills</td>
+        </tr>
+      </table>
+
+      <h3>1.2 Automatically Collected Information</h3>
+      <p>We automatically collect certain information when you use our Service:</p>
+      <ul>
+        <li>IP address and device information</li>
+        <li>Browser type and version</li>
+        <li>Pages visited and time spent</li>
+        <li>Session duration and activity</li>
+      </ul>
+
+      <h2 id="use"><span class="section-number">2</span> How We Use Your Information</h2>
+      <p>We use your information to:</p>
+      <ul>
+        <li><strong>Provide the Service:</strong> Create accounts, process applications, facilitate matching</li>
+        <li><strong>AI Recommendations:</strong> Analyze your profile to match you with suitable scholarships</li>
+        <li><strong>Communication:</strong> Send notifications about applications, deadlines, and updates</li>
+        <li><strong>Improvement:</strong> Analyze usage patterns to improve the Service</li>
+        <li><strong>Security:</strong> Detect and prevent fraud, abuse, and security threats</li>
+        <li><strong>Legal Compliance:</strong> Comply with applicable laws and regulations</li>
+      </ul>
+
+      <div class="highlight-box info">
+        <p><strong>AI Processing:</strong> Our AI recommendation system analyzes your academic profile, skills, and preferences to suggest scholarships. This analysis is performed automatically but does not make final decisions about your scholarship eligibility.</p>
+      </div>
+
+      <h2 id="share"><span class="section-number">3</span> Information Sharing</h2>
+      <p>We share your information only in these situations:</p>
+
+      <h3>3.1 With Scholarship Sponsors</h3>
+      <p>When you apply for a scholarship, sponsors receive:</p>
+      <ul>
+        <li>Your name and contact information</li>
+        <li>Academic information (GPA, course, year level)</li>
+        <li>Uploaded documents</li>
+        <li>Application letter and supporting materials</li>
+      </ul>
+
+      <h3>3.2 Service Providers</h3>
+      <p>We use trusted third-party services for:</p>
+      <ul>
+        <li>Cloud hosting (Firebase/Google Cloud)</li>
+        <li>Email delivery</li>
+        <li>AI processing (OpenAI)</li>
+        <li>Analytics</li>
+      </ul>
+
+      <h3>3.3 Legal Requirements</h3>
+      <p>We may disclose information if required by law or to protect rights, safety, or property.</p>
+
+      <h2 id="security"><span class="section-number">4</span> Data Security</h2>
+      <p>We implement industry-standard security measures to protect your data:</p>
+
+      <div class="security-features">
+        <div class="security-item">
+          <div class="security-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="security-text">
+            <h4>Encryption</h4>
+            <p>Data encrypted in transit (HTTPS) and at rest</p>
+          </div>
+        </div>
+        <div class="security-item">
+          <div class="security-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="security-text">
+            <h4>Access Control</h4>
+            <p>Strict role-based access to user data</p>
+          </div>
+        </div>
+        <div class="security-item">
+          <div class="security-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="security-text">
+            <h4>Session Security</h4>
+            <p>Secure session management with auto timeout</p>
+          </div>
+        </div>
+        <div class="security-item">
+          <div class="security-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <div class="security-text">
+            <h4>Password Protection</h4>
+            <p>Passwords hashed using secure algorithms</p>
+          </div>
+        </div>
+      </div>
+
+      <h2 id="retention"><span class="section-number">5</span> Data Retention</h2>
+      <p>We retain your data for different periods depending on the type:</p>
+      <table class="data-table">
+        <tr>
+          <th>Data Type</th>
+          <th>Retention Period</th>
+        </tr>
+        <tr>
+          <td>Account Information</td>
+          <td>Until account deletion</td>
+        </tr>
+        <tr>
+          <td>Application Data</td>
+          <td>3 years after application</td>
+        </tr>
+        <tr>
+          <td>Uploaded Documents</td>
+          <td>Until account deletion</td>
+        </tr>
+        <tr>
+          <td>Session Data</td>
+          <td>24 hours</td>
+        </tr>
+        <tr>
+          <td>Analytics Data</td>
+          <td>2 years (anonymized)</td>
+        </tr>
+      </table>
+
+      <h2 id="rights"><span class="section-number">6</span> Your Rights</h2>
+      <p>You have the following rights regarding your personal data:</p>
+
+      <div class="rights-grid">
+        <div class="right-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <h4>Access</h4>
+          <p>Request a copy of your personal data</p>
+        </div>
+        <div class="right-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <h4>Correction</h4>
+          <p>Update inaccurate information</p>
+        </div>
+        <div class="right-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <h4>Deletion</h4>
+          <p>Request deletion of your account and data</p>
+        </div>
+        <div class="right-card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <h4>Portability</h4>
+          <p>Export your data in portable format</p>
+        </div>
+      </div>
+
+      <p>To exercise these rights, contact us at <a href="mailto:privacy@scholarshipportal.com" style="color: #2563eb;">privacy@scholarshipportal.com</a></p>
+
+      <h2 id="cookies"><span class="section-number">7</span> Cookies & Tracking</h2>
+      <p>We use cookies for:</p>
+      <ul>
+        <li><strong>Essential Cookies:</strong> Session management, authentication (required)</li>
+        <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
+        <li><strong>Analytics Cookies:</strong> Understand usage patterns (optional)</li>
+      </ul>
+      <p>You can disable non-essential cookies through your browser settings.</p>
+
+      <h2 id="children"><span class="section-number">8</span> Children's Privacy</h2>
+      <p>Our Service is intended for users 16 years and older. We do not knowingly collect personal information from children under 16. If we discover we have collected such information, we will delete it promptly.</p>
+
+      <h2 id="changes"><span class="section-number">9</span> Policy Changes</h2>
+      <p>We may update this Privacy Policy periodically. We will notify you of significant changes via:</p>
+      <ul>
+        <li>Email notification</li>
+        <li>Prominent notice on the Service</li>
+        <li>Updated "Last Updated" date</li>
+      </ul>
+
+      <h2 id="contact"><span class="section-number">10</span> Contact Us</h2>
+      <p>For privacy-related questions or concerns:</p>
+      <ul>
+        <li><strong>Email:</strong> <a href="mailto:privacy@scholarshipportal.com" style="color: #2563eb;">privacy@scholarshipportal.com</a></li>
+        <li><strong>Help Center:</strong> <a href="/help" style="color: #2563eb;">/help</a></li>
+      </ul>
+
+      <div class="highlight-box success">
+        <p><strong>Response Time:</strong> We respond to privacy inquiries within 30 days. For urgent matters, please indicate "URGENT" in your email subject line.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Scholarship Portal. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="/terms">Terms of Service</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/help">Help Center</a>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          const offset = 100;
+          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

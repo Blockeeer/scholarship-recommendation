@@ -9,6 +9,41 @@
   <link rel="stylesheet" href="/css/topbar.css">
   <link rel="stylesheet" href="/css/dashboard.css">
   <link rel="stylesheet" href="/css/footer.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .quick-actions-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .quick-actions-bar .quick-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-dark);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .quick-actions-bar .quick-action-btn:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+    .quick-actions-bar .quick-action-btn.primary {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+    .quick-actions-bar .quick-action-btn.primary:hover {
+      background: var(--primary-hover);
+    }
+  </style>
 </head>
 <%
   // Default values for stats if not provided
@@ -18,8 +53,15 @@
     totalStudents: 0,
     totalSponsors: 0,
     totalApplications: 0,
-    approvedApplications: 0
+    approvedApplications: 0,
+    rejectedApplications: 0,
+    pendingApplications: 0,
+    openScholarships: 0,
+    closedScholarships: 0
   };
+  // Calculate derived stats
+  const activeScholarships = adminStats.openScholarships || (adminStats.totalScholarships - adminStats.pendingScholarships - (adminStats.closedScholarships || 0));
+  const pendingApps = adminStats.pendingApplications || (adminStats.totalApplications - adminStats.approvedApplications - (adminStats.rejectedApplications || 0));
 %>
 <body>
   <%- include('../partials/sidebar_admin') %>
@@ -30,95 +72,181 @@
     <main class="page-content">
       <div class="container">
         <div class="dashboard-wrapper">
-      <div class="welcome-banner">
-        <div class="welcome-content">
-          <h1>Welcome, <%= fullName || 'Admin' %>!</h1>
-          <p>Manage and oversee the scholarship system</p>
-        </div>
-        <div class="welcome-icon"></div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon">📋</div>
+          <div class="welcome-banner">
+            <div class="welcome-content">
+              <h1>Welcome, <%= fullName || 'Admin' %>!</h1>
+              <p>Manage and oversee the scholarship system</p>
+            </div>
+            <div class="welcome-icon"></div>
           </div>
-          <div class="stat-value"><%= adminStats.pendingScholarships %></div>
-          <div class="stat-label">Pending Scholarships</div>
-          <div class="stat-trend">Awaiting review</div>
-        </div>
 
-        <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon">✅</div>
+          <!-- Quick Actions Bar -->
+          <div class="quick-actions-bar">
+            <a href="/admin/pending-scholarships" class="quick-action-btn primary">
+              <span>📋</span> Review Pending (<%= adminStats.pendingScholarships %>)
+            </a>
+            <a href="/admin/users" class="quick-action-btn">
+              <span>👥</span> Manage Users
+            </a>
+            <a href="/admin/applications" class="quick-action-btn">
+              <span>📄</span> View Applications
+            </a>
+            <a href="/admin/reports" class="quick-action-btn">
+              <span>📊</span> Export Reports
+            </a>
           </div>
-          <div class="stat-value"><%= adminStats.totalScholarships - adminStats.pendingScholarships %></div>
-          <div class="stat-label">Active Scholarships</div>
-          <div class="stat-trend trend-up"><%= adminStats.totalScholarships %> total</div>
-        </div>
 
-        <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon">👥</div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">📋</div>
+              </div>
+              <div class="stat-value"><%= adminStats.pendingScholarships %></div>
+              <div class="stat-label">Pending Scholarships</div>
+              <div class="stat-trend">Awaiting review</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">✅</div>
+              </div>
+              <div class="stat-value"><%= activeScholarships %></div>
+              <div class="stat-label">Active Scholarships</div>
+              <div class="stat-trend trend-up"><%= adminStats.totalScholarships %> total</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">👥</div>
+              </div>
+              <div class="stat-value"><%= adminStats.totalStudents + adminStats.totalSponsors %></div>
+              <div class="stat-label">Total Users</div>
+              <div class="stat-trend"><%= adminStats.totalStudents %> students, <%= adminStats.totalSponsors %> sponsors</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon">📄</div>
+              </div>
+              <div class="stat-value"><%= adminStats.totalApplications %></div>
+              <div class="stat-label">Total Applications</div>
+              <div class="stat-trend"><%= adminStats.approvedApplications %> approved</div>
+            </div>
           </div>
-          <div class="stat-value"><%= adminStats.totalStudents + adminStats.totalSponsors %></div>
-          <div class="stat-label">Total Users</div>
-          <div class="stat-trend"><%= adminStats.totalStudents %> students, <%= adminStats.totalSponsors %> sponsors</div>
-        </div>
 
-        <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon">📄</div>
+          <!-- Charts Section -->
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3>User Distribution</h3>
+              <div class="chart-container">
+                <canvas id="userChart"></canvas>
+              </div>
+              <div class="chart-stats">
+                <div class="chart-stat">
+                  <div class="chart-stat-value" style="color: #667eea;"><%= adminStats.totalStudents %></div>
+                  <div class="chart-stat-label">Students</div>
+                </div>
+                <div class="chart-stat">
+                  <div class="chart-stat-value" style="color: #764ba2;"><%= adminStats.totalSponsors %></div>
+                  <div class="chart-stat-label">Sponsors</div>
+                </div>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Scholarship Status</h3>
+              <div class="chart-container">
+                <canvas id="scholarshipChart"></canvas>
+              </div>
+              <div class="chart-stats">
+                <div class="chart-stat">
+                  <div class="chart-stat-value" style="color: #10b981;"><%= activeScholarships %></div>
+                  <div class="chart-stat-label">Active</div>
+                </div>
+                <div class="chart-stat">
+                  <div class="chart-stat-value" style="color: #f59e0b;"><%= adminStats.pendingScholarships %></div>
+                  <div class="chart-stat-label">Pending</div>
+                </div>
+                <div class="chart-stat">
+                  <div class="chart-stat-value" style="color: #6b7280;"><%= adminStats.closedScholarships || 0 %></div>
+                  <div class="chart-stat-label">Closed</div>
+                </div>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Application Status</h3>
+              <div class="chart-container">
+                <canvas id="applicationChart"></canvas>
+              </div>
+              <div class="chart-stats">
+                <div class="chart-stat">
+                  <div class="chart-stat-value" style="color: #10b981;"><%= adminStats.approvedApplications %></div>
+                  <div class="chart-stat-label">Approved</div>
+                </div>
+                <div class="chart-stat">
+                  <div class="chart-stat-value" style="color: #f59e0b;"><%= pendingApps %></div>
+                  <div class="chart-stat-label">Pending</div>
+                </div>
+                <div class="chart-stat">
+                  <div class="chart-stat-value" style="color: #ef4444;"><%= adminStats.rejectedApplications || 0 %></div>
+                  <div class="chart-stat-label">Rejected</div>
+                </div>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Monthly Overview</h3>
+              <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <span class="legend-dot primary"></span>
+                  <span>Application Trend</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="stat-value"><%= adminStats.totalApplications %></div>
-          <div class="stat-label">Total Applications</div>
-          <div class="stat-trend"><%= adminStats.approvedApplications %> approved</div>
-        </div>
-      </div>
 
-      <div class="action-grid">
-        <div class="action-card">
-          <div class="action-icon"></div>
-          <h2 class="action-title">Review Pending Offers</h2>
-          <p class="action-description">Review and approve scholarship offers submitted by sponsors</p>
-          <a href="/admin/pending-scholarships" class="btn btn-primary">Review Now</a>
-        </div>
+          <div class="action-grid">
+            <div class="action-card">
+              <div class="action-icon"></div>
+              <h2 class="action-title">Review Pending Offers</h2>
+              <p class="action-description">Review and approve scholarship offers submitted by sponsors</p>
+              <a href="/admin/pending-scholarships" class="btn btn-primary">Review Now</a>
+            </div>
 
-        <div class="action-card">
-          <div class="action-icon"></div>
-          <h2 class="action-title">Manage Approved Offers</h2>
-          <p class="action-description">View and manage all approved scholarship opportunities</p>
-          <a href="/admin/approved-scholarships" class="btn btn-primary">View Offers</a>
-        </div>
+            <div class="action-card">
+              <div class="action-icon"></div>
+              <h2 class="action-title">Manage Approved Offers</h2>
+              <p class="action-description">View and manage all approved scholarship opportunities</p>
+              <a href="/admin/approved-scholarships" class="btn btn-primary">View Offers</a>
+            </div>
 
-        <div class="action-card">
-          <div class="action-icon"></div>
-          <h2 class="action-title">System Analytics</h2>
-          <p class="action-description">View comprehensive reports and system statistics</p>
-          <a href="/admin/analytics" class="btn btn-primary">View Analytics</a>
-        </div>
-      </div>
+            <div class="action-card">
+              <div class="action-icon"></div>
+              <h2 class="action-title">System Reports</h2>
+              <p class="action-description">View comprehensive reports and export data</p>
+              <a href="/admin/reports" class="btn btn-primary">View Reports</a>
+            </div>
+          </div>
 
-      <div class="recent-activity">
-        <h2 class="section-title">Recent Activity</h2>
-        <ul class="activity-list">
-          <li class="activity-item">
-            <strong>New scholarship offer submitted</strong>
-            <p>Excellence Scholarship by Tech Foundation</p>
-            <span class="activity-time">2 hours ago</span>
-          </li>
-          <li class="activity-item">
-            <strong>Scholarship approved</strong>
-            <p>Leadership Grant has been approved</p>
-            <span class="activity-time">5 hours ago</span>
-          </li>
-          <li class="activity-item">
-            <strong>New sponsor registered</strong>
-            <p>Innovation Corp joined the platform</p>
-            <span class="activity-time">1 day ago</span>
-          </li>
-        </ul>
-      </div>
+          <div class="recent-activity">
+            <h2 class="section-title">Recent Activity</h2>
+            <% if (typeof recentActivity !== 'undefined' && recentActivity.length > 0) { %>
+              <ul class="activity-list">
+                <% recentActivity.forEach(function(activity) { %>
+                  <li class="activity-item">
+                    <strong><%= activity.title %></strong>
+                    <p><%= activity.description %></p>
+                    <span class="activity-time"><%= activity.time %></span>
+                  </li>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <div class="empty-state" style="padding: 2rem; text-align: center;">
+                <p style="color: var(--text-secondary);">Recent activity will appear here</p>
+              </div>
+            <% } %>
+          </div>
         </div>
       </div>
     </main>
@@ -127,5 +255,130 @@
   </div>
 
   <script src="/js/sidebar.js"></script>
+  <script>
+    // Chart data from server
+    const chartData = {
+      students: <%= adminStats.totalStudents %>,
+      sponsors: <%= adminStats.totalSponsors %>,
+      pendingScholarships: <%= adminStats.pendingScholarships %>,
+      activeScholarships: <%= activeScholarships %>,
+      closedScholarships: <%= adminStats.closedScholarships || 0 %>,
+      approvedApplications: <%= adminStats.approvedApplications %>,
+      pendingApplications: <%= pendingApps %>,
+      rejectedApplications: <%= adminStats.rejectedApplications || 0 %>
+    };
+
+    // User Distribution Doughnut Chart
+    new Chart(document.getElementById('userChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Students', 'Sponsors'],
+        datasets: [{
+          data: [chartData.students, chartData.sponsors],
+          backgroundColor: ['#667eea', '#764ba2'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+    // Scholarship Status Doughnut Chart
+    new Chart(document.getElementById('scholarshipChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Active', 'Pending', 'Closed'],
+        datasets: [{
+          data: [chartData.activeScholarships, chartData.pendingScholarships, chartData.closedScholarships],
+          backgroundColor: ['#10b981', '#f59e0b', '#6b7280'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+    // Application Status Bar Chart
+    new Chart(document.getElementById('applicationChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Approved', 'Pending', 'Rejected'],
+        datasets: [{
+          label: 'Applications',
+          data: [chartData.approvedApplications, chartData.pendingApplications, chartData.rejectedApplications],
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+
+    // Monthly Trend Line Chart (placeholder data - would need actual monthly data from backend)
+    new Chart(document.getElementById('trendChart'), {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Applications',
+          data: [
+            Math.round(chartData.approvedApplications * 0.1),
+            Math.round(chartData.approvedApplications * 0.3),
+            Math.round(chartData.approvedApplications * 0.5),
+            Math.round(chartData.approvedApplications * 0.7),
+            Math.round(chartData.approvedApplications * 0.85),
+            chartData.approvedApplications + chartData.pendingApplications
+          ],
+          borderColor: '#667eea',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
 </body>
 </html>

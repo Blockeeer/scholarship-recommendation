@@ -143,5 +143,10 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Initialize scheduled tasks (auto-close expired scholarships, send reminders)
+const { initializeScheduledTasks } = require('./backend/services/scheduledTasks');
+// Run scheduled tasks every hour
+initializeScheduledTasks(60 * 60 * 1000);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));

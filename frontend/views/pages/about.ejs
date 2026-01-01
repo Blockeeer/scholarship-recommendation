@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - Scholarship Portal</title>
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <link rel="stylesheet" href="/css/global.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar-brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .navbar-brand img {
+      width: 28px;
+      height: 28px;
+    }
+
+    .navbar-links {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .navbar-links a {
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .navbar-links a:hover,
+    .navbar-links a.active {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 4rem 2rem 6rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-section h1 {
+      color: white;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero-section p {
+      color: rgba(255,255,255,0.9);
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: -4rem auto 0;
+      padding: 0 1.5rem 3rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .content-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+
+    .mission-section {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .mission-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .mission-icon svg {
+      width: 40px;
+      height: 40px;
+      color: white;
+    }
+
+    .mission-section h2 {
+      color: #1f2937;
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .mission-section p {
+      color: #4b5563;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .feature-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    .feature-icon svg {
+      width: 30px;
+      height: 30px;
+      color: white;
+    }
+
+    .feature-card h3 {
+      color: #1f2937;
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+      color: #6b7280;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .stats-section {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin: 2rem 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 2rem;
+      text-align: center;
+    }
+
+    .stat-item h3 {
+      color: white;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-item p {
+      color: rgba(255,255,255,0.9);
+      font-size: 0.95rem;
+    }
+
+    .team-section h2 {
+      color: #1f2937;
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .values-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .value-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 12px;
+    }
+
+    .value-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .value-icon svg {
+      width: 20px;
+      height: 20px;
+      color: white;
+    }
+
+    .value-content h4 {
+      color: #1f2937;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .value-content p {
+      color: #6b7280;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .cta-section {
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 16px;
+      margin-top: 2rem;
+    }
+
+    .cta-section h2 {
+      color: #1f2937;
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .cta-section p {
+      color: #6b7280;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      border-radius: 10px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #2563eb;
+      border: 2px solid #2563eb;
+    }
+
+    .btn-secondary:hover {
+      background: #2563eb;
+      color: white;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-links {
+      margin-top: 0.75rem;
+    }
+
+    .footer-links a {
+      color: #2563eb;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 500;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .hero-section h1 {
+        font-size: 1.75rem;
+      }
+      .content-card {
+        padding: 1.5rem;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="<%= typeof user !== 'undefined' && user ? '/dashboard' : '/' %>" class="navbar-brand">
+      <img src="/images/icon.svg" alt="ScholarPath Logo">
+      ScholarPath
+    </a>
+    <div class="navbar-links">
+      <a href="<%= typeof user !== 'undefined' && user ? '/dashboard' : '/' %>">Home</a>
+      <a href="/about" class="active">About</a>
+      <a href="/help">Help</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </nav>
+
+  <section class="hero-section">
+    <h1>About Scholarship Portal</h1>
+    <p>Connecting students with life-changing scholarship opportunities through intelligent matching</p>
+  </section>
+
+  <div class="container">
+    <div class="content-card">
+      <div class="mission-section">
+        <div class="mission-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 14l9-5-9-5-9 5 9 5z"/>
+            <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+          </svg>
+        </div>
+        <h2>Our Mission</h2>
+        <p>We believe every student deserves access to quality education. Our platform bridges the gap between scholarship sponsors and deserving students, using AI-powered matching to connect the right opportunities with the right candidates.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <h3>AI-Powered Matching</h3>
+          <p>Our intelligent system analyzes your profile to recommend scholarships that best match your qualifications and goals.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3>Connect Students & Sponsors</h3>
+          <p>We create meaningful connections between students seeking financial aid and organizations looking to support education.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h3>Secure & Transparent</h3>
+          <p>Your data is protected with industry-standard security. Our application process is transparent and fair for all applicants.</p>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <h3>500+</h3>
+            <p>Scholarships Available</p>
+          </div>
+          <div class="stat-item">
+            <h3>10K+</h3>
+            <p>Student Applicants</p>
+          </div>
+          <div class="stat-item">
+            <h3>100+</h3>
+            <p>Sponsor Organizations</p>
+          </div>
+          <div class="stat-item">
+            <h3>95%</h3>
+            <p>Satisfaction Rate</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="team-section">
+        <h2>Our Core Values</h2>
+        <div class="values-list">
+          <div class="value-item">
+            <div class="value-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="value-content">
+              <h4>Accessibility</h4>
+              <p>Making scholarship opportunities accessible to all qualified students</p>
+            </div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="value-content">
+              <h4>Fairness</h4>
+              <p>Ensuring equal opportunity through unbiased matching algorithms</p>
+            </div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="value-content">
+              <h4>Innovation</h4>
+              <p>Continuously improving our platform with the latest technology</p>
+            </div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="value-content">
+              <h4>Support</h4>
+              <p>Providing guidance throughout the scholarship application journey</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <h2>Ready to Get Started?</h2>
+        <p>Join thousands of students who have found their perfect scholarship match</p>
+        <div class="cta-buttons">
+          <% if (typeof user !== 'undefined' && user && user.role === 'student') { %>
+            <a href="/student/recommendations" class="btn btn-primary">Find Scholarships</a>
+          <% } else { %>
+            <a href="#" class="btn btn-primary" onclick="showStudentOnlyMessage(event)">Find Scholarships</a>
+          <% } %>
+          <a href="/help" class="btn btn-secondary">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Scholarship Portal. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="/terms">Terms of Service</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/help">Help Center</a>
+    </div>
+  </footer>
+
+  <!-- Student Only Message Modal -->
+  <div class="info-modal-overlay" id="studentOnlyModal">
+    <div class="info-modal">
+      <div class="info-modal-header">
+        <div class="info-modal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <h3>Student Access Only</h3>
+      </div>
+      <div class="info-modal-body">
+        <p>The scholarship recommendation feature is available exclusively for student accounts.</p>
+        <% if (typeof user !== 'undefined' && user) { %>
+          <p class="info-note">You are currently logged in as a <strong><%= user.role %></strong>. Please register or login with a student account to access scholarship recommendations.</p>
+        <% } else { %>
+          <p class="info-note">Please register or login with a student account to access personalized scholarship recommendations.</p>
+        <% } %>
+      </div>
+      <div class="info-modal-actions">
+        <% if (typeof user === 'undefined' || !user) { %>
+          <a href="/" class="btn btn-primary">Register / Login</a>
+        <% } %>
+        <button type="button" class="btn btn-secondary" onclick="closeStudentOnlyModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .info-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .info-modal-overlay.active {
+      display: flex;
+    }
+
+    .info-modal {
+      background: white;
+      border-radius: 16px;
+      max-width: 420px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .info-modal-header {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 1.5rem;
+      text-align: center;
+      color: white;
+    }
+
+    .info-modal-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+    }
+
+    .info-modal-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: white;
+    }
+
+    .info-modal-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .info-modal-body {
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .info-modal-body p {
+      color: #4b5563;
+      margin: 0 0 1rem;
+      line-height: 1.6;
+    }
+
+    .info-modal-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-note {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-size: 0.9rem;
+      color: #0369a1;
+    }
+
+    .info-modal-actions {
+      padding: 0 1.5rem 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+
+    .info-modal-actions .btn {
+      flex: 1;
+      max-width: 150px;
+      justify-content: center;
+    }
+  </style>
+
+  <script>
+    function showStudentOnlyMessage(event) {
+      event.preventDefault();
+      document.getElementById('studentOnlyModal').classList.add('active');
+    }
+
+    function closeStudentOnlyModal() {
+      document.getElementById('studentOnlyModal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('studentOnlyModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeStudentOnlyModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeStudentOnlyModal();
+      }
+    });
+  </script>
+</body>
+</html>

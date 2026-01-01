@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Graduation Cap Base -->
+  <path d="M24 8L4 18L24 28L44 18L24 8Z" fill="url(#gradient1)" stroke="url(#gradient1)" stroke-width="1"/>
+
+  <!-- Cap Top/Mortarboard -->
+  <path d="M24 28L44 18V26C44 26 36 32 24 32C12 32 4 26 4 26V18L24 28Z" fill="url(#gradient2)" stroke="url(#gradient2)" stroke-width="1"/>
+
+  <!-- Tassel String -->
+  <path d="M38 18V30" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Tassel -->
+  <circle cx="38" cy="32" r="3" fill="#f59e0b"/>
+  <path d="M38 35V40" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Book/Document underneath -->
+  <rect x="14" y="34" width="20" height="4" rx="1" fill="#e5e7eb"/>
+  <rect x="16" y="38" width="16" height="3" rx="1" fill="#d1d5db"/>
+
+  <!-- Star accent -->
+  <path d="M24 4L25 6.5L27.5 6.5L25.5 8L26.5 10.5L24 9L21.5 10.5L22.5 8L20.5 6.5L23 6.5L24 4Z" fill="#f59e0b"/>
+
+  <defs>
+    <linearGradient id="gradient1" x1="4" y1="8" x2="44" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="gradient2" x1="4" y1="18" x2="44" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1d4ed8"/>
+      <stop offset="1" stop-color="#1e40af"/>
+    </linearGradient>
+  </defs>
+</svg>

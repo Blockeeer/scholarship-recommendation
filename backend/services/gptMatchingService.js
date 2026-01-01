@@ -1,6 +1,7 @@
 /**
  * GPT Matching Service
  * Uses OpenAI GPT API for scholarship matching and applicant ranking
+ * Enhanced with caching and better fallback mechanisms
  */
 
 require("dotenv").config();
@@ -9,6 +10,61 @@ require("dotenv").config();
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 const GPT_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini"; // Use gpt-4o-mini for cost efficiency
+
+// In-memory cache for API responses (with TTL)
+const recommendationCache = new Map();
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes cache
+
+/**
+ * Generate a cache key based on student and scholarships
+ */
+function generateCacheKey(studentId, scholarshipIds) {
+  const sortedIds = [...scholarshipIds].sort().join(',');
+  return `${studentId}:${sortedIds}`;
+}
+
+/**
+ * Get cached recommendation if valid
+ */
+function getCachedRecommendation(cacheKey) {
+  const cached = recommendationCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log("📦 Using cached recommendations");
+    return cached.data;
+  }
+  if (cached) {
+    recommendationCache.delete(cacheKey); // Remove expired cache
+  }
+  return null;
+}
+
+/**
+ * Set cached recommendation
+ */
+function setCachedRecommendation(cacheKey, data) {
+  recommendationCache.set(cacheKey, {
+    data,
+    timestamp: Date.now()
+  });
+
+  // Clean up old entries periodically (keep max 100 entries)
+  if (recommendationCache.size > 100) {
+    const now = Date.now();
+    for (const [key, value] of recommendationCache.entries()) {
+      if (now - value.timestamp > CACHE_TTL) {
+        recommendationCache.delete(key);
+      }
+    }
+  }
+}
+
+/**
+ * Clear recommendation cache (useful after scholarship updates)
+ */
+function clearRecommendationCache() {
+  recommendationCache.clear();
+  console.log("🗑️ Recommendation cache cleared");
+}
 
 /**
  * Call OpenAI GPT API
@@ -58,10 +114,21 @@ async function callGPTAPI(systemPrompt, userPrompt) {
  * Match student to available scholarships
  * @param {object} studentAssessment - Student's assessment data
  * @param {array} scholarships - Array of available scholarships
+ * @param {string} studentId - Optional student ID for caching
  * @returns {Promise<array>} - Array of matches with scores and explanations
  */
-async function matchStudentToScholarships(studentAssessment, scholarships) {
+async function matchStudentToScholarships(studentAssessment, scholarships, studentId = null) {
   console.log("🤖 Starting GPT matching for student...");
+
+  // Check cache first if studentId is provided
+  if (studentId) {
+    const scholarshipIds = scholarships.map(s => s.id);
+    const cacheKey = generateCacheKey(studentId, scholarshipIds);
+    const cached = getCachedRecommendation(cacheKey);
+    if (cached) {
+      return cached;
+    }
+  }
 
   const systemPrompt = `You are a scholarship matching expert. Your task is to analyze a student's profile and match them with ALL available scholarships.
 
@@ -140,14 +207,37 @@ IMPORTANT: You MUST include ALL scholarships in your response, even if they are 
       } else {
         matches = JSON.parse(gptResponse);
       }
+
+      // Add source indicator for AI-generated recommendations
+      matches = matches.map(match => ({
+        ...match,
+        source: 'ai',
+        generatedBy: 'gpt'
+      }));
+
     } catch (parseError) {
       console.error("❌ Error parsing GPT response:", parseError);
       console.log("Raw response:", gptResponse);
       // Return fallback basic matching
-      return performBasicMatching(studentAssessment, scholarships);
+      const fallbackMatches = performBasicMatching(studentAssessment, scholarships);
+      // Cache fallback results too
+      if (studentId) {
+        const scholarshipIds = scholarships.map(s => s.id);
+        const cacheKey = generateCacheKey(studentId, scholarshipIds);
+        setCachedRecommendation(cacheKey, fallbackMatches);
+      }
+      return fallbackMatches;
     }
 
     console.log(`✅ GPT matching complete. Found ${matches.length} matches.`);
+
+    // Cache the results
+    if (studentId) {
+      const scholarshipIds = scholarships.map(s => s.id);
+      const cacheKey = generateCacheKey(studentId, scholarshipIds);
+      setCachedRecommendation(cacheKey, matches);
+    }
+
     return matches;
   } catch (error) {
     console.error("❌ GPT matching failed, falling back to basic matching:", error);
@@ -293,6 +383,74 @@ Provide a 2-3 sentence explanation of whether this scholarship is a good fit and
 }
 
 /**
+ * Generate detailed "why matched" explanation for fallback matching
+ * @param {object} student - Student assessment
+ * @param {object} scholarship - Scholarship data
+ * @param {object} matchDetails - Match details object
+ * @param {number} matchScore - Calculated match score
+ * @returns {object} - Summary and array of reasons
+ */
+function generateWhyMatchedExplanation(student, scholarship, matchDetails, matchScore) {
+  const reasons = [];
+  const positives = [];
+  const negatives = [];
+
+  // GPA analysis
+  const studentGPA = parseFloat(student.gpa) || 0;
+  const minGPA = parseFloat(scholarship.minGPA) || 0;
+  if (matchDetails.gpaMatch) {
+    if (studentGPA >= minGPA + 0.5) {
+      positives.push(`Your GPA (${studentGPA}) exceeds the requirement (${minGPA}) by a significant margin`);
+    } else {
+      positives.push(`Your GPA (${studentGPA}) meets the minimum requirement of ${minGPA}`);
+    }
+  } else {
+    negatives.push(`Your GPA (${studentGPA}) is below the minimum requirement of ${minGPA}`);
+  }
+
+  // Course analysis
+  if (matchDetails.courseMatch) {
+    if (scholarship.eligibleCourses && scholarship.eligibleCourses.length > 0) {
+      positives.push(`Your course (${student.course}) is eligible for this scholarship`);
+    } else {
+      positives.push(`This scholarship is open to all courses including ${student.course}`);
+    }
+  } else {
+    negatives.push(`Your course (${student.course}) may not be in the list of eligible programs`);
+  }
+
+  // Year level analysis
+  if (matchDetails.yearLevelMatch) {
+    positives.push(`Your year level (${student.yearLevel}) qualifies for this scholarship`);
+  } else if (scholarship.eligibleYearLevels && scholarship.eligibleYearLevels.length > 0) {
+    negatives.push(`This scholarship is for ${scholarship.eligibleYearLevels.join(', ')} students`);
+  }
+
+  // Scholarship type preference
+  if (student.scholarshipType === scholarship.scholarshipType) {
+    positives.push(`This ${scholarship.scholarshipType} scholarship matches your preference`);
+  }
+
+  // Build reasons array
+  reasons.push(...positives.map(p => ({ type: 'positive', text: p })));
+  reasons.push(...negatives.map(n => ({ type: 'negative', text: n })));
+
+  // Generate summary
+  let summary;
+  if (matchScore >= 80) {
+    summary = `Excellent match! ${positives[0] || 'You meet the key requirements for this scholarship.'}`;
+  } else if (matchScore >= 60) {
+    summary = `Good match. ${positives[0] || 'You meet several requirements.'} ${negatives.length > 0 ? 'However, ' + negatives[0].toLowerCase() + '.' : ''}`;
+  } else if (matchScore >= 40) {
+    summary = `Partial match. ${negatives[0] || 'Some requirements may not be met.'} ${positives.length > 0 ? 'On the positive side, ' + positives[0].toLowerCase() + '.' : ''}`;
+  } else {
+    summary = `Limited match. ${negatives.join('. ')}`;
+  }
+
+  return { summary, reasons };
+}
+
+/**
  * Fallback: Basic matching without GPT
  * @param {object} studentAssessment - Student data
  * @param {array} scholarships - Available scholarships
@@ -368,14 +526,20 @@ function performBasicMatching(studentAssessment, scholarships) {
     else if (matchScore >= 60) recommendation = "Recommended";
     else if (matchScore >= 40) recommendation = "Consider";
 
+    // Generate detailed "why matched" explanation
+    const whyMatched = generateWhyMatchedExplanation(studentAssessment, scholarship, matchDetails, matchScore);
+
     matches.push({
       scholarshipId: scholarship.id,
       scholarshipName: scholarship.scholarshipName,
       matchScore,
       eligible: matchDetails.gpaMatch && matchDetails.courseMatch,
       matchDetails,
-      explanation: `Based on your profile, this scholarship has a ${matchScore}% match score.`,
-      recommendation
+      explanation: whyMatched.summary,
+      whyMatched: whyMatched.reasons,
+      recommendation,
+      source: 'fallback',
+      generatedBy: 'algorithm'
     });
   }
 
@@ -449,5 +613,7 @@ module.exports = {
   rankApplicantsForScholarship,
   generateRecommendationExplanation,
   performBasicMatching,
-  performBasicRanking
+  performBasicRanking,
+  clearRecommendationCache,
+  generateWhyMatchedExplanation
 };

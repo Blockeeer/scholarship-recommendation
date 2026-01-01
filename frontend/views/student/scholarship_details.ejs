@@ -244,6 +244,175 @@
       background: #f8d7da;
       color: #721c24;
     }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-calendar {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.5rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-calendar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-calendar:hover::before {
+      left: 100%;
+    }
+
+    .btn-calendar:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.45);
+    }
+
+    .btn-calendar:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-calendar svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .btn-calendar .chevron {
+      width: 14px;
+      height: 14px;
+      margin-left: 0.25rem;
+      transition: transform 0.3s ease;
+    }
+
+    .calendar-dropdown.open .btn-calendar .chevron {
+      transform: rotate(180deg);
+    }
+
+    .calendar-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .calendar-menu {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 0.75rem);
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      min-width: 260px;
+      z-index: 100;
+      opacity: 0;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .calendar-menu::before {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid white;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+    }
+
+    .calendar-menu.show {
+      display: block;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .calendar-menu-header {
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-bottom: 1px solid #e5e7eb;
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .calendar-menu a {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      color: #374151;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .calendar-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .calendar-menu a:hover {
+      background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+      color: #667eea;
+    }
+
+    .calendar-menu a svg {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .calendar-menu-item-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .calendar-menu-item-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .calendar-menu-item-desc {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.125rem;
+    }
+
+    .calendar-menu a:hover .calendar-menu-item-desc {
+      color: #667eea;
+    }
+
+    .calendar-menu img {
+      width: 24px;
+      height: 24px;
+    }
   </style>
 </head>
 <body>
@@ -352,6 +521,62 @@
               <span><%= scholarship.slotsAvailable - (scholarship.slotsFilled || 0) %> slots remaining</span>
             </div>
           </div>
+
+          <!-- Add to Calendar -->
+          <div class="action-buttons">
+            <div class="calendar-dropdown" id="calendarDropdown">
+              <button class="btn-calendar" onclick="toggleCalendarMenu(event)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Add to Calendar
+                <svg class="chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <div class="calendar-menu" id="calendarMenu">
+                <div class="calendar-menu-header">Choose Calendar</div>
+                <a href="/student/scholarships/<%= scholarship.id %>/calendar" download>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#667eea" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  <div class="calendar-menu-item-content">
+                    <span class="calendar-menu-item-title">Download .ics File</span>
+                    <span class="calendar-menu-item-desc">For Apple, Android & more</span>
+                  </div>
+                </a>
+                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=<%= encodeURIComponent('Deadline: ' + scholarship.scholarshipName) %>&dates=<%= new Date(scholarship.endDate).toISOString().replace(/[-:]/g, '').split('.')[0] %>Z/<%= new Date(scholarship.endDate).toISOString().replace(/[-:]/g, '').split('.')[0] %>Z&details=<%= encodeURIComponent('Application deadline for ' + scholarship.scholarshipName + ' by ' + scholarship.organizationName) %>" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19.5 22H4.5C3.12 22 2 20.88 2 19.5V6.5C2 5.12 3.12 4 4.5 4H6V2H8V4H16V2H18V4H19.5C20.88 4 22 5.12 22 6.5V19.5C22 20.88 20.88 22 19.5 22Z" fill="#4285F4"/>
+                    <path d="M19.5 22H12V4H16V2H18V4H19.5C20.88 4 22 5.12 22 6.5V19.5C22 20.88 20.88 22 19.5 22Z" fill="#1967D2"/>
+                    <rect x="6" y="10" width="4" height="4" fill="#EA4335"/>
+                    <rect x="14" y="10" width="4" height="4" fill="#FBBC04"/>
+                    <rect x="6" y="16" width="4" height="3" fill="#34A853"/>
+                    <rect x="14" y="16" width="4" height="3" fill="#188038"/>
+                  </svg>
+                  <div class="calendar-menu-item-content">
+                    <span class="calendar-menu-item-title">Google Calendar</span>
+                    <span class="calendar-menu-item-desc">Opens in new tab</span>
+                  </div>
+                </a>
+                <a href="https://outlook.live.com/calendar/0/deeplink/compose?subject=<%= encodeURIComponent('Deadline: ' + scholarship.scholarshipName) %>&startdt=<%= new Date(scholarship.endDate).toISOString() %>&enddt=<%= new Date(scholarship.endDate).toISOString() %>&body=<%= encodeURIComponent('Application deadline for ' + scholarship.scholarshipName + ' by ' + scholarship.organizationName) %>&path=/calendar/action/compose" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="4" width="20" height="16" rx="2" fill="#0078D4"/>
+                    <path d="M2 8h20" stroke="white" stroke-width="1.5"/>
+                    <rect x="5" y="11" width="3" height="2.5" rx="0.5" fill="white"/>
+                    <rect x="10.5" y="11" width="3" height="2.5" rx="0.5" fill="white"/>
+                    <rect x="16" y="11" width="3" height="2.5" rx="0.5" fill="white"/>
+                    <rect x="5" y="15" width="3" height="2.5" rx="0.5" fill="white" fill-opacity="0.7"/>
+                    <rect x="10.5" y="15" width="3" height="2.5" rx="0.5" fill="white" fill-opacity="0.7"/>
+                  </svg>
+                  <div class="calendar-menu-item-content">
+                    <span class="calendar-menu-item-title">Outlook Calendar</span>
+                    <span class="calendar-menu-item-desc">Opens in new tab</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
 
         <% if (scholarship.status === 'Open' && !hasApplied && hasAssessment) { %>
@@ -379,5 +604,36 @@
   </div>
 
   <script src="/js/sidebar.js"></script>
+  <script>
+    function toggleCalendarMenu(event) {
+      event.stopPropagation();
+      const menu = document.getElementById('calendarMenu');
+      const dropdown = document.getElementById('calendarDropdown');
+      menu.classList.toggle('show');
+      dropdown.classList.toggle('open');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('calendarMenu');
+      const dropdown = document.getElementById('calendarDropdown');
+      if (menu && dropdown && !dropdown.contains(event.target)) {
+        menu.classList.remove('show');
+        dropdown.classList.remove('open');
+      }
+    });
+
+    // Close menu when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        const menu = document.getElementById('calendarMenu');
+        const dropdown = document.getElementById('calendarDropdown');
+        if (menu && dropdown) {
+          menu.classList.remove('show');
+          dropdown.classList.remove('open');
+        }
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* Logout Modal Styles */
+/* Logout Modal Styles - Consistent with blue theme */
 .logout-modal-overlay {
   position: fixed;
   top: 0;
@@ -6,12 +6,14 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10000;
   opacity: 0;
   transition: opacity 0.3s ease;
+  padding: 1rem;
 }
 
 .logout-modal-overlay.active {
@@ -20,75 +22,126 @@
 
 .logout-modal {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   max-width: 400px;
-  width: 90%;
-  transform: scale(0.9);
+  width: 100%;
+  transform: scale(0.9) translateY(-20px);
   transition: transform 0.3s ease;
+  overflow: hidden;
 }
 
 .logout-modal-overlay.active .logout-modal {
-  transform: scale(1);
+  transform: scale(1) translateY(0);
 }
 
 .logout-modal-header {
-  padding: 1.5rem 1.5rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  padding: 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.logout-modal-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.logout-modal-icon svg {
+  width: 28px;
+  height: 28px;
+  color: white;
 }
 
 .logout-modal-header h3 {
   margin: 0;
   font-size: 1.25rem;
-  color: #1f2937;
+  color: white;
   font-weight: 600;
+}
+
+.logout-modal-header p {
+  margin: 0.5rem 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
 }
 
 .logout-modal-body {
   padding: 1.5rem;
+  text-align: center;
 }
 
 .logout-modal-body p {
   margin: 0;
-  color: #6b7280;
+  color: #4b5563;
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
+}
+
+.logout-modal-body .logout-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  color: #1d4ed8;
+  font-size: 0.875rem;
+}
+
+.logout-modal-body .logout-info svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .logout-modal-footer {
   padding: 1rem 1.5rem 1.5rem;
   display: flex;
   gap: 0.75rem;
-  justify-content: flex-end;
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
 }
 
 .logout-modal-footer button {
-  padding: 0.625rem 1.25rem;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: 500;
+  flex: 1;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
 }
 
 .btn-cancel {
-  background: #f3f4f6;
-  color: #374151;
+  background: white;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
 }
 
 .btn-cancel:hover {
-  background: #e5e7eb;
+  background: #f3f4f6;
+  border-color: #9ca3af;
 }
 
 .btn-confirm {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
 .btn-confirm:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
 }
 
 @media (max-width: 480px) {

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service - Scholarship Portal</title>
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <link rel="stylesheet" href="/css/global.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar-brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .navbar-brand img {
+      width: 28px;
+      height: 28px;
+    }
+
+    .navbar-links {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .navbar-links a {
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .navbar-links a:hover,
+    .navbar-links a.active {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      padding: 3rem 2rem 5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-section h1 {
+      color: white;
+      font-size: 2.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-section p {
+      color: rgba(255,255,255,0.9);
+      font-size: 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: -3rem auto 0;
+      padding: 0 1.5rem 3rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .content-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+
+    .toc {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    .toc h3 {
+      color: #1f2937;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toc ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .toc li a {
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: block;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .toc li a:hover {
+      background: white;
+      color: #1d4ed8;
+    }
+
+    .content-card h2 {
+      color: #1f2937;
+      font-size: 1.25rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .content-card h2:first-of-type {
+      margin-top: 0;
+    }
+
+    .section-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .content-card h3 {
+      color: #374151;
+      font-size: 1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .content-card p {
+      color: #4b5563;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .content-card ul, .content-card ol {
+      color: #4b5563;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    .content-card li {
+      margin-bottom: 0.5rem;
+    }
+
+    .content-card strong {
+      color: #1f2937;
+    }
+
+    .highlight-box {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-left: 4px solid #f59e0b;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .highlight-box.info {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border-left-color: #3b82f6;
+    }
+
+    .highlight-box p {
+      margin-bottom: 0;
+      color: #1f2937;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-links {
+      margin-top: 0.75rem;
+    }
+
+    .footer-links a {
+      color: #2563eb;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 500;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .hero-section h1 {
+        font-size: 1.75rem;
+      }
+      .content-card {
+        padding: 1.5rem;
+      }
+      .toc ul {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="<%= typeof user !== 'undefined' && user ? '/dashboard' : '/' %>" class="navbar-brand">
+      <img src="/images/icon.svg" alt="ScholarPath Logo">
+      ScholarPath
+    </a>
+    <div class="navbar-links">
+      <a href="<%= typeof user !== 'undefined' && user ? '/dashboard' : '/' %>">Home</a>
+      <a href="/help">Help</a>
+      <a href="/terms" class="active">Terms</a>
+      <a href="/privacy">Privacy</a>
+    </div>
+  </nav>
+
+  <section class="hero-section">
+    <h1>Terms of Service</h1>
+    <p>Last updated: January 2025</p>
+  </section>
+
+  <div class="container">
+    <div class="content-card">
+      <div class="toc">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          Quick Navigation
+        </h3>
+        <ul>
+          <li><a href="#acceptance">Acceptance of Terms</a></li>
+          <li><a href="#description">Description of Service</a></li>
+          <li><a href="#eligibility">Eligibility</a></li>
+          <li><a href="#accounts">User Accounts</a></li>
+          <li><a href="#conduct">User Conduct</a></li>
+          <li><a href="#scholarships">Scholarship Applications</a></li>
+          <li><a href="#sponsors">Sponsor Responsibilities</a></li>
+          <li><a href="#ip">Intellectual Property</a></li>
+          <li><a href="#disclaimer">Disclaimers</a></li>
+          <li><a href="#limitation">Limitation of Liability</a></li>
+          <li><a href="#changes">Changes to Terms</a></li>
+          <li><a href="#contact">Contact Information</a></li>
+        </ul>
+      </div>
+
+      <h2 id="acceptance"><span class="section-number">1</span> Acceptance of Terms</h2>
+      <p>By accessing or using the Scholarship Portal ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.</p>
+      <p>These Terms constitute a legally binding agreement between you and Scholarship Portal regarding your use of the Service.</p>
+
+      <h2 id="description"><span class="section-number">2</span> Description of Service</h2>
+      <p>The Scholarship Portal is an online platform that:</p>
+      <ul>
+        <li>Connects students seeking financial aid with scholarship sponsors</li>
+        <li>Provides AI-powered scholarship matching and recommendations</li>
+        <li>Facilitates the scholarship application and review process</li>
+        <li>Manages communication between students and sponsors</li>
+      </ul>
+
+      <h2 id="eligibility"><span class="section-number">3</span> Eligibility</h2>
+      <p>To use our Service, you must:</p>
+      <ul>
+        <li>Be at least 16 years of age</li>
+        <li>Be a currently enrolled student (for student accounts) or authorized representative of an organization (for sponsor accounts)</li>
+        <li>Have the legal capacity to enter into these Terms</li>
+        <li>Provide accurate and complete registration information</li>
+      </ul>
+
+      <h2 id="accounts"><span class="section-number">4</span> User Accounts</h2>
+      <h3>4.1 Account Creation</h3>
+      <p>You must create an account to access most features of the Service. You agree to:</p>
+      <ul>
+        <li>Provide accurate, current, and complete information</li>
+        <li>Maintain and promptly update your information</li>
+        <li>Keep your password secure and confidential</li>
+        <li>Notify us immediately of any unauthorized access</li>
+      </ul>
+
+      <h3>4.2 Account Types</h3>
+      <p>We offer different account types with varying capabilities:</p>
+      <ul>
+        <li><strong>Student Accounts:</strong> For students seeking scholarships</li>
+        <li><strong>Sponsor Accounts:</strong> For organizations offering scholarships</li>
+        <li><strong>Admin Accounts:</strong> For platform administrators</li>
+      </ul>
+
+      <h2 id="conduct"><span class="section-number">5</span> User Conduct</h2>
+      <p>You agree NOT to:</p>
+      <ul>
+        <li>Submit false or misleading information</li>
+        <li>Impersonate another person or organization</li>
+        <li>Upload malicious files or harmful content</li>
+        <li>Attempt to gain unauthorized access to the Service</li>
+        <li>Use the Service for any illegal purpose</li>
+        <li>Harass, abuse, or harm other users</li>
+        <li>Manipulate or abuse the AI recommendation system</li>
+        <li>Apply for scholarships you know you are not eligible for</li>
+      </ul>
+
+      <div class="highlight-box">
+        <p><strong>Important:</strong> Violation of these conduct rules may result in immediate account suspension or termination.</p>
+      </div>
+
+      <h2 id="scholarships"><span class="section-number">6</span> Scholarship Applications</h2>
+      <h3>6.1 Application Process</h3>
+      <p>When applying for scholarships, you:</p>
+      <ul>
+        <li>Certify that all submitted information is accurate</li>
+        <li>Authorize verification of your submitted documents</li>
+        <li>Understand that false information may disqualify your application</li>
+        <li>Accept that scholarship decisions are made by sponsors, not the platform</li>
+      </ul>
+
+      <h3>6.2 No Guarantee</h3>
+      <p>The Scholarship Portal does not guarantee:</p>
+      <ul>
+        <li>Selection for any scholarship</li>
+        <li>Accuracy of AI recommendations</li>
+        <li>Availability of specific scholarships</li>
+        <li>Actions or decisions of sponsors</li>
+      </ul>
+
+      <h2 id="sponsors"><span class="section-number">7</span> Sponsor Responsibilities</h2>
+      <p>Organizations using the Service as sponsors agree to:</p>
+      <ul>
+        <li>Provide accurate scholarship information</li>
+        <li>Review applications fairly and in good faith</li>
+        <li>Honor scholarship commitments to selected applicants</li>
+        <li>Protect applicant data and privacy</li>
+        <li>Comply with applicable laws and regulations</li>
+      </ul>
+
+      <h2 id="ip"><span class="section-number">8</span> Intellectual Property</h2>
+      <p>All content, features, and functionality of the Service are owned by Scholarship Portal and are protected by copyright, trademark, and other intellectual property laws.</p>
+      <p>You may not copy, modify, distribute, or reverse engineer any part of the Service without our written permission.</p>
+
+      <h2 id="disclaimer"><span class="section-number">9</span> Disclaimers</h2>
+      <p>THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. We do not warrant that:</p>
+      <ul>
+        <li>The Service will be uninterrupted or error-free</li>
+        <li>Defects will be corrected</li>
+        <li>The Service is free of viruses or harmful components</li>
+        <li>AI recommendations are perfectly accurate</li>
+      </ul>
+
+      <h2 id="limitation"><span class="section-number">10</span> Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law, Scholarship Portal shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Service.</p>
+      <p>Our total liability shall not exceed the amount you paid to use the Service (if any) in the 12 months preceding the claim.</p>
+
+      <h2 id="changes"><span class="section-number">11</span> Changes to Terms</h2>
+      <p>We may modify these Terms at any time. We will notify users of significant changes via email or prominent notice on the Service. Continued use after changes constitutes acceptance of the new Terms.</p>
+
+      <h2 id="contact"><span class="section-number">12</span> Contact Information</h2>
+      <p>For questions about these Terms, please contact us:</p>
+      <ul>
+        <li><strong>Email:</strong> legal@scholarshipportal.com</li>
+        <li><strong>Help Center:</strong> <a href="/help" style="color: #2563eb;">/help</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Scholarship Portal. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="/terms">Terms of Service</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/help">Help Center</a>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          const offset = 100;
+          const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
