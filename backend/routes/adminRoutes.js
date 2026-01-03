@@ -83,7 +83,6 @@ router.get('/pending-scholarships', async (req, res) => {
       scholarships
     });
   } catch (error) {
-    console.error('Error loading pending scholarships:', error);
     res.status(500).send('Error loading scholarships');
   }
 });
@@ -140,7 +139,6 @@ router.get('/approved-scholarships', async (req, res) => {
       scholarships
     });
   } catch (error) {
-    console.error('Error loading approved scholarships:', error);
     res.status(500).send('Error loading scholarships');
   }
 });
@@ -200,7 +198,6 @@ router.post('/scholarships/:id/close', async (req, res) => {
 
     res.json({ success: true, message: 'Scholarship closed' });
   } catch (error) {
-    console.error('Error closing scholarship:', error);
     res.status(500).json({ error: 'Failed to close scholarship' });
   }
 });
@@ -234,7 +231,6 @@ router.post('/scholarships/:id/reopen', async (req, res) => {
 
     res.json({ success: true, message: 'Scholarship reopened' });
   } catch (error) {
-    console.error('Error reopening scholarship:', error);
     res.status(500).json({ error: 'Failed to reopen scholarship' });
   }
 });
@@ -270,7 +266,6 @@ router.get('/scholarships/:id/applications', async (req, res) => {
       applications
     });
   } catch (error) {
-    console.error('Error loading applications:', error);
     res.status(500).send('Error loading applications');
   }
 });
@@ -336,7 +331,6 @@ router.post('/applications/:id/approve-slot', async (req, res) => {
 
     res.json({ success: true, message: 'Application approved and slot filled' });
   } catch (error) {
-    console.error('Error approving application:', error);
     res.status(500).json({ error: 'Failed to approve application' });
   }
 });
@@ -402,7 +396,6 @@ router.post('/applications/:id/notify', async (req, res) => {
 
     res.json({ success: true, message: 'Student has been notified' });
   } catch (error) {
-    console.error('Error notifying student:', error);
     res.status(500).json({ error: 'Failed to notify student' });
   }
 });
@@ -449,7 +442,6 @@ router.post('/applications/:id/not-selected', async (req, res) => {
 
     res.json({ success: true, message: 'Application marked as not selected' });
   } catch (error) {
-    console.error('Error marking not selected:', error);
     res.status(500).json({ error: 'Failed to update application' });
   }
 });
@@ -515,11 +507,9 @@ router.post('/scholarships/:id/send-exam-details', async (req, res) => {
 
     await Promise.all(notificationPromises);
 
-    console.log(`✅ Sent exam details to ${count} students for scholarship ${scholarshipId}`);
 
     res.json({ success: true, count, message: `Exam details sent to ${count} student(s)` });
   } catch (error) {
-    console.error('Error sending exam details:', error);
     res.status(500).json({ error: 'Failed to send exam details' });
   }
 });
@@ -580,7 +570,6 @@ router.post('/scholarships/:id/mark-remaining-not-selected', async (req, res) =>
 
     res.json({ success: true, count, message: `${count} applicant(s) marked as not selected` });
   } catch (error) {
-    console.error('Error marking remaining not selected:', error);
     res.status(500).json({ error: 'Failed to update applications' });
   }
 });
@@ -696,7 +685,6 @@ router.get('/reports', async (req, res) => {
       scholarships
     });
   } catch (error) {
-    console.error('Error loading reports:', error);
     res.status(500).send('Error loading reports');
   }
 });
@@ -725,7 +713,6 @@ router.get('/notifications', async (req, res) => {
       stats: { total, students, sponsors }
     });
   } catch (error) {
-    console.error('Error loading notifications:', error);
     res.render('admin/notifications', {
       email: req.session.user.email,
       notifications: [],
@@ -766,7 +753,6 @@ router.post('/api/run-scheduled-tasks', async (req, res) => {
       reminderCount: result.reminderCount
     });
   } catch (error) {
-    console.error('Error running scheduled tasks:', error);
     res.status(500).json({ error: 'Failed to run scheduled tasks' });
   }
 });
@@ -788,7 +774,6 @@ router.get('/api/counts', async (req, res) => {
       unreadNotifications
     });
   } catch (error) {
-    console.error('Error getting counts:', error);
     res.json({ pendingScholarships: 0, unreadNotifications: 0 });
   }
 });
@@ -836,7 +821,6 @@ router.get('/profile', async (req, res) => {
       stats
     });
   } catch (error) {
-    console.error('Error loading admin profile:', error);
     res.render('admin/profile', {
       email: req.session.user.email,
       user: {
@@ -888,10 +872,8 @@ router.post('/profile/update', async (req, res) => {
     // Update session
     req.session.user.fullName = fullName.trim();
 
-    console.log('Profile updated for admin:', adminUid);
     res.json({ success: true, message: 'Profile updated successfully' });
   } catch (error) {
-    console.error('Error updating admin profile:', error);
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });
@@ -931,10 +913,8 @@ router.post('/profile/avatar', avatarUpload.single('profilePicture'), async (req
     // Update session so sidebar updates immediately
     req.session.user.profilePicture = profilePictureUrl;
 
-    console.log('Profile picture updated for admin:', adminUid);
     res.json({ success: true, message: 'Profile picture updated', url: profilePictureUrl });
   } catch (error) {
-    console.error('Error uploading admin avatar:', error);
     res.status(500).json({ error: 'Failed to upload profile picture' });
   }
 });

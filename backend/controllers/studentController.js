@@ -79,7 +79,6 @@ async function showStudentDashboard(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error loading student dashboard:", error);
     res.render("student/student_dashboard", {
       email: req.session.user.email,
       fullName: req.session.user.fullName || "",
@@ -175,7 +174,6 @@ async function searchScholarships(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error searching scholarships:", error);
     res.status(500).send("Error loading scholarships");
   }
 }
@@ -231,7 +229,6 @@ async function viewScholarshipDetails(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error viewing scholarship:", error);
     res.status(500).send("Error loading scholarship");
   }
 }
@@ -278,7 +275,6 @@ async function showApplyForm(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error showing apply form:", error);
     res.status(500).send("Error loading application form");
   }
 }
@@ -356,7 +352,6 @@ async function getRecommendations(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error getting recommendations:", error);
     res.render("student/recommendations", {
       email: req.session.user.email,
       recommendations: [],
@@ -406,8 +401,6 @@ async function generateAndSaveRecommendations(req, res) {
       return res.status(400).json({ error: "No scholarships are currently available." });
     }
 
-    console.log(`📊 Found ${scholarships.length} open scholarships for matching`);
-    console.log(`👤 Generating personalized recommendations for: ${assessment.fullName}`);
 
     // Get GPT recommendations - personalized for this specific student (with caching)
     const recommendations = await matchStudentToScholarships(assessment, scholarships, studentUid);
@@ -431,7 +424,6 @@ async function generateAndSaveRecommendations(req, res) {
       }
     });
 
-    console.log(`✅ Saved ${recommendations.length} personalized recommendations for student ${assessment.fullName} (${studentUid})`);
 
     res.json({
       success: true,
@@ -440,7 +432,6 @@ async function generateAndSaveRecommendations(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error generating recommendations:", error);
     res.status(500).json({ error: "Failed to generate recommendations. Please try again later." });
   }
 }
@@ -496,7 +487,6 @@ async function getMyApplications(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error getting applications:", error);
     res.status(500).send("Error loading applications");
   }
 }
@@ -540,7 +530,6 @@ async function viewApplicationDetails(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error viewing application:", error);
     res.status(500).send("Error loading application");
   }
 }
@@ -562,7 +551,6 @@ async function getNotifications(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error getting notifications:", error);
     res.status(500).send("Error loading notifications");
   }
 }
@@ -581,7 +569,6 @@ async function markNotificationRead(req, res) {
     await markAsRead(notificationId, req.session.user.uid);
     res.json({ success: true });
   } catch (error) {
-    console.error("❌ Error marking notification read:", error);
     res.status(500).json({ error: "Failed to mark notification as read" });
   }
 }
@@ -598,7 +585,6 @@ async function markAllNotificationsRead(req, res) {
     const count = await markAllAsRead(req.session.user.uid);
     res.json({ success: true, count });
   } catch (error) {
-    console.error("❌ Error marking all notifications read:", error);
     res.status(500).json({ error: "Failed to mark notifications as read" });
   }
 }
@@ -639,7 +625,6 @@ async function getProfile(req, res) {
     });
 
   } catch (error) {
-    console.error("❌ Error loading profile:", error);
     res.status(500).send("Error loading profile");
   }
 }
@@ -669,11 +654,9 @@ async function updateProfile(req, res) {
     // Update session
     req.session.user.fullName = fullName.trim();
 
-    console.log("Profile updated for student:", studentUid);
     res.json({ success: true, message: "Profile updated successfully" });
 
   } catch (error) {
-    console.error("Error updating profile:", error);
     res.status(500).json({ error: "Failed to update profile" });
   }
 }
@@ -705,11 +688,9 @@ async function uploadAvatar(req, res) {
     // Update session so sidebar updates immediately
     req.session.user.profilePicture = profilePictureUrl;
 
-    console.log("Profile picture updated for student:", studentUid);
     res.json({ success: true, message: "Profile picture updated", url: profilePictureUrl });
 
   } catch (error) {
-    console.error("Error uploading avatar:", error);
     res.status(500).json({ error: "Failed to upload profile picture" });
   }
 }
@@ -745,7 +726,6 @@ async function downloadScholarshipCalendar(req, res) {
     res.send(icsContent);
 
   } catch (error) {
-    console.error("Error generating calendar file:", error);
     res.status(500).json({ error: "Failed to generate calendar file" });
   }
 }

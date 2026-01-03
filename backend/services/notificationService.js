@@ -40,10 +40,8 @@ async function createNotification(userId, type, title, message, relatedId = null
     const notificationsRef = collection(db, "notifications");
     const newNotifRef = await addDoc(notificationsRef, notificationData);
 
-    console.log(`=� Notification created: ${newNotifRef.id} for user ${userId}`);
     return newNotifRef.id;
   } catch (error) {
-    console.error("L Error creating notification:", error);
     throw error;
   }
 }
@@ -74,7 +72,6 @@ async function getUserNotifications(userId, limitCount = 50) {
     notifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return notifications.slice(0, limitCount);
   } catch (error) {
-    console.error("L Error getting user notifications:", error);
     throw error;
   }
 }
@@ -96,7 +93,6 @@ async function getUnreadCount(userId) {
     const snapshot = await getDocs(q);
     return snapshot.size;
   } catch (error) {
-    console.error("L Error getting unread count:", error);
     return 0;
   }
 }
@@ -124,10 +120,8 @@ async function markAsRead(notificationId, userId) {
     }
 
     await updateDoc(notifRef, { read: true });
-    console.log(` Notification ${notificationId} marked as read`);
     return true;
   } catch (error) {
-    console.error("L Error marking notification as read:", error);
     throw error;
   }
 }
@@ -154,10 +148,8 @@ async function markAllAsRead(userId) {
       count++;
     }
 
-    console.log(` Marked ${count} notifications as read for user ${userId}`);
     return count;
   } catch (error) {
-    console.error("L Error marking all as read:", error);
     throw error;
   }
 }
@@ -185,10 +177,8 @@ async function deleteNotification(notificationId, userId) {
     }
 
     await deleteDoc(notifRef);
-    console.log(`=� Notification ${notificationId} deleted`);
     return true;
   } catch (error) {
-    console.error("L Error deleting notification:", error);
     throw error;
   }
 }
@@ -209,10 +199,8 @@ async function sendBulkNotification(userIds, type, title, message, relatedId = n
       await createNotification(userId, type, title, message, relatedId);
       count++;
     }
-    console.log(`=� Sent ${count} bulk notifications`);
     return count;
   } catch (error) {
-    console.error("L Error sending bulk notifications:", error);
     throw error;
   }
 }
@@ -239,7 +227,6 @@ async function sendNotificationToRole(role, type, title, message) {
 
     return await sendBulkNotification(userIds, type, title, message);
   } catch (error) {
-    console.error("L Error sending role notifications:", error);
     throw error;
   }
 }

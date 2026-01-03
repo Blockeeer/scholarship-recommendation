@@ -29,7 +29,6 @@ function generateCacheKey(studentId, scholarshipIds) {
 function getCachedRecommendation(cacheKey) {
   const cached = recommendationCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log("📦 Using cached recommendations");
     return cached.data;
   }
   if (cached) {
@@ -63,7 +62,6 @@ function setCachedRecommendation(cacheKey, data) {
  */
 function clearRecommendationCache() {
   recommendationCache.clear();
-  console.log("🗑️ Recommendation cache cleared");
 }
 
 /**
@@ -74,7 +72,6 @@ function clearRecommendationCache() {
  */
 async function callGPTAPI(systemPrompt, userPrompt) {
   if (!OPENAI_API_KEY) {
-    console.error("❌ OPENAI_API_KEY not configured");
     throw new Error("OpenAI API key not configured. Please add OPENAI_API_KEY to your .env file.");
   }
 
@@ -98,14 +95,12 @@ async function callGPTAPI(systemPrompt, userPrompt) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("❌ GPT API Error:", errorData);
       throw new Error(`GPT API Error: ${errorData.error?.message || "Unknown error"}`);
     }
 
     const data = await response.json();
     return data.choices[0].message.content;
   } catch (error) {
-    console.error("❌ Error calling GPT API:", error);
     throw error;
   }
 }
@@ -118,7 +113,6 @@ async function callGPTAPI(systemPrompt, userPrompt) {
  * @returns {Promise<array>} - Array of matches with scores and explanations
  */
 async function matchStudentToScholarships(studentAssessment, scholarships, studentId = null) {
-  console.log("🤖 Starting GPT matching for student...");
 
   // Check cache first if studentId is provided
   if (studentId) {
@@ -216,8 +210,6 @@ IMPORTANT: You MUST include ALL scholarships in your response, even if they are 
       }));
 
     } catch (parseError) {
-      console.error("❌ Error parsing GPT response:", parseError);
-      console.log("Raw response:", gptResponse);
       // Return fallback basic matching
       const fallbackMatches = performBasicMatching(studentAssessment, scholarships);
       // Cache fallback results too
@@ -229,7 +221,6 @@ IMPORTANT: You MUST include ALL scholarships in your response, even if they are 
       return fallbackMatches;
     }
 
-    console.log(`✅ GPT matching complete. Found ${matches.length} matches.`);
 
     // Cache the results
     if (studentId) {
@@ -240,7 +231,6 @@ IMPORTANT: You MUST include ALL scholarships in your response, even if they are 
 
     return matches;
   } catch (error) {
-    console.error("❌ GPT matching failed, falling back to basic matching:", error);
     return performBasicMatching(studentAssessment, scholarships);
   }
 }
@@ -252,7 +242,6 @@ IMPORTANT: You MUST include ALL scholarships in your response, even if they are 
  * @returns {Promise<array>} - Ranked array of applications
  */
 async function rankApplicantsForScholarship(applications, scholarship) {
-  console.log(`🤖 Starting GPT ranking for ${applications.length} applicants...`);
 
   if (applications.length === 0) {
     return [];
@@ -330,7 +319,6 @@ Return a JSON array ranked from highest to lowest score:
         rankings = JSON.parse(gptResponse);
       }
     } catch (parseError) {
-      console.error("❌ Error parsing GPT ranking response:", parseError);
       return performBasicRanking(applications, scholarship);
     }
 
@@ -340,10 +328,8 @@ Return a JSON array ranked from highest to lowest score:
       r.rank = index + 1;
     });
 
-    console.log(`✅ GPT ranking complete.`);
     return rankings;
   } catch (error) {
-    console.error("❌ GPT ranking failed, falling back to basic ranking:", error);
     return performBasicRanking(applications, scholarship);
   }
 }
@@ -377,7 +363,6 @@ Provide a 2-3 sentence explanation of whether this scholarship is a good fit and
     const explanation = await callGPTAPI(systemPrompt, userPrompt);
     return explanation;
   } catch (error) {
-    console.error("❌ Error generating explanation:", error);
     return "Unable to generate detailed explanation at this time.";
   }
 }
@@ -457,7 +442,6 @@ function generateWhyMatchedExplanation(student, scholarship, matchDetails, match
  * @returns {array} - Basic matches
  */
 function performBasicMatching(studentAssessment, scholarships) {
-  console.log("📊 Performing basic matching (fallback)...");
 
   const matches = [];
 
@@ -556,7 +540,6 @@ function performBasicMatching(studentAssessment, scholarships) {
  * @returns {array} - Basic rankings
  */
 function performBasicRanking(applications, scholarship) {
-  console.log("📊 Performing basic ranking (fallback)...");
 
   const rankings = applications.map(app => {
     let rankScore = 50;

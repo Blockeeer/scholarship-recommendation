@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+const helmet = require("helmet");
 const session = require("express-session");
 const dotenv = require("dotenv");
 const authRoutes = require("./backend/routes/authRoutes");
@@ -9,13 +10,48 @@ const sponsorRoutes = require("./backend/routes/sponsorRoutes");
 const adminRoutes = require("./backend/routes/adminRoutes");
 const { csrfProtection } = require("./backend/middleware/csrf");
 const { sanitizeInputs } = require("./backend/middleware/sanitizer");
+const { errorHandler } = require("./backend/middleware/errorHandler");
 const { db } = require("./backend/config/firebaseConfig");
 const { doc, getDoc } = require("firebase/firestore");
 
 dotenv.config();
 const app = express();
 
-app.use(cors());
+// Security headers with helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com", "https://apis.google.com"],
+      frameSrc: ["'self'", "https://accounts.google.com"],
+      connectSrc: ["'self'", "https://accounts.google.com", "https://api.openai.com"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+// CORS configuration - restrict to allowed origins
+const allowedOrigins = [
+  'http://localhost:5000',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -25,13 +61,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Require SESSION_SECRET in production
-if (!process.env.SESSION_SECRET) {
-  if (process.env.NODE_ENV === 'production') {
-    console.error('FATAL: SESSION_SECRET environment variable is required in production');
-    process.exit(1);
-  } else {
-    console.warn('WARNING: Using default session secret. Set SESSION_SECRET in .env for production.');
-  }
+if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
+  process.exit(1);
 }
 
 // Session configuration with timeout
@@ -110,7 +141,7 @@ app.use(async (req, res, next) => {
       res.locals.fullName = req.session.user.fullName;
       res.locals.email = req.session.user.email;
     } catch (error) {
-      console.error("Error fetching user profile for sidebar:", error);
+      // Silent fail - profile picture will just not be available
     }
   }
   next();
@@ -132,16 +163,7 @@ app.use((req, res, next) => {
 });
 
 // General Error Handler
-app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(err.status || 500).render('error', {
-    title: 'Server Error',
-    message: process.env.NODE_ENV === 'production'
-      ? 'An unexpected error occurred. Please try again later.'
-      : err.message,
-    error: { status: err.status || 500 }
-  });
-});
+app.use(errorHandler);
 
 // Initialize scheduled tasks (auto-close expired scholarships, send reminders)
 const { initializeScheduledTasks } = require('./backend/services/scheduledTasks');
@@ -149,4 +171,4 @@ const { initializeScheduledTasks } = require('./backend/services/scheduledTasks'
 initializeScheduledTasks(60 * 60 * 1000);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port http://localhost:${PORT}`));
+app.listen(PORT);

@@ -5,10 +5,8 @@ const { validateGPA, validateDateRange, validateSlots, validateIncome, SCHOLARSH
 
 // Show form to add scholarship offer
 function showAddScholarshipForm(req, res) {
-  console.log("📝 Showing add scholarship form");
   
   if (!req.session.user || req.session.user.role !== "sponsor") {
-    console.log("❌ Unauthorized access");
     return res.redirect("/login");
   }
 
@@ -20,8 +18,6 @@ function showAddScholarshipForm(req, res) {
 
 // Submit new scholarship offer
 async function addScholarshipOffer(req, res) {
-  console.log("📤 Adding new scholarship offer");
-  console.log("📦 Request body:", req.body);
 
   if (!req.session.user || req.session.user.role !== "sponsor") {
     return res.redirect("/login");
@@ -151,13 +147,11 @@ async function addScholarshipOffer(req, res) {
       updatedAt: new Date().toISOString()
     };
 
-    console.log("💾 Saving scholarship to Firestore...");
 
     // Add to scholarships collection
     const scholarshipsRef = collection(db, "scholarships");
     const docRef = await addDoc(scholarshipsRef, scholarshipData);
 
-    console.log("✅ Scholarship added with ID:", docRef.id);
 
     // Only notify admin if not a draft
     if (!savingAsDraft) {
@@ -168,21 +162,17 @@ async function addScholarshipOffer(req, res) {
         `"${scholarshipName}" by ${organizationName} is awaiting your review.`,
         docRef.id
       );
-      console.log("📧 Admin notified about new scholarship");
     } else {
-      console.log("📝 Scholarship saved as draft");
     }
 
     return res.redirect("/sponsor/offers");
   } catch (err) {
-    console.error("❌ Error adding scholarship:", err);
     res.status(500).send("Error adding scholarship: " + err.message);
   }
 }
 
 // View all scholarship offers by sponsor
 async function viewScholarshipOffers(req, res) {
-  console.log("👀 Viewing scholarship offers");
 
   if (!req.session.user || req.session.user.role !== "sponsor") {
     return res.redirect("/login");
@@ -204,7 +194,6 @@ async function viewScholarshipOffers(req, res) {
       });
     });
 
-    console.log("✅ Found", scholarships.length, "scholarships");
 
     res.render("sponsor/view_offers", {
       layout: "layouts/sponsor_layout",
@@ -212,7 +201,6 @@ async function viewScholarshipOffers(req, res) {
       scholarships: scholarships
     });
   } catch (err) {
-    console.error("❌ Error fetching scholarships:", err);
     res.status(500).send("Error loading scholarships");
   }
 }
@@ -246,7 +234,6 @@ async function viewScholarshipDetails(req, res) {
       scholarship: { id: scholarshipDoc.id, ...scholarshipData }
     });
   } catch (err) {
-    console.error("❌ Error fetching scholarship:", err);
     res.status(500).send("Error loading scholarship");
   }
 }
@@ -281,10 +268,8 @@ async function updateScholarshipStatus(req, res) {
       updatedAt: new Date().toISOString()
     });
 
-    console.log("✅ Scholarship status updated to:", status);
     res.redirect("/sponsor/offers");
   } catch (err) {
-    console.error("❌ Error updating scholarship:", err);
     res.status(500).send("Error updating scholarship");
   }
 }
@@ -332,10 +317,8 @@ async function deleteScholarship(req, res) {
       updatedAt: new Date().toISOString()
     });
 
-    console.log("✅ Scholarship archived (soft deleted)");
     res.redirect("/sponsor/offers");
   } catch (err) {
-    console.error("❌ Error archiving scholarship:", err);
     res.status(500).send("Error archiving scholarship");
   }
 }
@@ -380,10 +363,8 @@ async function restoreScholarship(req, res) {
       updatedAt: new Date().toISOString()
     });
 
-    console.log("✅ Scholarship restored from archive");
     res.json({ success: true, message: "Scholarship restored successfully" });
   } catch (err) {
-    console.error("❌ Error restoring scholarship:", err);
     res.status(500).json({ error: "Error restoring scholarship" });
   }
 }
@@ -418,10 +399,8 @@ async function permanentlyDeleteScholarship(req, res) {
 
     await deleteDoc(scholarshipRef);
 
-    console.log("✅ Scholarship permanently deleted");
     res.json({ success: true, message: "Scholarship permanently deleted" });
   } catch (err) {
-    console.error("❌ Error permanently deleting scholarship:", err);
     res.status(500).json({ error: "Error deleting scholarship" });
   }
 }
@@ -430,7 +409,6 @@ async function permanentlyDeleteScholarship(req, res) {
 async function showEditScholarshipForm(req, res) {
   const scholarshipId = req.params.id;
 
-  console.log("📝 Showing edit scholarship form for ID:", scholarshipId);
 
   if (!req.session.user || req.session.user.role !== "sponsor") {
     return res.redirect("/login");
@@ -456,7 +434,6 @@ async function showEditScholarshipForm(req, res) {
       scholarship: { id: scholarshipDoc.id, ...scholarshipData }
     });
   } catch (err) {
-    console.error("❌ Error loading scholarship for edit:", err);
     res.status(500).send("Error loading scholarship");
   }
 }
@@ -465,8 +442,6 @@ async function showEditScholarshipForm(req, res) {
 async function updateScholarship(req, res) {
   const scholarshipId = req.params.id;
 
-  console.log("📤 Updating scholarship:", scholarshipId);
-  console.log("📦 Request body:", req.body);
 
   if (!req.session.user || req.session.user.role !== "sponsor") {
     return res.redirect("/login");
@@ -541,16 +516,13 @@ async function updateScholarship(req, res) {
       updatedAt: new Date().toISOString()
     };
 
-    console.log("💾 Updating scholarship in Firestore...");
 
     // Update the document
     await updateDoc(scholarshipRef, updatedScholarshipData);
 
-    console.log("✅ Scholarship updated successfully");
 
     return res.redirect("/sponsor/offers");
   } catch (err) {
-    console.error("❌ Error updating scholarship:", err);
     res.status(500).send("Error updating scholarship: " + err.message);
   }
 }
@@ -586,7 +558,6 @@ async function viewScholarshipApplications(req, res) {
       scholarship: { id: scholarshipDoc.id, ...scholarshipData }
     });
   } catch (err) {
-    console.error("❌ Error loading applications:", err);
     res.status(500).send("Error loading applications");
   }
 }

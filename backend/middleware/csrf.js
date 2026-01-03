@@ -35,11 +35,6 @@ function csrfProtection(req, res, next) {
   const token = req.body._csrf || req.headers['x-csrf-token'];
 
   if (!token || token !== req.session.csrfToken) {
-    console.warn('CSRF token mismatch:', {
-      ip: req.ip,
-      path: req.path,
-      method: req.method
-    });
     return res.status(403).render('error', {
       title: 'Forbidden',
       message: 'Invalid security token. Please refresh the page and try again.',

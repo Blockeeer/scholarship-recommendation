@@ -24,7 +24,6 @@ const { rankApplicantsForScholarship } = require("../services/gptMatchingService
  * Create a new application
  */
 async function createApplication(req, res) {
-  console.log("=� Creating new application...");
 
   if (!req.session.user || req.session.user.role !== "student") {
     return res.status(401).json({ error: "Unauthorized" });
@@ -82,7 +81,6 @@ async function createApplication(req, res) {
           submittedAt: isDraft ? null : new Date().toISOString()
         });
 
-        console.log(isDraft ? `Draft updated: ${existingApp.id}` : `Draft submitted: ${existingApp.id}`);
 
         return res.status(200).json({
           success: true,
@@ -142,7 +140,6 @@ async function createApplication(req, res) {
 
     const newAppRef = await addDoc(applicationsRef, applicationData);
 
-    console.log(` Application created: ${newAppRef.id}`);
 
     // Return success
     res.status(201).json({
@@ -153,7 +150,6 @@ async function createApplication(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error creating application:", error);
     res.status(500).json({ error: "Failed to submit application: " + error.message });
   }
 }
@@ -162,7 +158,6 @@ async function createApplication(req, res) {
  * Get all applications for a student
  */
 async function getStudentApplications(req, res) {
-  console.log("=� Getting student applications...");
 
   if (!req.session.user || req.session.user.role !== "student") {
     return res.redirect("/login");
@@ -193,7 +188,6 @@ async function getStudentApplications(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting student applications:", error);
     res.status(500).send("Error loading applications");
   }
 }
@@ -257,7 +251,6 @@ async function getApplicationDetails(req, res) {
     }
 
   } catch (error) {
-    console.error("L Error getting application details:", error);
     res.status(500).send("Error loading application details");
   }
 }
@@ -331,7 +324,6 @@ async function getScholarshipApplications(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting scholarship applications:", error);
     res.status(500).send("Error loading applications");
   }
 }
@@ -398,7 +390,6 @@ async function rankApplications(req, res) {
       });
     }
 
-    console.log(` Ranked ${rankings.length} applications for scholarship ${scholarshipId}`);
 
     res.json({
       success: true,
@@ -407,7 +398,6 @@ async function rankApplications(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error ranking applications:", error);
     res.status(500).json({ error: "Failed to rank applications: " + error.message });
   }
 }
@@ -506,7 +496,6 @@ async function updateApplicationStatus(req, res) {
 
     await updateDoc(applicationRef, updateData);
 
-    console.log(` Application ${applicationId} updated to ${status}`);
 
     res.json({
       success: true,
@@ -514,7 +503,6 @@ async function updateApplicationStatus(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error updating application:", error);
     res.status(500).json({ error: "Failed to update application: " + error.message });
   }
 }
@@ -552,7 +540,6 @@ async function withdrawApplication(req, res) {
     // Delete the application
     await deleteDoc(applicationRef);
 
-    console.log(` Application ${applicationId} withdrawn`);
 
     res.json({
       success: true,
@@ -560,7 +547,6 @@ async function withdrawApplication(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error withdrawing application:", error);
     res.status(500).json({ error: "Failed to withdraw application: " + error.message });
   }
 }
@@ -599,7 +585,6 @@ async function getAllApplications(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting all applications:", error);
     res.status(500).send("Error loading applications");
   }
 }
@@ -608,7 +593,6 @@ async function getAllApplications(req, res) {
  * Batch update application status (for sponsors)
  */
 async function batchUpdateApplicationStatus(req, res) {
-  console.log("Batch updating application status...");
 
   if (!req.session.user || req.session.user.role !== "sponsor") {
     return res.status(401).json({ error: "Unauthorized" });
@@ -657,12 +641,10 @@ async function batchUpdateApplicationStatus(req, res) {
 
         successCount++;
       } catch (err) {
-        console.error(`Error updating application ${applicationId}:`, err);
         failCount++;
       }
     }
 
-    console.log(`Batch update: ${successCount} succeeded, ${failCount} failed`);
 
     res.json({
       success: true,
@@ -670,7 +652,6 @@ async function batchUpdateApplicationStatus(req, res) {
     });
 
   } catch (error) {
-    console.error("Error in batch update:", error);
     res.status(500).json({ error: "Failed to update applications" });
   }
 }
@@ -707,7 +688,6 @@ async function getDraftApplication(req, res) {
     res.json({ success: true, draft });
 
   } catch (error) {
-    console.error("Error getting draft application:", error);
     res.status(500).json({ error: "Failed to get draft" });
   }
 }
@@ -744,7 +724,6 @@ async function deleteDraftApplication(req, res) {
 
     await deleteDoc(applicationRef);
 
-    console.log(`Draft application ${applicationId} deleted`);
 
     res.json({
       success: true,
@@ -752,7 +731,6 @@ async function deleteDraftApplication(req, res) {
     });
 
   } catch (error) {
-    console.error("Error deleting draft application:", error);
     res.status(500).json({ error: "Failed to delete draft" });
   }
 }

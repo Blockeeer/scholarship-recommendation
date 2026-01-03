@@ -145,7 +145,6 @@ async function showAdminDashboard(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error loading admin dashboard:", error);
     res.status(500).send("Error loading dashboard");
   }
 }
@@ -181,7 +180,6 @@ async function getPendingScholarships(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting pending scholarships:", error);
     res.status(500).send("Error loading scholarships");
   }
 }
@@ -217,7 +215,6 @@ async function getApprovedScholarships(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting approved scholarships:", error);
     res.status(500).send("Error loading scholarships");
   }
 }
@@ -255,7 +252,6 @@ async function getAllScholarships(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting all scholarships:", error);
     res.status(500).send("Error loading scholarships");
   }
 }
@@ -304,12 +300,10 @@ async function approveScholarship(req, res) {
       `A new scholarship "${scholarship.scholarshipName}" is now available. Check it out!`
     );
 
-    console.log(` Scholarship ${scholarshipId} approved`);
 
     res.json({ success: true, message: "Scholarship approved successfully" });
 
   } catch (error) {
-    console.error("L Error approving scholarship:", error);
     res.status(500).json({ error: "Failed to approve scholarship" });
   }
 }
@@ -352,12 +346,10 @@ async function rejectScholarship(req, res) {
       scholarshipId
     );
 
-    console.log(`L Scholarship ${scholarshipId} rejected`);
 
     res.json({ success: true, message: "Scholarship rejected" });
 
   } catch (error) {
-    console.error("L Error rejecting scholarship:", error);
     res.status(500).json({ error: "Failed to reject scholarship" });
   }
 }
@@ -399,7 +391,6 @@ async function getScholarshipDetails(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting scholarship details:", error);
     res.status(500).send("Error loading scholarship details");
   }
 }
@@ -463,7 +454,6 @@ async function getAllUsers(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting users:", error);
     res.status(500).send("Error loading users");
   }
 }
@@ -527,7 +517,6 @@ async function getUserDetails(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting user details:", error);
     res.status(500).send("Error loading user details");
   }
 }
@@ -569,7 +558,6 @@ async function toggleUserStatus(req, res) {
       null
     );
 
-    console.log(` User ${userId} ${newStatus ? "suspended" : "reactivated"}`);
 
     res.json({
       success: true,
@@ -577,7 +565,6 @@ async function toggleUserStatus(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error toggling user status:", error);
     res.status(500).json({ error: "Failed to update user status" });
   }
 }
@@ -642,12 +629,10 @@ async function bulkUserAction(req, res) {
 
         successCount++;
       } catch (err) {
-        console.error(`Error processing user ${userId}:`, err);
         failCount++;
       }
     }
 
-    console.log(`Bulk ${action}: ${successCount} succeeded, ${failCount} failed`);
 
     res.json({
       success: true,
@@ -655,7 +640,6 @@ async function bulkUserAction(req, res) {
     });
 
   } catch (error) {
-    console.error("Error in bulk user action:", error);
     res.status(500).json({ error: "Failed to perform bulk action" });
   }
 }
@@ -694,7 +678,6 @@ async function getAllApplications(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting all applications:", error);
     res.status(500).send("Error loading applications");
   }
 }
@@ -772,7 +755,6 @@ async function getSystemAnalytics(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error generating analytics:", error);
     res.status(500).send("Error generating analytics");
   }
 }
@@ -807,7 +789,6 @@ async function sendSystemNotification(req, res) {
       count = await sendNotificationToRole(targetRole, "system", title, message);
     }
 
-    console.log(`=� System notification sent to ${count} users`);
 
     res.json({
       success: true,
@@ -815,7 +796,6 @@ async function sendSystemNotification(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error sending system notification:", error);
     res.status(500).json({ error: "Failed to send notification" });
   }
 }
@@ -859,7 +839,6 @@ async function getManageScholarships(req, res) {
     });
 
   } catch (error) {
-    console.error("L Error getting scholarships:", error);
     res.status(500).send("Error loading scholarships");
   }
 }
@@ -906,12 +885,10 @@ async function updateApplicationStatus(req, res) {
       applicationId
     );
 
-    console.log(`Application ${applicationId} ${status}`);
 
     res.json({ success: true, message: `Application ${status} successfully` });
 
   } catch (error) {
-    console.error("L Error updating application status:", error);
     res.status(500).json({ error: "Failed to update application" });
   }
 }

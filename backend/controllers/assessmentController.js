@@ -2,11 +2,8 @@ const { db } = require("../config/firebaseConfig");
 const { doc, setDoc, getDoc } = require("firebase/firestore");
 
 async function showAssessmentForm(req, res) {
-  console.log("📝 Showing assessment form");
-  console.log("Session user:", req.session.user);
 
   if (!req.session.user || req.session.user.role !== "student") {
-    console.log("❌ Unauthorized access, redirecting to login");
     return res.redirect("/login");
   }
 
@@ -38,20 +35,14 @@ async function showAssessmentForm(req, res) {
       redirectScholarshipId
     });
   } catch (error) {
-    console.error("Error loading assessment form:", error);
     res.status(500).send("Error loading assessment form");
   }
 }
 
 async function submitAssessment(req, res) {
-  console.log("📤 Assessment submission started");
-  console.log("📦 Request body:", req.body);
-  console.log("📁 Uploaded files:", req.files);
-  console.log("👤 Session user:", req.session.user);
 
   // Check if user is logged in
   if (!req.session.user || req.session.user.role !== "student") {
-    console.log("❌ No session user found or not a student");
     return res.redirect("/login");
   }
 
@@ -78,7 +69,6 @@ async function submitAssessment(req, res) {
   const missingFields = Object.keys(requiredFields).filter(key => !requiredFields[key]);
   
   if (missingFields.length > 0) {
-    console.log("❌ Missing required fields:", missingFields);
     return res.status(400).send(`Missing required fields: ${missingFields.join(', ')}`);
   }
 
@@ -113,10 +103,6 @@ async function submitAssessment(req, res) {
       status: "pending"
     };
 
-    console.log("💾 Saving assessment data to Firestore...");
-    console.log("🆔 User UID:", userUid);
-    console.log("📧 User email:", userEmail);
-    console.log("📄 Assessment data:", assessmentData);
     
     await setDoc(assessmentRef, assessmentData);
 
@@ -127,20 +113,14 @@ async function submitAssessment(req, res) {
       lastAssessmentDate: submissionDate.toISOString()
     }, { merge: true }); // merge: true keeps existing fields
 
-    console.log("✅ Assessment submitted successfully for UID:", userUid);
-    console.log("✅ User document updated with assessment completion flag");
 
     // If there's a redirect scholarship ID, redirect to the scholarship apply page
     if (redirectScholarshipId) {
-      console.log("🔄 Redirecting to scholarship apply page:", redirectScholarshipId);
       return res.redirect("/student/scholarships/" + redirectScholarshipId + "/apply");
     }
 
-    console.log("🔄 Redirecting to /dashboard");
     return res.redirect("/dashboard");
   } catch (err) {
-    console.error("❌ Error submitting assessment:", err);
-    console.error("Error stack:", err.stack);
     res.status(500).send("Error submitting assessment: " + err.message);
   }
 }

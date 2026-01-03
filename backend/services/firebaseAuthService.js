@@ -21,9 +21,7 @@ const registerUser = async (email, password, role, additionalData = {}) => {
     // Send email verification
     try {
       await sendEmailVerification(user);
-      console.log("📧 Verification email sent to:", email);
     } catch (verificationError) {
-      console.error("⚠️ Failed to send verification email:", verificationError);
       // Continue with registration even if verification email fails
     }
 
@@ -38,10 +36,8 @@ const registerUser = async (email, password, role, additionalData = {}) => {
       emailVerified: false
     });
 
-    console.log("✅ User registered with UID:", user.uid);
     return user;
   } catch (error) {
-    console.error("❌ Registration error:", error);
     throw error; // Throw original error to preserve error.code
   }
 };
@@ -68,7 +64,6 @@ const loginUser = async (email, password, defaultRole = "student") => {
         const existingData = existingDoc.data();
         const existingUid = existingDoc.id;
 
-        console.log("📧 Found existing Google account, linking email/password...");
 
         // Update existing document to support both methods
         await updateDoc(doc(db, "users", existingUid), {
@@ -89,7 +84,6 @@ const loginUser = async (email, password, defaultRole = "student") => {
           isLinkedAccount: true
         });
 
-        console.log("✅ Email/password linked to Google account");
 
         return {
           user,
@@ -99,7 +93,6 @@ const loginUser = async (email, password, defaultRole = "student") => {
       }
 
       // Truly new user - create the document
-      console.log("⚠️ User document missing in Firestore, creating now...");
       userData = {
         uid: user.uid,
         email: user.email,
@@ -112,9 +105,7 @@ const loginUser = async (email, password, defaultRole = "student") => {
 
       try {
         await setDoc(doc(db, "users", user.uid), userData);
-        console.log("✅ Created missing user document in Firestore");
       } catch (firestoreError) {
-        console.error("❌ Failed to create user document:", firestoreError);
         const error = new Error("User data not found and could not be created. Check Firestore rules.");
         error.code = "auth/user-data-not-found";
         throw error;
@@ -127,7 +118,6 @@ const loginUser = async (email, password, defaultRole = "student") => {
         const mainDocSnap = await getDoc(doc(db, "users", userData.linkedTo));
         if (mainDocSnap.exists()) {
           const mainUserData = mainDocSnap.data();
-          console.log("✅ User logged in via linked account - UID:", user.uid);
           return {
             user,
             role: mainUserData.role,
@@ -144,11 +134,9 @@ const loginUser = async (email, password, defaultRole = "student") => {
           authProvider: "both"
         });
         userData.authProvider = "both";
-        console.log("✅ Updated account to support both login methods");
       }
     }
 
-    console.log("✅ User logged in - UID:", user.uid, "Role:", userData.role);
 
     return {
       user,
@@ -156,7 +144,6 @@ const loginUser = async (email, password, defaultRole = "student") => {
       userData: userData
     };
   } catch (error) {
-    console.error("❌ Login error:", error);
     throw error; // Throw original error to preserve error.code
   }
 };
@@ -164,10 +151,8 @@ const loginUser = async (email, password, defaultRole = "student") => {
 const logoutUser = async () => {
   try {
     await signOut(auth);
-    console.log("✅ User logged out");
     return { message: "User logged out successfully" };
   } catch (error) {
-    console.error("❌ Logout error:", error);
     throw error; // Throw original error to preserve error.code
   }
 };
@@ -192,14 +177,11 @@ const initializeAdmin = async () => {
       hasCompletedAssessment: true
     });
 
-    console.log("✅ Admin account created successfully with UID:", user.uid);
     return { success: true, uid: user.uid };
   } catch (error) {
     if (error.code === "auth/email-already-in-use") {
-      console.log("ℹ️ Admin account already exists");
       return { success: true, message: "Admin already exists" };
     }
-    console.error("❌ Failed to create admin:", error);
     throw error;
   }
 };
@@ -237,7 +219,6 @@ const signInWithGoogle = async (googleUser, role = "student") => {
         const existingData = existingDoc.data();
         const existingUid = existingDoc.id;
 
-        console.log("📧 Email already registered, linking Google account...");
 
         // Update existing document to add Google UID reference
         const { updateDoc } = require("firebase/firestore");
@@ -260,7 +241,6 @@ const signInWithGoogle = async (googleUser, role = "student") => {
           isLinkedAccount: true
         });
 
-        console.log("✅ Accounts linked successfully");
 
         return {
           user: googleUser,
@@ -283,7 +263,6 @@ const signInWithGoogle = async (googleUser, role = "student") => {
       };
 
       await setDoc(doc(db, "users", uid), newUserData);
-      console.log("✅ New Google user registered with UID:", uid);
 
       return {
         user: googleUser,
@@ -300,7 +279,6 @@ const signInWithGoogle = async (googleUser, role = "student") => {
         const mainDocSnap = await getDoc(doc(db, "users", userData.linkedTo));
         if (mainDocSnap.exists()) {
           const mainUserData = mainDocSnap.data();
-          console.log("✅ Google user logged in via linked account - UID:", uid);
           return {
             user: googleUser,
             role: mainUserData.role,
@@ -310,7 +288,6 @@ const signInWithGoogle = async (googleUser, role = "student") => {
         }
       }
 
-      console.log("✅ Existing Google user logged in - UID:", uid);
 
       return {
         user: googleUser,
@@ -320,7 +297,6 @@ const signInWithGoogle = async (googleUser, role = "student") => {
       };
     }
   } catch (error) {
-    console.error("❌ Google sign-in error:", error);
     throw error;
   }
 };
@@ -332,10 +308,8 @@ const signInWithGoogle = async (googleUser, role = "student") => {
 const resetPassword = async (email) => {
   try {
     await sendPasswordResetEmail(auth, email);
-    console.log("📧 Password reset email sent to:", email);
     return { success: true, message: "Password reset email sent" };
   } catch (error) {
-    console.error("❌ Password reset error:", error);
     throw error;
   }
 };
@@ -351,10 +325,8 @@ const resendVerificationEmail = async () => {
     }
 
     await sendEmailVerification(user);
-    console.log("📧 Verification email resent to:", user.email);
     return { success: true, message: "Verification email sent" };
   } catch (error) {
-    console.error("❌ Resend verification error:", error);
     throw error;
   }
 };
@@ -379,10 +351,8 @@ const updateAuthProviderStatus = async (uid) => {
       updatedAt: new Date().toISOString()
     });
 
-    console.log("✅ Auth provider updated to 'both' for user:", uid);
     return { success: true };
   } catch (error) {
-    console.error("❌ Error updating auth provider status:", error);
     throw error;
   }
 };
@@ -425,20 +395,17 @@ const setPasswordForGoogleUser = async (googleUid, email, password) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       emailPasswordUser = userCredential.user;
-      console.log("Created email/password account with UID:", emailPasswordUser.uid);
     } catch (createError) {
       if (createError.code === "auth/email-already-in-use") {
         // Email already has an account - try to sign in with the provided password
         // This handles the case where user previously created an email/password account
         // or a linked account already exists
-        console.log("Email already in use, attempting to update existing account...");
 
         try {
           // Try to sign in with the new password to see if it works
           const signInResult = await signInWithEmailAndPassword(auth, email, password);
           emailPasswordUser = signInResult.user;
           isExistingAccount = true;
-          console.log("Signed into existing email/password account:", emailPasswordUser.uid);
         } catch (signInError) {
           // Can't sign in - password doesn't match existing account
           // The user needs to use password reset for the existing account
@@ -475,11 +442,9 @@ const setPasswordForGoogleUser = async (googleUid, email, password) => {
       }, { merge: true });
     }
 
-    console.log("Password set for Google user:", googleUid, "-> email/password UID:", emailPasswordUser.uid, isExistingAccount ? "(existing)" : "(new)");
 
     return { success: true, message: "Password set successfully" };
   } catch (error) {
-    console.error("❌ Error setting password for Google user:", error);
     throw error;
   }
 };

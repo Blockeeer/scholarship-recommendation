@@ -14,11 +14,6 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res, next, options) => {
-    console.warn('Rate limit exceeded:', {
-      ip: req.ip,
-      path: req.path,
-      method: req.method
-    });
     res.status(options.statusCode).json(options.message);
   }
 });

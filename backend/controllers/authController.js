@@ -46,7 +46,6 @@ function getReadableErrorMessage(error) {
   const errorMessage = error.message || '';
   const lowerMessage = errorMessage.toLowerCase();
 
-  console.log('🔍 Processing error - Code:', errorCode, 'Message:', errorMessage);
 
   // Firestore permission errors (check first)
   if (errorCode.includes('permission-denied') || lowerMessage.includes('permission')) {
@@ -103,7 +102,6 @@ function getReadableErrorMessage(error) {
   }
 
   // Default fallback
-  console.warn('⚠️ Unhandled error type:', errorCode, errorMessage);
   return 'The email or password you entered is incorrect. Please try again.';
 }
 
@@ -209,8 +207,6 @@ async function registerStudent(req, res) {
       emailVerified: user.emailVerified || false
     };
 
-    console.log("🎓 Student registered with UID:", user.uid);
-    console.log("📧 Verification email sent to:", email);
 
     // Return JSON response for modal or redirect for form
     if (isJsonRequest) {
@@ -222,7 +218,6 @@ async function registerStudent(req, res) {
     }
     return res.redirect("/student/assessment");
   } catch (error) {
-    console.error("Registration error:", error);
     if (isJsonRequest) {
       return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
     }
@@ -304,7 +299,6 @@ async function registerSponsor(req, res) {
     }
     return res.redirect("/dashboard");
   } catch (error) {
-    console.error("Registration error:", error);
     if (isJsonRequest) {
       return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
     }
@@ -367,14 +361,12 @@ async function login(req, res) {
       emailVerified: user.emailVerified || false
     };
 
-    console.log("🔐 User logged in with UID:", user.uid);
 
     if (isJsonRequest) {
       return res.json({ success: true, redirect: "/dashboard" });
     }
     return res.redirect("/dashboard");
   } catch (error) {
-    console.error("Login error:", error);
 
     if (isJsonRequest) {
       return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
@@ -391,18 +383,14 @@ async function login(req, res) {
 async function googleSignIn(req, res) {
   const { uid, email, displayName, role = "student" } = req.body;
 
-  console.log("Google Sign-In request received:", { uid, email, displayName, role });
 
   if (!uid || !email) {
-    console.log("Missing uid or email");
     return res.status(400).json({ success: false, error: "Google user data is required" });
   }
 
   try {
     const googleUser = { uid, email, displayName };
-    console.log("Calling signInWithGoogle service...");
     const { user, role: userRole, userData, isNewUser } = await signInWithGoogle(googleUser, role);
-    console.log("signInWithGoogle returned:", { userRole, isNewUser });
 
     // Store in session
     req.session.user = {
@@ -413,7 +401,6 @@ async function googleSignIn(req, res) {
       emailVerified: true // Google accounts are always verified
     };
 
-    console.log("🔐 Google user signed in with UID:", user.uid, "isNewUser:", isNewUser);
 
     // Determine redirect based on role and new user status
     let redirect = "/dashboard";
@@ -428,7 +415,6 @@ async function googleSignIn(req, res) {
       message: isNewUser ? "Account created successfully with Google!" : "Logged in with Google!"
     });
   } catch (error) {
-    console.error("Google sign-in error:", error);
     return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
   }
 }
@@ -454,7 +440,6 @@ async function forgotPassword(req, res) {
       message: "Password reset email sent! Please check your inbox."
     });
   } catch (error) {
-    console.error("Password reset error:", error);
 
     // Don't reveal if email exists or not for security
     if (error.code === "auth/user-not-found") {
@@ -498,7 +483,6 @@ async function resendVerification(req, res) {
       message: "Verification email sent! Please check your inbox."
     });
   } catch (error) {
-    console.error("Resend verification error:", error);
     return res.status(400).json({ success: false, error: getReadableErrorMessage(error) });
   }
 }
@@ -528,7 +512,6 @@ async function linkEmailPassword(req, res) {
       message: "Email/password login enabled successfully!"
     });
   } catch (error) {
-    console.error("Link email/password error:", error);
     return res.status(400).json({ success: false, error: error.message });
   }
 }
@@ -557,7 +540,6 @@ async function setPasswordForGoogleUserController(req, res) {
       message: "Password set successfully! You can now log in with email and password."
     });
   } catch (error) {
-    console.error("Set password for Google user error:", error);
     return res.status(400).json({ success: false, error: error.message });
   }
 }

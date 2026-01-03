@@ -143,11 +143,9 @@ router.post('/offers/:id/exam-schedule', async (req, res) => {
       updatedAt: new Date().toISOString()
     });
 
-    console.log(`✅ Exam schedule saved for scholarship ${scholarshipId}`);
 
     res.json({ success: true, message: 'Exam schedule saved successfully' });
   } catch (error) {
-    console.error('Error saving exam schedule:', error);
     res.status(500).json({ error: 'Failed to save exam schedule' });
   }
 });
@@ -192,7 +190,6 @@ router.post('/offers/:id/request-close', async (req, res) => {
 
     res.json({ success: true, message: 'Close request submitted' });
   } catch (error) {
-    console.error('Error requesting close:', error);
     res.status(500).json({ error: 'Failed to submit close request' });
   }
 });
@@ -247,7 +244,6 @@ router.post('/offers/:id/submit-draft', async (req, res) => {
 
     res.json({ success: true, message: 'Draft submitted for approval' });
   } catch (error) {
-    console.error('Error submitting draft:', error);
     res.status(500).json({ error: 'Failed to submit draft' });
   }
 });
@@ -297,7 +293,6 @@ router.post('/offers/:id/resubmit', async (req, res) => {
 
     res.json({ success: true, message: 'Scholarship resubmitted for review' });
   } catch (error) {
-    console.error('Error resubmitting scholarship:', error);
     res.status(500).json({ error: 'Failed to resubmit scholarship' });
   }
 });
@@ -375,7 +370,6 @@ router.get('/dashboard', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error loading sponsor dashboard:', error);
     res.render('sponsor/sponsor_dashboard', {
       email: req.session.user.email,
       fullName: req.session.user.fullName || "",
@@ -396,7 +390,6 @@ router.get('/notifications', async (req, res) => {
       notifications
     });
   } catch (error) {
-    console.error('Error getting notifications:', error);
     res.status(500).send('Error loading notifications');
   }
 });
@@ -494,7 +487,6 @@ router.get('/profile', async (req, res) => {
       firebaseConfig
     });
   } catch (error) {
-    console.error('Error loading sponsor profile:', error);
     res.render('sponsor/profile', {
       email: req.session.user.email,
       user: {
@@ -532,10 +524,8 @@ router.post('/profile/update', async (req, res) => {
     // Update session
     req.session.user.fullName = fullName.trim();
 
-    console.log('Profile updated for sponsor:', sponsorUid);
     res.json({ success: true, message: 'Profile updated successfully' });
   } catch (error) {
-    console.error('Error updating profile:', error);
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });
@@ -560,10 +550,8 @@ router.post('/profile/avatar', avatarUpload.single('profilePicture'), async (req
     // Update session so sidebar updates immediately
     req.session.user.profilePicture = profilePictureUrl;
 
-    console.log('Profile picture updated for sponsor:', sponsorUid);
     res.json({ success: true, message: 'Profile picture updated', url: profilePictureUrl });
   } catch (error) {
-    console.error('Error uploading avatar:', error);
     res.status(500).json({ error: 'Failed to upload profile picture' });
   }
 });
