@@ -25,9 +25,10 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com", "https://apis.google.com"],
-      frameSrc: ["'self'", "https://accounts.google.com"],
-      connectSrc: ["'self'", "https://accounts.google.com", "https://api.openai.com"]
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com", "https://apis.google.com", "https://www.gstatic.com", "https://cdn.jsdelivr.net"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      frameSrc: ["'self'", "https://accounts.google.com", "https://*.firebaseapp.com"],
+      connectSrc: ["'self'", "https://accounts.google.com", "https://api.openai.com", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "https://www.gstatic.com", "https://*.firebaseio.com", "https://*.googleapis.com"]
     }
   },
   crossOriginEmbedderPolicy: false
@@ -171,4 +172,6 @@ const { initializeScheduledTasks } = require('./backend/services/scheduledTasks'
 initializeScheduledTasks(60 * 60 * 1000);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT);
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});

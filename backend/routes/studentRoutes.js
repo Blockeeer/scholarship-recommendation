@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { requireStudent, requireAuth } = require('../middleware/auth');
+const { csrfMultipart } = require('../middleware/csrf');
 const { showAssessmentForm, submitAssessment } = require('../controllers/assessmentController');
 const {
   showStudentDashboard,
@@ -69,7 +70,7 @@ router.post('/assessment', requireAuth, upload.fields([
   { name: 'coe', maxCount: 1 },
   { name: 'schoolId', maxCount: 1 },
   { name: 'otherDocuments', maxCount: 5 }
-]), submitAssessment);
+]), csrfMultipart, submitAssessment);
 
 // Student dashboard route - require student role
 router.get('/student_dashboard', requireStudent, showStudentDashboard);
@@ -106,7 +107,7 @@ const avatarUpload = multer({
   }
 });
 
-router.post('/profile/avatar', requireStudent, avatarUpload.single('profilePicture'), uploadAvatar);
+router.post('/profile/avatar', requireStudent, avatarUpload.single('profilePicture'), csrfMultipart, uploadAvatar);
 
 // Scholarship search and browse - require student role
 router.get('/scholarships', requireStudent, searchScholarships);

@@ -855,7 +855,7 @@
   <nav class="navbar">
     <a href="/" class="navbar-brand">
       <img src="/images/icon.svg" alt="IskolarPath Logo" style="width: 32px; height: 32px;">
-      Scholar<span>Path</span>
+      Iskolar<span>Path</span>
     </a>
     <div class="navbar-nav">
       <button onclick="openLoginModal()" class="btn btn-ghost">Log In</button>
@@ -1210,16 +1210,21 @@
 
   <script>
     // Initialize Firebase (using environment variables passed from server)
-    // You need to create a route or include these values
     const firebaseConfig = {
-      apiKey: "<%= process.env.FIREBASE_API_KEY %>",
-      authDomain: "<%= process.env.FIREBASE_AUTH_DOMAIN %>",
-      projectId: "<%= process.env.FIREBASE_PROJECT_ID %>",
+      apiKey: "<%= firebaseApiKey %>",
+      authDomain: "<%= firebaseAuthDomain %>",
+      projectId: "<%= firebaseProjectId %>",
     };
 
-    // Initialize Firebase if not already initialized
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase if not already initialized - wrapped in try-catch to prevent blocking other JS
+    let firebaseInitialized = false;
+    try {
+      if (firebaseConfig.apiKey && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        firebaseInitialized = true;
+      }
+    } catch (e) {
+      console.warn('Firebase initialization failed:', e.message);
     }
 
     // Email Validation (frontend)
@@ -1351,9 +1356,17 @@
 
     // Handle Google Sign-In
     async function handleGoogleSignIn(mode) {
+      const errorDiv = mode === 'login' ? document.getElementById('loginError') : document.getElementById('registerError');
+
+      // Check if Firebase is initialized
+      if (!firebaseInitialized) {
+        errorDiv.textContent = 'Google Sign-In is not available. Please use email/password login.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
       const provider = new firebase.auth.GoogleAuthProvider();
       const role = document.getElementById('registerType')?.value || 'student';
-      const errorDiv = mode === 'login' ? document.getElementById('loginError') : document.getElementById('registerError');
 
       try {
         // Step 1: Firebase Google popup
@@ -1391,11 +1404,12 @@
           errorDiv.style.display = 'block';
         }
       } catch (error) {
-        console.error('Google sign-in error:', error);
         // Don't show error if user just closed the popup
-        if (error.code === 'auth/popup-closed-by-user') {
-          return;
+        if (error.code === 'auth/popup-closed-by-user' ||
+            error.code === 'auth/cancelled-popup-request') {
+          return; // Silent return - user cancelled
         }
+        console.error('Google sign-in error:', error);
         errorDiv.textContent = error.message || 'Google sign-in failed. Please try again.';
         errorDiv.style.display = 'block';
       }

@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { requireSponsor } = require('../middleware/auth');
+const { csrfMultipart } = require('../middleware/csrf');
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -531,7 +532,7 @@ router.post('/profile/update', async (req, res) => {
 });
 
 // Upload avatar
-router.post('/profile/avatar', avatarUpload.single('profilePicture'), async (req, res) => {
+router.post('/profile/avatar', avatarUpload.single('profilePicture'), csrfMultipart, async (req, res) => {
   const sponsorUid = req.session.user.uid;
 
   if (!req.file) {

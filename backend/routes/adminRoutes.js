@@ -8,6 +8,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { requireAdmin } = require('../middleware/auth');
+const { csrfMultipart } = require('../middleware/csrf');
 const { db } = require('../config/firebaseConfig');
 const { doc, getDoc, collection, getDocs, query, where, updateDoc, setDoc } = require('firebase/firestore');
 
@@ -879,7 +880,7 @@ router.post('/profile/update', async (req, res) => {
 });
 
 // Upload admin avatar
-router.post('/profile/avatar', avatarUpload.single('profilePicture'), async (req, res) => {
+router.post('/profile/avatar', avatarUpload.single('profilePicture'), csrfMultipart, async (req, res) => {
   const adminUid = req.session.user.uid;
 
   if (!req.file) {

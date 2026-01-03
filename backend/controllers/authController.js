@@ -109,7 +109,11 @@ function getReadableErrorMessage(error) {
 // PAGE RENDERING HANDLERS
 // ----------------------
 function showIndex(req, res) {
-  res.render("index");
+  res.render("index", {
+    firebaseApiKey: process.env.FIREBASE_API_KEY || '',
+    firebaseAuthDomain: process.env.FIREBASE_AUTH_DOMAIN || '',
+    firebaseProjectId: process.env.FIREBASE_PROJECT_ID || ''
+  });
 }
 
 async function showDashboard(req, res) {
