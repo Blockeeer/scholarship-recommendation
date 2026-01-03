@@ -492,6 +492,7 @@
 
   <script src="/js/sidebar.js"></script>
   <script>
+    const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
     const userCounts = {
       all: <%= stats.total %>,
       student: <%= stats.students %>,
@@ -561,7 +562,10 @@
       try {
         const response = await fetch('/admin/notifications/send', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          },
           body: JSON.stringify(data)
         });
 
@@ -589,7 +593,10 @@
       try {
         const response = await fetch(`/admin/notifications/${notificationId}/read`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          }
         });
 
         if (response.ok) {
@@ -618,7 +625,10 @@
       try {
         const response = await fetch('/admin/notifications/read-all', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          }
         });
 
         if (response.ok) {

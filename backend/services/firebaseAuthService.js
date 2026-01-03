@@ -159,8 +159,8 @@ const logoutUser = async () => {
 
 // Initialize admin account (one-time setup)
 const initializeAdmin = async () => {
-  const adminEmail = "admin@example.com";
-  const adminPassword = "admin123";
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
+  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
 
   try {
     // Try to create admin in Firebase Auth

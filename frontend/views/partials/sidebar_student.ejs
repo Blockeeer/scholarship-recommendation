@@ -1,16 +1,16 @@
 <!-- Sidebar -->
-<div class="sidebar" id="sidebar">
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
   <div class="sidebar-header">
-    <a href="/dashboard" class="sidebar-brand">
-      <img src="/images/icon.svg" alt="IskolarPath" class="brand-icon">
+    <a href="/dashboard" class="sidebar-brand" aria-label="IskolarPath Home">
+      <img src="/images/icon.svg" alt="" class="brand-icon" aria-hidden="true">
       <span class="brand-text">IskolarPath</span>
     </a>
   </div>
 
-  <a href="/student/profile" class="sidebar-user" style="text-decoration: none; color: inherit;">
-    <div class="user-avatar">
+  <a href="/student/profile" class="sidebar-user" style="text-decoration: none; color: inherit;" aria-label="View your profile">
+    <div class="user-avatar" aria-hidden="true">
       <% if (typeof profilePicture !== 'undefined' && profilePicture) { %>
-        <img src="<%= profilePicture %>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+        <img src="<%= profilePicture %>" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
       <% } else { %>
         <span><%= typeof fullName !== 'undefined' && fullName ? fullName.charAt(0).toUpperCase() : 'S' %></span>
       <% } %>
@@ -21,8 +21,8 @@
     </div>
   </a>
 
-  <nav class="sidebar-nav">
-    <a href="/dashboard" class="nav-link" data-tooltip="Dashboard">
+  <nav class="sidebar-nav" aria-label="Student menu">
+    <a href="/dashboard" class="nav-link" data-tooltip="Dashboard" aria-current="<%= typeof currentPage !== 'undefined' && currentPage === 'dashboard' ? 'page' : 'false' %>">
       <span class="nav-text">Dashboard</span>
     </a>
     <a href="/student/recommendations" class="nav-link" data-tooltip="Recommendations">
@@ -45,12 +45,12 @@
   <div class="sidebar-footer">
     <form action="/logout" method="POST" id="logoutForm">
       <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-      <button type="button" class="logout-btn" data-tooltip="Logout" onclick="showLogoutModal(event)">
+      <button type="button" class="logout-btn" data-tooltip="Logout" onclick="showLogoutModal(event)" aria-label="Log out of your account">
         <span class="nav-text">Logout</span>
       </button>
     </form>
   </div>
-</div>
+</aside>
 
 <!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>

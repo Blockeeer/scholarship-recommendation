@@ -312,6 +312,7 @@
   <script src="/js/sidebar.js"></script>
   <script>
     const applications = <%- JSON.stringify(applications) %>;
+    const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
 
     function filterApplications() {
       const status = document.getElementById('filterStatus').value;
@@ -412,7 +413,10 @@
 
       fetch('/admin/applications/' + id + '/status', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ status })
       })
         .then(res => res.json())

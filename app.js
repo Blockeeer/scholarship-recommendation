@@ -171,6 +171,18 @@ const { initializeScheduledTasks } = require('./backend/services/scheduledTasks'
 // Run scheduled tasks every hour
 initializeScheduledTasks(60 * 60 * 1000);
 
+// Initialize admin account on startup
+const { initializeAdmin } = require('./backend/services/firebaseAuthService');
+initializeAdmin()
+  .then(result => {
+    if (result.success) {
+      console.log('Admin account ready');
+    }
+  })
+  .catch(err => {
+    console.error('Failed to initialize admin:', err.message);
+  });
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

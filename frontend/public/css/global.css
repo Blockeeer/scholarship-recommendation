@@ -230,6 +230,84 @@ a:hover {
   background: var(--danger-600);
 }
 
+/* Warning Button */
+.btn-warning {
+  background: var(--warning-500);
+  color: white;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: var(--warning-600);
+}
+
+/* Info Button */
+.btn-info {
+  background: var(--info-500);
+  color: white;
+}
+
+.btn-info:hover:not(:disabled) {
+  background: var(--info-600);
+}
+
+/* Delete Button (alias for danger) */
+.btn-delete {
+  background: var(--danger-500);
+  color: white;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: var(--danger-600);
+}
+
+/* Submit/Change Password Button - common form button */
+.btn-submit,
+.btn-change-password {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-submit:hover:not(:disabled),
+.btn-change-password:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Reject Button */
+.btn-reject {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--danger-500);
+  color: white;
+}
+
+.btn-reject:hover:not(:disabled) {
+  background: var(--danger-600);
+}
+
 /* Button Sizes */
 .btn-sm {
   padding: 0.5rem 1rem;

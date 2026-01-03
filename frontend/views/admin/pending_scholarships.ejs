@@ -289,6 +289,8 @@
 
   <script src="/js/sidebar.js"></script>
   <script>
+    const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+
     function viewDetails(id) {
       fetch('/admin/scholarships/' + id + '/details')
         .then(res => res.json())
@@ -358,7 +360,13 @@
     function approveScholarship(id) {
       if (!confirm('Are you sure you want to approve this scholarship? It will be visible to students.')) return;
 
-      fetch('/admin/scholarships/' + id + '/approve', { method: 'POST' })
+      fetch('/admin/scholarships/' + id + '/approve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      })
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -389,7 +397,10 @@
 
       fetch('/admin/scholarships/' + id + '/reject', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ reason })
       })
         .then(res => res.json())

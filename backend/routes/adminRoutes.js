@@ -81,6 +81,8 @@ router.get('/pending-scholarships', async (req, res) => {
 
     res.render('admin/pending_scholarships', {
       email: req.session.user.email,
+      fullName: req.session.user.fullName || 'Administrator',
+      profilePicture: req.session.user.profilePicture,
       scholarships
     });
   } catch (error) {
@@ -137,6 +139,8 @@ router.get('/approved-scholarships', async (req, res) => {
 
     res.render('admin/approved_scholarships', {
       email: req.session.user.email,
+      fullName: req.session.user.fullName || 'Administrator',
+      profilePicture: req.session.user.profilePicture,
       scholarships
     });
   } catch (error) {

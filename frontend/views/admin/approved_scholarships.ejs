@@ -427,6 +427,8 @@
 
   <script src="/js/sidebar.js"></script>
   <script>
+    const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+
     function filterScholarships(status) {
       // Update active tab
       document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
@@ -514,7 +516,13 @@
     function closeScholarship(id, name) {
       if (!confirm(`Are you sure you want to close "${name}"? Students will no longer be able to apply.`)) return;
 
-      fetch('/admin/scholarships/' + id + '/close', { method: 'POST' })
+      fetch('/admin/scholarships/' + id + '/close', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      })
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -530,7 +538,13 @@
     function reopenScholarship(id, name) {
       if (!confirm(`Are you sure you want to reopen "${name}"? Students will be able to apply again.`)) return;
 
-      fetch('/admin/scholarships/' + id + '/reopen', { method: 'POST' })
+      fetch('/admin/scholarships/' + id + '/reopen', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      })
         .then(res => res.json())
         .then(data => {
           if (data.success) {

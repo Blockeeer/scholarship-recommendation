@@ -1,16 +1,16 @@
 <!-- Sidebar -->
-<div class="sidebar" id="sidebar">
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
   <div class="sidebar-header">
-    <a href="/dashboard" class="sidebar-brand">
-      <img src="/images/icon.svg" alt="IskolarPath" class="brand-icon">
+    <a href="/dashboard" class="sidebar-brand" aria-label="IskolarPath Home">
+      <img src="/images/icon.svg" alt="" class="brand-icon" aria-hidden="true">
       <span class="brand-text">IskolarPath</span>
     </a>
   </div>
 
-  <a href="/admin/profile" class="sidebar-user" style="text-decoration: none; color: inherit;">
-    <div class="user-avatar">
+  <a href="/admin/profile" class="sidebar-user" style="text-decoration: none; color: inherit;" aria-label="View your profile">
+    <div class="user-avatar" aria-hidden="true">
       <% if (typeof profilePicture !== 'undefined' && profilePicture) { %>
-        <img src="<%= profilePicture %>" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+        <img src="<%= profilePicture %>" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
       <% } else { %>
         <span><%= typeof fullName !== 'undefined' && fullName ? fullName.charAt(0).toUpperCase() : 'A' %></span>
       <% } %>
@@ -21,13 +21,13 @@
     </div>
   </a>
 
-  <nav class="sidebar-nav">
+  <nav class="sidebar-nav" aria-label="Admin menu">
     <a href="/dashboard" class="nav-link" data-tooltip="Dashboard">
       <span class="nav-text">Dashboard</span>
     </a>
     <a href="/admin/pending-scholarships" class="nav-link" data-tooltip="Pending Review">
       <span class="nav-text">Pending Review</span>
-      <span class="nav-badge pending-count" id="pendingCount" style="display: none;"></span>
+      <span class="nav-badge pending-count" id="pendingCount" style="display: none;" aria-label="pending items"></span>
     </a>
     <a href="/admin/approved-scholarships" class="nav-link" data-tooltip="Manage Approved">
       <span class="nav-text">Approved Offers</span>
@@ -43,7 +43,7 @@
     </a>
     <a href="/admin/notifications" class="nav-link" data-tooltip="Notifications">
       <span class="nav-text">Notifications</span>
-      <span class="nav-badge notification-count" id="notificationCount" style="display: none;"></span>
+      <span class="nav-badge notification-count" id="notificationCount" style="display: none;" aria-label="unread notifications"></span>
     </a>
   </nav>
   <style>
@@ -81,12 +81,12 @@
   <div class="sidebar-footer">
     <form action="/logout" method="POST" id="logoutForm">
       <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-      <button type="button" class="logout-btn" data-tooltip="Logout" onclick="showLogoutModal(event)">
+      <button type="button" class="logout-btn" data-tooltip="Logout" onclick="showLogoutModal(event)" aria-label="Log out of your account">
         <span class="nav-text">Logout</span>
       </button>
     </form>
   </div>
-</div>
+</aside>
 
 <!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>

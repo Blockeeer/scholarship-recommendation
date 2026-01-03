@@ -700,6 +700,7 @@
   <script src="/js/sidebar.js"></script>
   <script>
     const scholarshipId = '<%= scholarship.id %>';
+    const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
 
     function viewStudentProfile(uid) {
       document.getElementById('profileContent').innerHTML = 'Loading...';
@@ -792,7 +793,10 @@
       try {
         const response = await fetch('/admin/applications/' + appId + '/notify', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          }
         });
 
         const data = await response.json();
@@ -816,7 +820,10 @@
       try {
         const response = await fetch('/admin/applications/' + appId + '/not-selected', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          }
         });
 
         const data = await response.json();
@@ -839,7 +846,10 @@
       try {
         const response = await fetch('/admin/scholarships/' + scholarshipId + '/mark-remaining-not-selected', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          }
         });
 
         const data = await response.json();
@@ -867,7 +877,10 @@
       try {
         const response = await fetch('/admin/scholarships/' + scholarshipId + '/send-exam-details', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
+          }
         });
 
         const data = await response.json();

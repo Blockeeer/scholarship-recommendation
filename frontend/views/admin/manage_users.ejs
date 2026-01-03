@@ -505,6 +505,7 @@
   <script src="/js/sidebar.js"></script>
   <script>
     const users = <%- JSON.stringify(users) %>;
+    const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
 
     function showTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(function(tab) { tab.classList.remove('active'); });
@@ -563,7 +564,13 @@
 
       if (!confirm('Are you sure you want to ' + action + ' this user?')) return;
 
-      fetch('/admin/users/' + id + '/toggle-status', { method: 'POST' })
+      fetch('/admin/users/' + id + '/toggle-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      })
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (data.success) {
@@ -629,7 +636,10 @@
 
       fetch('/admin/users/bulk-action', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ userIds: userIds, action: action })
       })
         .then(function(res) { return res.json(); })

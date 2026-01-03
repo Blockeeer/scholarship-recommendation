@@ -625,6 +625,7 @@
   </div>
 
   <script>
+    const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
     let selectedAvatarFile = null;
 
     // Edit Profile Modal
@@ -661,7 +662,8 @@
         const response = await fetch('/admin/profile/update', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken
           },
           body: JSON.stringify({ fullName })
         });
@@ -744,6 +746,7 @@
 
       const formData = new FormData();
       formData.append('profilePicture', selectedAvatarFile);
+      formData.append('_csrf', csrfToken);
 
       try {
         const response = await fetch('/admin/profile/avatar', {
