@@ -585,6 +585,12 @@
             <p>Submit your application now and take the first step towards your scholarship!</p>
             <a href="/student/scholarships/<%= scholarship.id %>/apply" class="btn-apply">Apply Now</a>
           </div>
+        <% } else if (hasApplied) { %>
+          <div class="apply-section" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">
+            <h2>Application Submitted</h2>
+            <p>You have already applied for this scholarship. Check your applications page for status updates.</p>
+            <a href="/student/applications" class="btn-apply" style="color: #27ae60;">View My Applications</a>
+          </div>
         <% } else if (!hasAssessment) { %>
           <div class="apply-section" style="background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);">
             <h2>Complete Your Assessment First</h2>

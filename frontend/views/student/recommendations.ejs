@@ -645,7 +645,11 @@
                       <% if (isAvailable) { %>
                         <div class="card-actions">
                           <a href="/student/scholarships/<%= rec.scholarshipId %>" class="btn btn-view">View Details</a>
-                          <a href="/student/scholarships/<%= rec.scholarshipId %>/apply" class="btn btn-apply">Apply Now</a>
+                          <% if (rec.hasApplied) { %>
+                            <span class="btn btn-applied" style="background: #6b7280; cursor: default;">Applied</span>
+                          <% } else { %>
+                            <a href="/student/scholarships/<%= rec.scholarshipId %>/apply" class="btn btn-apply">Apply Now</a>
+                          <% } %>
                         </div>
                       <% } %>
                     <% } %>

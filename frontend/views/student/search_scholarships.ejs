@@ -327,7 +327,11 @@
                 </div>
                 <div class="card-actions">
                   <a href="/student/scholarships/<%= scholarship.id %>" class="btn btn-view">View Details</a>
-                  <a href="/student/scholarships/<%= scholarship.id %>/apply" class="btn btn-apply">Apply</a>
+                  <% if (scholarship.hasApplied) { %>
+                    <span class="btn btn-applied" style="background: #6b7280; cursor: default;">Applied</span>
+                  <% } else { %>
+                    <a href="/student/scholarships/<%= scholarship.id %>/apply" class="btn btn-apply">Apply</a>
+                  <% } %>
                 </div>
               </div>
             <% }); %>

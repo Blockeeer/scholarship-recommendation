@@ -100,8 +100,19 @@ async function searchScholarships(req, res) {
 
   const { type, course, minGPA, search } = req.query;
   const { page, limit } = getPaginationParams(req.query, 9); // 9 items per page (3x3 grid)
+  const studentUid = req.session.user.uid;
 
   try {
+    // Get student's applications to check which scholarships they've already applied to
+    const applicationsRef = collection(db, "applications");
+    const applicationsQuery = query(applicationsRef, where("studentUid", "==", studentUid));
+    const applicationsSnapshot = await getDocs(applicationsQuery);
+
+    const appliedScholarshipIds = new Set();
+    applicationsSnapshot.forEach(doc => {
+      appliedScholarshipIds.add(doc.data().scholarshipId);
+    });
+
     const scholarshipsRef = collection(db, "scholarships");
     // Use only where clause to avoid composite index requirement
     let q = query(scholarshipsRef, where("status", "==", "Open"));
@@ -149,6 +160,12 @@ async function searchScholarships(req, res) {
 
     const scholarshipTypes = [...new Set(allScholarships.map(s => s.scholarshipType))];
     const courses = [...new Set(allScholarships.flatMap(s => s.eligibleCourses || []))];
+
+    // Mark scholarships that the student has already applied to
+    scholarships = scholarships.map(s => ({
+      ...s,
+      hasApplied: appliedScholarshipIds.has(s.id)
+    }));
 
     // Paginate the filtered results
     const { data: paginatedScholarships, pagination } = paginateArray(scholarships, page, limit);
@@ -290,6 +307,16 @@ async function getRecommendations(req, res) {
   const studentUid = req.session.user.uid;
 
   try {
+    // Get student's applications to check which scholarships they've already applied to
+    const applicationsRef = collection(db, "applications");
+    const applicationsQuery = query(applicationsRef, where("studentUid", "==", studentUid));
+    const applicationsSnapshot = await getDocs(applicationsQuery);
+
+    const appliedScholarshipIds = new Set();
+    applicationsSnapshot.forEach(doc => {
+      appliedScholarshipIds.add(doc.data().scholarshipId);
+    });
+
     // Get student's assessment
     const assessmentRef = doc(db, "users", studentUid, "assessment", "main");
     const assessmentDoc = await getDoc(assessmentRef);
@@ -334,12 +361,13 @@ async function getRecommendations(req, res) {
       scholarshipsMap[doc.id] = { id: doc.id, ...doc.data() };
     });
 
-    // Enhance saved recommendations with current scholarship data
+    // Enhance saved recommendations with current scholarship data and applied status
     const enhancedRecommendations = savedRecommendations.map(rec => {
       const scholarship = scholarshipsMap[rec.scholarshipId];
       return {
         ...rec,
-        scholarship
+        scholarship,
+        hasApplied: appliedScholarshipIds.has(rec.scholarshipId)
       };
     }).filter(rec => rec.scholarship); // Filter out recommendations for deleted scholarships
 
