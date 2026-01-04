@@ -240,6 +240,24 @@
       font-size: 1rem;
     }
 
+    .rank-badge.accepted-badge {
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .rank-badge.notified-badge {
+      background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .rank-badge.not-selected-badge {
+      background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+      color: white;
+      font-size: 1.5rem;
+    }
+
     .applicant-info {
       flex: 1;
     }
@@ -505,10 +523,15 @@
 
           <div class="applications-list" id="applicationsList">
             <% applications.forEach((app, index) => {
+              // Only show rank numbers for pending/under_review applications
+              const isRanked = ['pending', 'under_review'].includes(app.status);
               let rankClass = '';
-              if (app.rank === 1) rankClass = 'gold';
-              else if (app.rank === 2) rankClass = 'silver';
-              else if (app.rank === 3) rankClass = 'bronze';
+              if (isRanked && app.rank === 1) rankClass = 'gold';
+              else if (isRanked && app.rank === 2) rankClass = 'silver';
+              else if (isRanked && app.rank === 3) rankClass = 'bronze';
+              else if (app.status === 'accepted') rankClass = 'accepted-badge';
+              else if (app.status === 'notified') rankClass = 'notified-badge';
+              else if (app.status === 'not_selected') rankClass = 'not-selected-badge';
               else if (!app.rank) rankClass = 'unranked';
 
               let statusDisplay = app.status;
@@ -517,13 +540,17 @@
               else statusDisplay = app.status.charAt(0).toUpperCase() + app.status.slice(1);
             %>
               <div class="application-card status-<%= app.status %>" data-status="<%= app.status %>" data-rank="<%= app.rankScore || 0 %>" data-gpa="<%= app.gpa %>" data-date="<%= app.createdAt %>" data-app-id="<%= app.id %>">
-                <% if (['pending', 'under_review', 'accepted'].includes(app.status)) { %>
+                <% if (['pending', 'under_review'].includes(app.status)) { %>
                   <input type="checkbox" class="app-checkbox app-select" data-app-id="<%= app.id %>" onchange="updateBatchSelection()">
                 <% } else { %>
                   <div></div>
                 <% } %>
                 <div class="rank-badge <%= rankClass %>">
-                  <% if (app.rank) { %>
+                  <% if (app.status === 'accepted' || app.status === 'notified') { %>
+                    ✓
+                  <% } else if (app.status === 'not_selected') { %>
+                    ✗
+                  <% } else if (isRanked && app.rank) { %>
                     <%= app.rank %>
                   <% } else { %>
                     --

@@ -291,21 +291,43 @@ async function getScholarshipApplications(req, res) {
 
     const applications = [];
     snapshot.forEach(doc => {
-      applications.push({ id: doc.id, ...doc.data() });
+      const appData = doc.data();
+      // Skip draft applications
+      if (appData.status !== 'draft') {
+        applications.push({ id: doc.id, ...appData });
+      }
     });
 
-    // Sort by matchScore (highest first) if ranked, otherwise by createdAt (newest first)
-    applications.sort((a, b) => {
-      // If both have matchScore (ranked), sort by matchScore descending
-      if (a.matchScore !== undefined && b.matchScore !== undefined) {
-        return b.matchScore - a.matchScore;
+    // Separate accepted/notified from pending/under_review for ranking
+    const acceptedApps = applications.filter(a => ['accepted', 'notified', 'not_selected'].includes(a.status));
+    const pendingApps = applications.filter(a => ['pending', 'under_review'].includes(a.status));
+
+    // Sort pending applications by rankScore (highest first), then by createdAt
+    pendingApps.sort((a, b) => {
+      const scoreA = a.rankScore || a.matchScore || 0;
+      const scoreB = b.rankScore || b.matchScore || 0;
+      if (scoreA !== scoreB) {
+        return scoreB - scoreA; // Higher score first
       }
-      // If only one has matchScore, prioritize the ranked one
-      if (a.matchScore !== undefined) return -1;
-      if (b.matchScore !== undefined) return 1;
-      // Otherwise sort by createdAt descending
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
+
+    // Reassign ranks to pending applications (1, 2, 3, ...) based on sorted order
+    pendingApps.forEach((app, index) => {
+      if (app.rankScore || app.matchScore) {
+        app.rank = index + 1;
+      }
+    });
+
+    // Sort accepted apps by acceptance date
+    acceptedApps.sort((a, b) => {
+      const dateA = a.acceptedAt || a.updatedAt || a.createdAt;
+      const dateB = b.acceptedAt || b.updatedAt || b.createdAt;
+      return new Date(dateB) - new Date(dateA);
+    });
+
+    // Combine: pending apps first (ranked), then accepted apps
+    const sortedApplications = [...pendingApps, ...acceptedApps];
 
     // Calculate stats
     const stats = {
@@ -329,7 +351,7 @@ async function getScholarshipApplications(req, res) {
     res.render("sponsor/applications_list", {
       email: req.session.user.email,
       scholarship,
-      applications,
+      applications: sortedApplications,
       stats: sponsorStats
     });
 
