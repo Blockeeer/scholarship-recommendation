@@ -76,14 +76,16 @@ async function showAdminDashboard(req, res) {
 
     // Process applications by status
     let totalApplications = 0;
-    let approvedApplications = 0;
-    let rejectedApplications = 0;
+    let acceptedApplications = 0;
+    let notifiedApplications = 0;
+    let notSelectedApplications = 0;
     let pendingApplications = 0;
     applicationsSnapshot.forEach(doc => {
       totalApplications++;
       const status = doc.data().status;
-      if (status === 'approved') approvedApplications++;
-      else if (status === 'rejected') rejectedApplications++;
+      if (status === 'accepted') acceptedApplications++;
+      else if (status === 'notified') notifiedApplications++;
+      else if (status === 'not_selected') notSelectedApplications++;
       else if (status === 'pending' || status === 'under_review') pendingApplications++;
     });
 
@@ -137,8 +139,9 @@ async function showAdminDashboard(req, res) {
         openScholarships,
         closedScholarships,
         totalApplications,
-        approvedApplications,
-        rejectedApplications,
+        acceptedApplications,
+        notifiedApplications,
+        notSelectedApplications,
         pendingApplications
       },
       recentActivity: recentActivity.slice(0, 5)

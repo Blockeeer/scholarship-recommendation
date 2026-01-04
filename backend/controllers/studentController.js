@@ -55,16 +55,18 @@ async function showStudentDashboard(req, res) {
     let applicationStats = {
       total: 0,
       pending: 0,
-      approved: 0,
-      rejected: 0
+      accepted: 0,
+      notified: 0,
+      notSelected: 0
     };
 
     appSnapshot.forEach(doc => {
       const app = doc.data();
       applicationStats.total++;
       if (app.status === "pending" || app.status === "under_review") applicationStats.pending++;
-      else if (app.status === "approved") applicationStats.approved++;
-      else if (app.status === "rejected") applicationStats.rejected++;
+      else if (app.status === "accepted") applicationStats.accepted++;
+      else if (app.status === "notified") applicationStats.notified++;
+      else if (app.status === "not_selected") applicationStats.notSelected++;
     });
 
     const availableScholarships = scholarshipSnapshot.size;
@@ -83,7 +85,7 @@ async function showStudentDashboard(req, res) {
       email: req.session.user.email,
       fullName: req.session.user.fullName || "",
       hasAssessment: false,
-      applicationStats: { total: 0, pending: 0, approved: 0, rejected: 0 },
+      applicationStats: { total: 0, pending: 0, accepted: 0, notified: 0, notSelected: 0 },
       availableScholarships: 0,
       unreadNotifications: 0
     });

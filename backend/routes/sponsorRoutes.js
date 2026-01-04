@@ -334,8 +334,10 @@ router.get('/dashboard', async (req, res) => {
     let applicationStats = {
       total: 0,
       pending: 0,
-      approved: 0,
-      rejected: 0
+      accepted: 0,
+      notified: 0,
+      notSelected: 0,
+      ranked: 0
     };
 
     // Use batched queries for scholarshipIds (Firestore 'in' supports max 30 items)
@@ -353,8 +355,11 @@ router.get('/dashboard', async (req, res) => {
           const app = doc.data();
           applicationStats.total++;
           if (app.status === 'pending' || app.status === 'under_review') applicationStats.pending++;
-          else if (app.status === 'approved') applicationStats.approved++;
-          else if (app.status === 'rejected') applicationStats.rejected++;
+          else if (app.status === 'accepted') applicationStats.accepted++;
+          else if (app.status === 'notified') applicationStats.notified++;
+          else if (app.status === 'not_selected') applicationStats.notSelected++;
+          // Count ranked applications (those with matchScore)
+          if (app.matchScore !== undefined) applicationStats.ranked++;
         });
       }
     }
@@ -375,7 +380,7 @@ router.get('/dashboard', async (req, res) => {
       email: req.session.user.email,
       fullName: req.session.user.fullName || "",
       scholarshipStats: { total: 0, open: 0, pending: 0, closed: 0, totalSlots: 0, filledSlots: 0 },
-      applicationStats: { total: 0, pending: 0, approved: 0, rejected: 0 },
+      applicationStats: { total: 0, pending: 0, accepted: 0, notified: 0, notSelected: 0, ranked: 0 },
       unreadNotifications: 0
     });
   }

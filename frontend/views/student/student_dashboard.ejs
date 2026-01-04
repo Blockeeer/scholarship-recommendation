@@ -13,7 +13,7 @@
 </head>
 <%
   // Default values for variables if not provided
-  const stats = typeof applicationStats !== 'undefined' ? applicationStats : { total: 0, pending: 0, approved: 0, rejected: 0 };
+  const stats = typeof applicationStats !== 'undefined' ? applicationStats : { total: 0, pending: 0, accepted: 0, notified: 0, notSelected: 0 };
   const scholarships = typeof availableScholarships !== 'undefined' ? availableScholarships : 0;
   const notifications = typeof unreadNotifications !== 'undefined' ? unreadNotifications : 0;
   const assessment = typeof hasAssessment !== 'undefined' ? hasAssessment : false;
@@ -56,9 +56,9 @@
             <div class="stat-header">
               <div class="stat-icon">✅</div>
             </div>
-            <div class="stat-value"><%= stats.approved %></div>
-            <div class="stat-label">Approved</div>
-            <div class="stat-trend trend-up">Applications</div>
+            <div class="stat-value"><%= (stats.accepted || 0) + (stats.notified || 0) %></div>
+            <div class="stat-label">Accepted</div>
+            <div class="stat-trend trend-up"><%= stats.notified || 0 %> notified</div>
           </div>
 
           <div class="stat-card">
@@ -97,16 +97,16 @@
             <% if (stats.total > 0) { %>
             <div class="chart-stats">
               <div class="chart-stat">
-                <div class="chart-stat-value" style="color: #10b981;"><%= stats.approved %></div>
-                <div class="chart-stat-label">Approved</div>
+                <div class="chart-stat-value" style="color: #10b981;"><%= (stats.accepted || 0) + (stats.notified || 0) %></div>
+                <div class="chart-stat-label">Accepted</div>
               </div>
               <div class="chart-stat">
                 <div class="chart-stat-value" style="color: #f59e0b;"><%= stats.pending %></div>
                 <div class="chart-stat-label">Pending</div>
               </div>
               <div class="chart-stat">
-                <div class="chart-stat-value" style="color: #ef4444;"><%= stats.rejected || 0 %></div>
-                <div class="chart-stat-label">Rejected</div>
+                <div class="chart-stat-value" style="color: #ef4444;"><%= stats.notSelected || 0 %></div>
+                <div class="chart-stat-label">Not Selected</div>
               </div>
             </div>
             <% } %>
@@ -177,12 +177,13 @@
   <script>
     <% if (stats.total > 0) { %>
     // Application Status Doughnut Chart
+    const acceptedCount = <%= (stats.accepted || 0) + (stats.notified || 0) %>;
     new Chart(document.getElementById('applicationChart'), {
       type: 'doughnut',
       data: {
-        labels: ['Approved', 'Pending', 'Rejected'],
+        labels: ['Accepted', 'Pending', 'Not Selected'],
         datasets: [{
-          data: [<%= stats.approved %>, <%= stats.pending %>, <%= stats.rejected || 0 %>],
+          data: [acceptedCount, <%= stats.pending %>, <%= stats.notSelected || 0 %>],
           backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
           borderWidth: 0
         }]
@@ -199,8 +200,8 @@
     });
 
     // Success Rate Chart
-    const successRate = <%= stats.approved %> > 0
-      ? Math.round((<%= stats.approved %> / <%= stats.total %>) * 100)
+    const successRate = acceptedCount > 0
+      ? Math.round((acceptedCount / <%= stats.total %>) * 100)
       : 0;
 
     new Chart(document.getElementById('successChart'), {

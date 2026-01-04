@@ -53,15 +53,17 @@
     totalStudents: 0,
     totalSponsors: 0,
     totalApplications: 0,
-    approvedApplications: 0,
-    rejectedApplications: 0,
+    acceptedApplications: 0,
+    notifiedApplications: 0,
+    notSelectedApplications: 0,
     pendingApplications: 0,
     openScholarships: 0,
     closedScholarships: 0
   };
   // Calculate derived stats
   const activeScholarships = adminStats.openScholarships || (adminStats.totalScholarships - adminStats.pendingScholarships - (adminStats.closedScholarships || 0));
-  const pendingApps = adminStats.pendingApplications || (adminStats.totalApplications - adminStats.approvedApplications - (adminStats.rejectedApplications || 0));
+  const pendingApps = adminStats.pendingApplications || 0;
+  const totalAccepted = (adminStats.acceptedApplications || 0) + (adminStats.notifiedApplications || 0);
 %>
 <body>
   <%- include('../partials/sidebar_admin') %>
@@ -130,7 +132,7 @@
               </div>
               <div class="stat-value"><%= adminStats.totalApplications %></div>
               <div class="stat-label">Total Applications</div>
-              <div class="stat-trend"><%= adminStats.approvedApplications %> approved</div>
+              <div class="stat-trend"><%= totalAccepted %> accepted (<%= adminStats.notifiedApplications || 0 %> notified)</div>
             </div>
           </div>
 
@@ -179,16 +181,16 @@
               </div>
               <div class="chart-stats">
                 <div class="chart-stat">
-                  <div class="chart-stat-value" style="color: #10b981;"><%= adminStats.approvedApplications %></div>
-                  <div class="chart-stat-label">Approved</div>
+                  <div class="chart-stat-value" style="color: #10b981;"><%= totalAccepted %></div>
+                  <div class="chart-stat-label">Accepted</div>
                 </div>
                 <div class="chart-stat">
                   <div class="chart-stat-value" style="color: #f59e0b;"><%= pendingApps %></div>
                   <div class="chart-stat-label">Pending</div>
                 </div>
                 <div class="chart-stat">
-                  <div class="chart-stat-value" style="color: #ef4444;"><%= adminStats.rejectedApplications || 0 %></div>
-                  <div class="chart-stat-label">Rejected</div>
+                  <div class="chart-stat-value" style="color: #ef4444;"><%= adminStats.notSelectedApplications || 0 %></div>
+                  <div class="chart-stat-label">Not Selected</div>
                 </div>
               </div>
             </div>
@@ -263,9 +265,9 @@
       pendingScholarships: <%= adminStats.pendingScholarships %>,
       activeScholarships: <%= activeScholarships %>,
       closedScholarships: <%= adminStats.closedScholarships || 0 %>,
-      approvedApplications: <%= adminStats.approvedApplications %>,
+      acceptedApplications: <%= totalAccepted %>,
       pendingApplications: <%= pendingApps %>,
-      rejectedApplications: <%= adminStats.rejectedApplications || 0 %>
+      notSelectedApplications: <%= adminStats.notSelectedApplications || 0 %>
     };
 
     // User Distribution Doughnut Chart
@@ -316,10 +318,10 @@
     new Chart(document.getElementById('applicationChart'), {
       type: 'bar',
       data: {
-        labels: ['Approved', 'Pending', 'Rejected'],
+        labels: ['Accepted', 'Pending', 'Not Selected'],
         datasets: [{
           label: 'Applications',
-          data: [chartData.approvedApplications, chartData.pendingApplications, chartData.rejectedApplications],
+          data: [chartData.acceptedApplications, chartData.pendingApplications, chartData.notSelectedApplications],
           backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
           borderRadius: 6
         }]
@@ -351,12 +353,12 @@
         datasets: [{
           label: 'Applications',
           data: [
-            Math.round(chartData.approvedApplications * 0.1),
-            Math.round(chartData.approvedApplications * 0.3),
-            Math.round(chartData.approvedApplications * 0.5),
-            Math.round(chartData.approvedApplications * 0.7),
-            Math.round(chartData.approvedApplications * 0.85),
-            chartData.approvedApplications + chartData.pendingApplications
+            Math.round(chartData.acceptedApplications * 0.1),
+            Math.round(chartData.acceptedApplications * 0.3),
+            Math.round(chartData.acceptedApplications * 0.5),
+            Math.round(chartData.acceptedApplications * 0.7),
+            Math.round(chartData.acceptedApplications * 0.85),
+            chartData.acceptedApplications + chartData.pendingApplications
           ],
           borderColor: '#667eea',
           backgroundColor: 'rgba(102, 126, 234, 0.1)',
