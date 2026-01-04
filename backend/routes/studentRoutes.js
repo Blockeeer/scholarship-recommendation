@@ -132,4 +132,29 @@ router.get('/notifications', requireStudent, getNotifications);
 router.post('/notifications/:id/read', requireStudent, markNotificationRead);
 router.post('/notifications/read-all', requireStudent, markAllNotificationsRead);
 
+// API endpoint for sidebar counts (notifications)
+const { db } = require('../config/firebaseConfig');
+const { collection, query, where, getDocs } = require('firebase/firestore');
+
+router.get('/api/counts', requireStudent, async (req, res) => {
+  try {
+    const studentUid = req.session.user.uid;
+
+    // Get unread notifications count
+    const notificationsRef = collection(db, 'notifications');
+    const notifQuery = query(
+      notificationsRef,
+      where('userId', '==', studentUid),
+      where('read', '==', false)
+    );
+    const notifSnapshot = await getDocs(notifQuery);
+
+    res.json({
+      unreadNotifications: notifSnapshot.size
+    });
+  } catch (error) {
+    res.json({ unreadNotifications: 0 });
+  }
+});
+
 module.exports = router;
