@@ -486,7 +486,7 @@
                   <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
                   <% if (hasCompletedAssessment && uploadedFiles.grades) { %>
                     <div class="current-file">
-                      <a href="/uploads/<%= uploadedFiles.grades %>" target="_blank" style="color: inherit; text-decoration: underline;">
+                      <a href="<%= uploadedFiles.grades %>" target="_blank" style="color: inherit; text-decoration: underline;">
                         View current file
                       </a>
                       - upload new to replace
@@ -500,7 +500,7 @@
                   <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
                   <% if (hasCompletedAssessment && uploadedFiles.coe) { %>
                     <div class="current-file">
-                      <a href="/uploads/<%= uploadedFiles.coe %>" target="_blank" style="color: inherit; text-decoration: underline;">
+                      <a href="<%= uploadedFiles.coe %>" target="_blank" style="color: inherit; text-decoration: underline;">
                         View current file
                       </a>
                       - upload new to replace
@@ -514,7 +514,7 @@
                   <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
                   <% if (hasCompletedAssessment && uploadedFiles.schoolId) { %>
                     <div class="current-file">
-                      <a href="/uploads/<%= uploadedFiles.schoolId %>" target="_blank" style="color: inherit; text-decoration: underline;">
+                      <a href="<%= uploadedFiles.schoolId %>" target="_blank" style="color: inherit; text-decoration: underline;">
                         View current file
                       </a>
                       - upload new to replace
@@ -529,8 +529,8 @@
                   <% if (hasCompletedAssessment && uploadedFiles.otherDocuments && uploadedFiles.otherDocuments.length > 0) { %>
                     <div class="current-file">
                       <%= uploadedFiles.otherDocuments.length %> file(s) uploaded:
-                      <% uploadedFiles.otherDocuments.forEach(function(filename, index) { %>
-                        <a href="/uploads/<%= filename %>" target="_blank" style="color: inherit; text-decoration: underline; margin-left: 0.5rem;">
+                      <% uploadedFiles.otherDocuments.forEach(function(fileUrl, index) { %>
+                        <a href="<%= fileUrl %>" target="_blank" style="color: inherit; text-decoration: underline; margin-left: 0.5rem;">
                           File <%= index + 1 %>
                         </a>
                       <% }); %>

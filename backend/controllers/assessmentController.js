@@ -1,5 +1,7 @@
 const { db } = require("../config/firebaseConfig");
 const { doc, setDoc, getDoc } = require("firebase/firestore");
+const { uploadToCloudinary } = require("../config/cloudinaryConfig");
+const fs = require("fs");
 
 async function showAssessmentForm(req, res) {
 
@@ -39,6 +41,34 @@ async function showAssessmentForm(req, res) {
   }
 }
 
+/**
+ * Upload a single file to Cloudinary and clean up local file
+ * @param {object} file - Multer file object
+ * @param {string} userUid - User ID for folder organization
+ * @param {string} docType - Document type (grades, coe, schoolId, etc.)
+ * @returns {Promise<string|null>} - Cloudinary URL or null
+ */
+async function uploadFileToCloudinary(file, userUid, docType) {
+  if (!file) return null;
+
+  try {
+    const folder = `iskolarpath/assessments/${userUid}`;
+    const result = await uploadToCloudinary(file.path, folder, `${docType}_${Date.now()}`);
+
+    // Delete the local temp file after successful upload
+    fs.unlink(file.path, (err) => {
+      if (err) console.error('Error deleting temp file:', err);
+    });
+
+    return result.secure_url;
+  } catch (error) {
+    console.error(`Error uploading ${docType} to Cloudinary:`, error);
+    // Clean up local file even on error
+    fs.unlink(file.path, () => {});
+    return null;
+  }
+}
+
 async function submitAssessment(req, res) {
 
   // Check if user is logged in
@@ -67,7 +97,7 @@ async function submitAssessment(req, res) {
   // Validate required fields
   const requiredFields = { fullName, age, gender, course, yearLevel, gpa, incomeRange, scholarshipType, essayReason };
   const missingFields = Object.keys(requiredFields).filter(key => !requiredFields[key]);
-  
+
   if (missingFields.length > 0) {
     return res.status(400).send(`Missing required fields: ${missingFields.join(', ')}`);
   }
@@ -80,15 +110,49 @@ async function submitAssessment(req, res) {
     const existingAssessmentDoc = await getDoc(assessmentRef);
     const existingFiles = existingAssessmentDoc.exists() ? (existingAssessmentDoc.data().files || {}) : {};
 
-    // Get file paths - preserve existing if no new file uploaded
+    // Upload files to Cloudinary - preserve existing if no new file uploaded
     const files = {
-      grades: req.files && req.files['grades'] ? req.files['grades'][0].filename : existingFiles.grades || null,
-      coe: req.files && req.files['coe'] ? req.files['coe'][0].filename : existingFiles.coe || null,
-      schoolId: req.files && req.files['schoolId'] ? req.files['schoolId'][0].filename : existingFiles.schoolId || null,
-      otherDocuments: req.files && req.files['otherDocuments']
-        ? req.files['otherDocuments'].map(f => f.filename)
-        : existingFiles.otherDocuments || []
+      grades: null,
+      coe: null,
+      schoolId: null,
+      otherDocuments: []
     };
+
+    // Upload grades file
+    if (req.files && req.files['grades'] && req.files['grades'][0]) {
+      files.grades = await uploadFileToCloudinary(req.files['grades'][0], userUid, 'grades');
+    }
+    if (!files.grades) {
+      files.grades = existingFiles.grades || null;
+    }
+
+    // Upload COE file
+    if (req.files && req.files['coe'] && req.files['coe'][0]) {
+      files.coe = await uploadFileToCloudinary(req.files['coe'][0], userUid, 'coe');
+    }
+    if (!files.coe) {
+      files.coe = existingFiles.coe || null;
+    }
+
+    // Upload School ID file
+    if (req.files && req.files['schoolId'] && req.files['schoolId'][0]) {
+      files.schoolId = await uploadFileToCloudinary(req.files['schoolId'][0], userUid, 'schoolId');
+    }
+    if (!files.schoolId) {
+      files.schoolId = existingFiles.schoolId || null;
+    }
+
+    // Upload other documents
+    if (req.files && req.files['otherDocuments'] && req.files['otherDocuments'].length > 0) {
+      const uploadPromises = req.files['otherDocuments'].map((file, index) =>
+        uploadFileToCloudinary(file, userUid, `other_${index}`)
+      );
+      const uploadedUrls = await Promise.all(uploadPromises);
+      files.otherDocuments = uploadedUrls.filter(url => url !== null);
+    }
+    if (files.otherDocuments.length === 0) {
+      files.otherDocuments = existingFiles.otherDocuments || [];
+    }
 
     const assessmentData = {
       fullName: fullName.trim(),
@@ -107,12 +171,12 @@ async function submitAssessment(req, res) {
       status: "pending"
     };
 
-    
+
     await setDoc(assessmentRef, assessmentData);
 
     // 2. Update the user document to mark assessment as completed
     const userRef = doc(db, "users", userUid);
-    await setDoc(userRef, { 
+    await setDoc(userRef, {
       hasCompletedAssessment: true,
       lastAssessmentDate: submissionDate.toISOString()
     }, { merge: true }); // merge: true keeps existing fields
@@ -125,6 +189,7 @@ async function submitAssessment(req, res) {
 
     return res.redirect("/dashboard");
   } catch (err) {
+    console.error("Assessment submission error:", err);
     res.status(500).send("Error submitting assessment: " + err.message);
   }
 }

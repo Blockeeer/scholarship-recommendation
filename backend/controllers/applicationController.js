@@ -108,13 +108,13 @@ async function createApplication(req, res) {
     const userDoc = await getDoc(userRef);
     const userData = userDoc.data();
 
-    // Build document URLs from assessment files
+    // Get document URLs from assessment files (now stored as full Cloudinary URLs)
     const assessmentFiles = assessment.files || {};
     const documents = {
-      grades: assessmentFiles.grades ? `/uploads/${assessmentFiles.grades}` : null,
-      coe: assessmentFiles.coe ? `/uploads/${assessmentFiles.coe}` : null,
-      schoolId: assessmentFiles.schoolId ? `/uploads/${assessmentFiles.schoolId}` : null,
-      otherDocuments: assessmentFiles.otherDocuments ? assessmentFiles.otherDocuments.map(f => `/uploads/${f}`) : []
+      grades: assessmentFiles.grades || null,
+      coe: assessmentFiles.coe || null,
+      schoolId: assessmentFiles.schoolId || null,
+      otherDocuments: assessmentFiles.otherDocuments || []
     };
 
     // Create the application
