@@ -371,6 +371,9 @@ async function getRecommendations(req, res) {
       };
     }).filter(rec => rec.scholarship); // Filter out recommendations for deleted scholarships
 
+    // Sort recommendations by match percentage (highest first)
+    enhancedRecommendations.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+
     res.render("student/recommendations", {
       email: req.session.user.email,
       recommendations: enhancedRecommendations,
