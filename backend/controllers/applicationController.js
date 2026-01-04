@@ -294,8 +294,18 @@ async function getScholarshipApplications(req, res) {
       applications.push({ id: doc.id, ...doc.data() });
     });
 
-    // Sort by createdAt in JavaScript (descending)
-    applications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // Sort by matchScore (highest first) if ranked, otherwise by createdAt (newest first)
+    applications.sort((a, b) => {
+      // If both have matchScore (ranked), sort by matchScore descending
+      if (a.matchScore !== undefined && b.matchScore !== undefined) {
+        return b.matchScore - a.matchScore;
+      }
+      // If only one has matchScore, prioritize the ranked one
+      if (a.matchScore !== undefined) return -1;
+      if (b.matchScore !== undefined) return 1;
+      // Otherwise sort by createdAt descending
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
 
     // Calculate stats
     const stats = {
