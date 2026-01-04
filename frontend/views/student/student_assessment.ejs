@@ -476,13 +476,20 @@
                   Required Documents
                 </h2>
 
+                <%
+                  const uploadedFiles = assessmentData && assessmentData.files ? assessmentData.files : {};
+                %>
+
                 <div class="form-group file-upload">
                   <label>Transcript of Grades <span class="required">*</span></label>
                   <input type="file" name="grades" id="grades" accept=".pdf,.jpg,.jpeg,.png" <%= hasCompletedAssessment ? '' : 'required' %>>
                   <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
-                  <% if (hasCompletedAssessment && assessmentData && assessmentData.gradesFile) { %>
+                  <% if (hasCompletedAssessment && uploadedFiles.grades) { %>
                     <div class="current-file">
-                      Current file uploaded - leave empty to keep
+                      <a href="/uploads/<%= uploadedFiles.grades %>" target="_blank" style="color: inherit; text-decoration: underline;">
+                        View current file
+                      </a>
+                      - upload new to replace
                     </div>
                   <% } %>
                 </div>
@@ -491,9 +498,12 @@
                   <label>Certificate of Enrollment <span class="required">*</span></label>
                   <input type="file" name="coe" id="coe" accept=".pdf,.jpg,.jpeg,.png" <%= hasCompletedAssessment ? '' : 'required' %>>
                   <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
-                  <% if (hasCompletedAssessment && assessmentData && assessmentData.coeFile) { %>
+                  <% if (hasCompletedAssessment && uploadedFiles.coe) { %>
                     <div class="current-file">
-                      Current file uploaded - leave empty to keep
+                      <a href="/uploads/<%= uploadedFiles.coe %>" target="_blank" style="color: inherit; text-decoration: underline;">
+                        View current file
+                      </a>
+                      - upload new to replace
                     </div>
                   <% } %>
                 </div>
@@ -502,9 +512,12 @@
                   <label>School ID <span class="required">*</span></label>
                   <input type="file" name="schoolId" id="schoolId" accept=".pdf,.jpg,.jpeg,.png" <%= hasCompletedAssessment ? '' : 'required' %>>
                   <div class="form-hint">PDF, JPG, or PNG format (max 5MB)</div>
-                  <% if (hasCompletedAssessment && assessmentData && assessmentData.schoolIdFile) { %>
+                  <% if (hasCompletedAssessment && uploadedFiles.schoolId) { %>
                     <div class="current-file">
-                      Current file uploaded - leave empty to keep
+                      <a href="/uploads/<%= uploadedFiles.schoolId %>" target="_blank" style="color: inherit; text-decoration: underline;">
+                        View current file
+                      </a>
+                      - upload new to replace
                     </div>
                   <% } %>
                 </div>
@@ -513,6 +526,16 @@
                   <label>Other Supporting Documents (Optional)</label>
                   <input type="file" name="otherDocuments" id="otherDocuments" accept=".pdf,.jpg,.jpeg,.png" multiple>
                   <div class="form-hint">You may upload multiple files - certificates, awards, etc.</div>
+                  <% if (hasCompletedAssessment && uploadedFiles.otherDocuments && uploadedFiles.otherDocuments.length > 0) { %>
+                    <div class="current-file">
+                      <%= uploadedFiles.otherDocuments.length %> file(s) uploaded:
+                      <% uploadedFiles.otherDocuments.forEach(function(filename, index) { %>
+                        <a href="/uploads/<%= filename %>" target="_blank" style="color: inherit; text-decoration: underline; margin-left: 0.5rem;">
+                          File <%= index + 1 %>
+                        </a>
+                      <% }); %>
+                    </div>
+                  <% } %>
                 </div>
               </div>
 

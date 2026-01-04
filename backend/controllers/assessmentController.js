@@ -74,18 +74,22 @@ async function submitAssessment(req, res) {
 
   const submissionDate = new Date();
 
-  // Get file paths
-  const files = {
-    grades: req.files && req.files['grades'] ? req.files['grades'][0].filename : null,
-    coe: req.files && req.files['coe'] ? req.files['coe'][0].filename : null,
-    schoolId: req.files && req.files['schoolId'] ? req.files['schoolId'][0].filename : null,
-    otherDocuments: req.files && req.files['otherDocuments'] ? req.files['otherDocuments'].map(f => f.filename) : []
-  };
-
   try {
-    // 1. Save assessment as a subcollection under the user document (using UID)
+    // 1. Get existing assessment data to preserve files if not replaced
     const assessmentRef = doc(db, "users", userUid, "assessment", "main");
-    
+    const existingAssessmentDoc = await getDoc(assessmentRef);
+    const existingFiles = existingAssessmentDoc.exists() ? (existingAssessmentDoc.data().files || {}) : {};
+
+    // Get file paths - preserve existing if no new file uploaded
+    const files = {
+      grades: req.files && req.files['grades'] ? req.files['grades'][0].filename : existingFiles.grades || null,
+      coe: req.files && req.files['coe'] ? req.files['coe'][0].filename : existingFiles.coe || null,
+      schoolId: req.files && req.files['schoolId'] ? req.files['schoolId'][0].filename : existingFiles.schoolId || null,
+      otherDocuments: req.files && req.files['otherDocuments']
+        ? req.files['otherDocuments'].map(f => f.filename)
+        : existingFiles.otherDocuments || []
+    };
+
     const assessmentData = {
       fullName: fullName.trim(),
       age: parseInt(age),
