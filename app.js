@@ -113,8 +113,14 @@ app.use((req, res, next) => {
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "frontend/views"));
 
-// Serve static files from frontend
-app.use(express.static(path.join(__dirname, 'frontend/public')));
+// Serve static files from frontend with proper MIME types
+app.use(express.static(path.join(__dirname, 'frontend/public'), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    }
+  }
+}));
 app.use('/uploads', express.static(path.join(__dirname, 'backend/uploads')));
 
 // Input sanitization middleware (XSS protection)
