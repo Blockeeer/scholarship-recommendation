@@ -43,6 +43,9 @@
     .status-under_review { background: #dbeafe; color: #1e40af; }
     .status-approved { background: #d1fae5; color: #065f46; }
     .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-accepted { background: #d1fae5; color: #065f46; }
+    .status-notified { background: #dbeafe; color: #1e40af; }
+    .status-not_selected { background: #e5e7eb; color: #374151; }
     .detail-section {
       margin-bottom: 2rem;
     }
@@ -94,16 +97,25 @@
       text-decoration: none;
       color: var(--text-primary, #333);
       transition: all 0.2s;
+      border: 1px solid #e0e0e0;
     }
     .document-item:hover {
       background: var(--primary-color, #4f46e5);
       color: white;
+      border-color: var(--primary-color, #4f46e5);
     }
     .document-icon {
-      font-size: 1.25rem;
+      font-size: 1.5rem;
+      width: 32px;
+      text-align: center;
     }
     .document-name {
       flex: 1;
+      font-weight: 500;
+    }
+    .document-action {
+      font-size: 0.875rem;
+      opacity: 0.8;
     }
     .essay-section {
       background: var(--bg-secondary, #f8f9fa);
@@ -207,15 +219,15 @@
             </div>
           <% } %>
 
-          <% if (application.aiScore) { %>
+          <% if (application.rankScore) { %>
             <div class="ai-ranking">
               <div>
-                <div class="ai-score"><%= application.aiScore %>%</div>
+                <div class="ai-score"><%= application.rankScore %>%</div>
                 <div class="ai-label">AI Match Score</div>
               </div>
               <div style="flex: 1;">
                 <strong>AI Analysis:</strong>
-                <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem;"><%= application.aiReason || 'Based on qualifications and requirements match.' %></p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem;"><%= application.recommendation || 'Based on qualifications and requirements match.' %></p>
               </div>
             </div>
           <% } %>
@@ -227,13 +239,13 @@
                 <div class="applicant-email"><%= application.studentEmail || 'No email provided' %></div>
               </div>
               <span class="status-badge status-<%= application.status %>">
-                <%= application.status === 'under_review' ? 'Under Review' : application.status.charAt(0).toUpperCase() + application.status.slice(1) %>
+                <%= application.status === 'under_review' ? 'Under Review' : application.status === 'not_selected' ? 'Not Selected' : application.status.charAt(0).toUpperCase() + application.status.slice(1) %>
               </span>
             </div>
 
             <!-- Student Information -->
             <div class="detail-section">
-              <h3><span><“</span> Student Information</h3>
+              <h3>Student Information</h3>
               <div class="detail-grid">
                 <div class="detail-item">
                   <div class="detail-label">Full Name</div>
@@ -256,79 +268,90 @@
                   <div class="detail-value"><%= application.gpa || 'N/A' %></div>
                 </div>
                 <div class="detail-item">
+                  <div class="detail-label">Income Range</div>
+                  <div class="detail-value"><%= application.incomeRange || 'N/A' %></div>
+                </div>
+                <div class="detail-item">
                   <div class="detail-label">Applied On</div>
                   <div class="detail-value"><%= new Date(application.createdAt).toLocaleDateString() %></div>
                 </div>
               </div>
             </div>
 
+            <!-- Skills & Involvement -->
+            <% if (application.skills || application.involvement) { %>
+            <div class="detail-section">
+              <h3>Skills & Involvement</h3>
+              <div class="detail-grid">
+                <% if (application.skills) { %>
+                <div class="detail-item">
+                  <div class="detail-label">Skills</div>
+                  <div class="detail-value"><%= application.skills %></div>
+                </div>
+                <% } %>
+                <% if (application.involvement) { %>
+                <div class="detail-item">
+                  <div class="detail-label">Extracurricular Involvement</div>
+                  <div class="detail-value"><%= application.involvement %></div>
+                </div>
+                <% } %>
+              </div>
+            </div>
+            <% } %>
+
             <!-- Documents -->
             <div class="detail-section">
-              <h3><span>=Ä</span> Submitted Documents</h3>
+              <h3>Submitted Documents</h3>
               <div class="documents-section">
                 <%
                   const docs = application.documents || {};
-                  const hasDocuments = Object.keys(docs).some(key => docs[key]);
+                  const hasDocuments = docs.grades || docs.coe || docs.schoolId || (docs.otherDocuments && docs.otherDocuments.length > 0);
                 %>
                 <% if (hasDocuments) { %>
                   <div class="document-list">
                     <% if (docs.grades) { %>
                       <a href="<%= docs.grades %>" target="_blank" class="document-item">
-                        <span class="document-icon">=Ê</span>
+                        <span class="document-icon">&#128202;</span>
                         <span class="document-name">Grade Records</span>
-                        <span>View</span>
+                        <span class="document-action">View / Download</span>
                       </a>
                     <% } %>
                     <% if (docs.coe) { %>
                       <a href="<%= docs.coe %>" target="_blank" class="document-item">
-                        <span class="document-icon">=Ü</span>
+                        <span class="document-icon">&#128220;</span>
                         <span class="document-name">Certificate of Enrollment</span>
-                        <span>View</span>
+                        <span class="document-action">View / Download</span>
                       </a>
                     <% } %>
                     <% if (docs.schoolId) { %>
                       <a href="<%= docs.schoolId %>" target="_blank" class="document-item">
-                        <span class="document-icon">>ª</span>
+                        <span class="document-icon">&#128179;</span>
                         <span class="document-name">School ID</span>
-                        <span>View</span>
+                        <span class="document-action">View / Download</span>
                       </a>
                     <% } %>
-                    <% if (docs.incomeCertificate) { %>
-                      <a href="<%= docs.incomeCertificate %>" target="_blank" class="document-item">
-                        <span class="document-icon">=°</span>
-                        <span class="document-name">Income Certificate</span>
-                        <span>View</span>
-                      </a>
-                    <% } %>
-                    <% if (docs.recommendation) { %>
-                      <a href="<%= docs.recommendation %>" target="_blank" class="document-item">
-                        <span class="document-icon">	</span>
-                        <span class="document-name">Recommendation Letter</span>
-                        <span>View</span>
-                      </a>
-                    <% } %>
-                    <% if (docs.otherDocuments && Array.isArray(docs.otherDocuments)) { %>
+                    <% if (docs.otherDocuments && Array.isArray(docs.otherDocuments) && docs.otherDocuments.length > 0) { %>
                       <% docs.otherDocuments.forEach(function(docUrl, index) { %>
                         <a href="<%= docUrl %>" target="_blank" class="document-item">
-                          <span class="document-icon">=Î</span>
+                          <span class="document-icon">&#128206;</span>
                           <span class="document-name">Additional Document <%= index + 1 %></span>
-                          <span>View</span>
+                          <span class="document-action">View / Download</span>
                         </a>
                       <% }); %>
                     <% } %>
                   </div>
                 <% } else { %>
-                  <p class="no-documents">No documents have been submitted yet.</p>
+                  <p class="no-documents">No documents have been submitted with this application.</p>
                 <% } %>
               </div>
             </div>
 
-            <!-- Essay/Statement -->
-            <% if (application.essay) { %>
+            <!-- Application Letter / Essay -->
+            <% if (application.applicationLetter) { %>
               <div class="detail-section">
-                <h3><span>=Ý</span> Personal Statement / Essay</h3>
+                <h3>Application Letter</h3>
                 <div class="essay-section">
-                  <div class="essay-content"><%= application.essay %></div>
+                  <div class="essay-content"><%= application.applicationLetter %></div>
                 </div>
               </div>
             <% } %>
@@ -337,8 +360,8 @@
             <% if (application.status === 'pending' || application.status === 'under_review') { %>
               <div class="action-buttons">
                 <button class="btn-action btn-back" onclick="history.back()">Back to List</button>
-                <button class="btn-action btn-reject" onclick="updateStatus('rejected')">Reject Application</button>
-                <button class="btn-action btn-approve" onclick="updateStatus('approved')">Approve Application</button>
+                <button class="btn-action btn-reject" onclick="updateStatus('not_selected')">Mark Not Selected</button>
+                <button class="btn-action btn-approve" onclick="updateStatus('accepted')">Accept Applicant</button>
               </div>
             <% } else { %>
               <div class="action-buttons">
@@ -356,8 +379,8 @@
   <script src="/js/sidebar.js"></script>
   <script>
     function updateStatus(status) {
-      const action = status === 'approved' ? 'approve' : 'reject';
-      if (!confirm('Are you sure you want to ' + action + ' this application?')) return;
+      const action = status === 'accepted' ? 'accept' : 'mark as not selected';
+      if (!confirm('Are you sure you want to ' + action + ' this applicant?')) return;
 
       fetch('/sponsor/applications/<%= application.id %>/status', {
         method: 'POST',
@@ -367,10 +390,14 @@
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (data.success) {
-            alert('Application ' + status + ' successfully!');
+            alert('Application updated successfully!');
             location.reload();
           } else {
-            alert('Error: ' + (data.error || 'Failed to update application'));
+            if (data.slotsFull) {
+              alert('All scholarship slots are already filled! You cannot accept more students unless you undo existing acceptances.');
+            } else {
+              alert('Error: ' + (data.error || 'Failed to update application'));
+            }
           }
         })
         .catch(function(err) {

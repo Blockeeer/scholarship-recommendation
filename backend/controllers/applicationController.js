@@ -108,6 +108,15 @@ async function createApplication(req, res) {
     const userDoc = await getDoc(userRef);
     const userData = userDoc.data();
 
+    // Build document URLs from assessment files
+    const assessmentFiles = assessment.files || {};
+    const documents = {
+      grades: assessmentFiles.grades ? `/uploads/${assessmentFiles.grades}` : null,
+      coe: assessmentFiles.coe ? `/uploads/${assessmentFiles.coe}` : null,
+      schoolId: assessmentFiles.schoolId ? `/uploads/${assessmentFiles.schoolId}` : null,
+      otherDocuments: assessmentFiles.otherDocuments ? assessmentFiles.otherDocuments.map(f => `/uploads/${f}`) : []
+    };
+
     // Create the application
     const applicationData = {
       studentUid,
@@ -125,6 +134,8 @@ async function createApplication(req, res) {
       skills: assessment.skills,
       involvement: assessment.involvement,
       applicationLetter: applicationLetter || assessment.essayReason,
+      // Documents from assessment
+      documents: documents,
       // Application status - draft or pending
       status: isDraft ? "draft" : "pending",
       matchScore: null, // Will be calculated by GPT
