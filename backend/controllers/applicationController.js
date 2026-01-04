@@ -474,10 +474,55 @@ async function updateApplicationStatus(req, res) {
       reviewedBy: req.session.user.email
     };
 
-    // If sponsor accepts, record acceptance details (no slot limit check - sponsor decides)
+    // If sponsor accepts, check slot availability and update slots
     if (status === "accepted" && req.session.user.role === "sponsor") {
+      // Get scholarship to check slot availability
+      const scholarshipRef = doc(db, "scholarships", application.scholarshipId);
+      const scholarshipDoc = await getDoc(scholarshipRef);
+
+      if (scholarshipDoc.exists()) {
+        const scholarship = scholarshipDoc.data();
+        const slotsFilled = scholarship.slotsFilled || 0;
+        const slotsAvailable = scholarship.slotsAvailable || 0;
+
+        // Check if slots are full
+        if (slotsFilled >= slotsAvailable) {
+          return res.status(400).json({
+            error: "All scholarship slots are already filled. Cannot accept more students.",
+            slotsFull: true
+          });
+        }
+
+        // Increment slotsFilled when sponsor accepts
+        await updateDoc(scholarshipRef, {
+          slotsFilled: slotsFilled + 1,
+          updatedAt: new Date().toISOString()
+        });
+      }
+
       updateData.acceptedBySponsor = true;
       updateData.acceptedAt = new Date().toISOString();
+    }
+
+    // If sponsor undos acceptance (from accepted back to under_review), decrement slots
+    if (status === "under_review" && req.session.user.role === "sponsor" && application.status === "accepted") {
+      const scholarshipRef = doc(db, "scholarships", application.scholarshipId);
+      const scholarshipDoc = await getDoc(scholarshipRef);
+
+      if (scholarshipDoc.exists()) {
+        const scholarship = scholarshipDoc.data();
+        const currentFilled = scholarship.slotsFilled || 0;
+
+        // Decrement slotsFilled (but don't go below 0)
+        await updateDoc(scholarshipRef, {
+          slotsFilled: Math.max(0, currentFilled - 1),
+          updatedAt: new Date().toISOString()
+        });
+      }
+
+      // Clear the accepted fields
+      updateData.acceptedBySponsor = false;
+      updateData.acceptedAt = null;
     }
 
     // If admin notifies student of acceptance
@@ -485,16 +530,7 @@ async function updateApplicationStatus(req, res) {
       updateData.notifiedAt = new Date().toISOString();
       updateData.notifiedBy = req.session.user.email;
 
-      // Update scholarship slots when admin confirms
-      const scholarshipRef = doc(db, "scholarships", application.scholarshipId);
-      const scholarshipDoc = await getDoc(scholarshipRef);
-      if (scholarshipDoc.exists()) {
-        const scholarship = scholarshipDoc.data();
-        await updateDoc(scholarshipRef, {
-          slotsFilled: (scholarship.slotsFilled || 0) + 1,
-          updatedAt: new Date().toISOString()
-        });
-      }
+      // Note: Slot count is already updated when sponsor accepts, no need to update again
 
       // Notify student of approval
       const notificationData = {
@@ -644,6 +680,10 @@ async function batchUpdateApplicationStatus(req, res) {
   try {
     let successCount = 0;
     let failCount = 0;
+    let slotFullCount = 0;
+
+    // Track scholarship slot updates to avoid multiple reads
+    const scholarshipSlots = {};
 
     for (const applicationId of applicationIds) {
       try {
@@ -663,13 +703,52 @@ async function batchUpdateApplicationStatus(req, res) {
           continue;
         }
 
+        // Handle slot counting for accepting
+        if (status === "accepted") {
+          // Get or fetch scholarship slot info
+          if (!scholarshipSlots[application.scholarshipId]) {
+            const scholarshipRef = doc(db, "scholarships", application.scholarshipId);
+            const scholarshipDoc = await getDoc(scholarshipRef);
+            if (scholarshipDoc.exists()) {
+              const scholarship = scholarshipDoc.data();
+              scholarshipSlots[application.scholarshipId] = {
+                ref: scholarshipRef,
+                slotsFilled: scholarship.slotsFilled || 0,
+                slotsAvailable: scholarship.slotsAvailable || 0
+              };
+            }
+          }
+
+          const slotInfo = scholarshipSlots[application.scholarshipId];
+          if (slotInfo && slotInfo.slotsFilled >= slotInfo.slotsAvailable) {
+            slotFullCount++;
+            continue;
+          }
+
+          // Increment slot count
+          if (slotInfo) {
+            slotInfo.slotsFilled++;
+            await updateDoc(slotInfo.ref, {
+              slotsFilled: slotInfo.slotsFilled,
+              updatedAt: new Date().toISOString()
+            });
+          }
+        }
+
         // Update application status
-        await updateDoc(applicationRef, {
+        const updateData = {
           status: status,
           statusUpdatedAt: new Date().toISOString(),
           statusUpdatedBy: "sponsor",
           updatedAt: new Date().toISOString()
-        });
+        };
+
+        if (status === "accepted") {
+          updateData.acceptedBySponsor = true;
+          updateData.acceptedAt = new Date().toISOString();
+        }
+
+        await updateDoc(applicationRef, updateData);
 
         successCount++;
       } catch (err) {
@@ -677,10 +756,13 @@ async function batchUpdateApplicationStatus(req, res) {
       }
     }
 
+    let message = `${successCount} application(s) updated successfully`;
+    if (failCount > 0) message += `, ${failCount} failed`;
+    if (slotFullCount > 0) message += `, ${slotFullCount} skipped (slots full)`;
 
     res.json({
       success: true,
-      message: `${successCount} application(s) updated successfully${failCount > 0 ? `, ${failCount} failed` : ""}`
+      message
     });
 
   } catch (error) {
