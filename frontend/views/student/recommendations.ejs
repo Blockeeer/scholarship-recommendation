@@ -557,7 +557,8 @@
                 else if (rec.matchScore >= 60) matchClass = 'match-good';
                 else if (rec.matchScore >= 40) matchClass = 'match-fair';
 
-                const isAvailable = rec.scholarship && rec.scholarship.status !== 'Closed';
+                const slotsRemaining = rec.scholarship ? (rec.scholarship.slotsAvailable - (rec.scholarship.slotsFilled || 0)) : 0;
+                const isAvailable = rec.scholarship && rec.scholarship.status === 'Open' && slotsRemaining > 0;
               %>
                 <div class="recommendation-card <%= !isAvailable ? 'scholarship-unavailable' : '' %>">
                   <div class="match-badge <%= matchClass %>">

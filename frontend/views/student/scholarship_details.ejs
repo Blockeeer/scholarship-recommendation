@@ -579,7 +579,17 @@
           </div>
         </div>
 
-        <% if (hasApplied) { %>
+        <%
+          const slotsRemaining = scholarship.slotsAvailable - (scholarship.slotsFilled || 0);
+          const slotsFull = slotsRemaining <= 0;
+        %>
+        <% if (scholarship.status === 'Open' && !slotsFull && !hasApplied && hasAssessment) { %>
+          <div class="apply-section">
+            <h2>Ready to Apply?</h2>
+            <p>Submit your application now and take the first step towards your scholarship!</p>
+            <a href="/student/scholarships/<%= scholarship.id %>/apply" class="btn-apply">Apply Now</a>
+          </div>
+        <% } else if (hasApplied) { %>
           <div class="apply-section" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">
             <h2>Application Submitted</h2>
             <p>You have already applied for this scholarship. Check your applications page for status updates.</p>
@@ -591,19 +601,15 @@
             <p>You need to complete your profile assessment before you can apply for scholarships.</p>
             <a href="/student/assessment" class="btn-apply" style="color: #e74c3c;">Complete Assessment</a>
           </div>
-        <% } else if (scholarship.status === 'Closed') { %>
+        <% } else if (slotsFull) { %>
+          <div class="apply-section" style="background: #6c757d;">
+            <h2>Slots Full</h2>
+            <p>All available slots for this scholarship have been filled.</p>
+          </div>
+        <% } else if (scholarship.status !== 'Open') { %>
           <div class="apply-section" style="background: #6c757d;">
             <h2>Applications Closed</h2>
-            <p>This scholarship has been closed by the sponsor and is no longer accepting applications.</p>
-          </div>
-        <% } else { %>
-          <div class="apply-section">
-            <h2>Ready to Apply?</h2>
-            <% if (scholarship.status !== 'Open') { %>
-              <p style="margin-bottom: 0.5rem; color: #ffc107;"><strong>Note:</strong> The deadline has passed, but you can still submit your application.</p>
-            <% } %>
-            <p>Submit your application now and take the first step towards your scholarship!</p>
-            <a href="/student/scholarships/<%= scholarship.id %>/apply" class="btn-apply">Apply Now</a>
+            <p>This scholarship is no longer accepting applications (deadline has passed).</p>
           </div>
         <% } %>
       </div>
