@@ -240,6 +240,26 @@ async function getApplicationDetails(req, res) {
       }
     }
 
+    // Always fetch fresh document URLs from student's assessment (to handle legacy applications)
+    try {
+      const assessmentRef = doc(db, "users", application.studentUid, "assessment", "main");
+      const assessmentDoc = await getDoc(assessmentRef);
+      if (assessmentDoc.exists()) {
+        const assessment = assessmentDoc.data();
+        const assessmentFiles = assessment.files || {};
+        // Update application documents with latest from assessment
+        application.documents = {
+          grades: assessmentFiles.grades || null,
+          coe: assessmentFiles.coe || null,
+          schoolId: assessmentFiles.schoolId || null,
+          otherDocuments: assessmentFiles.otherDocuments || []
+        };
+      }
+    } catch (docError) {
+      console.error('Error fetching assessment documents:', docError);
+      // Keep existing documents if fetch fails
+    }
+
     // Render appropriate view based on role
     if (req.session.user.role === "student") {
       res.render("student/application_details", {
