@@ -51,14 +51,15 @@ async function createApplication(req, res) {
 
     const scholarship = scholarshipDoc.data();
 
-    if (scholarship.status !== "Open") {
-      return res.status(400).json({ error: "This scholarship is no longer accepting applications" });
+    // Allow students to apply even if slots are full or deadline passed
+    // They will be queued and sponsor can still review/accept them later
+    // Only block if scholarship is explicitly "Closed" by sponsor
+    if (scholarship.status === "Closed") {
+      return res.status(400).json({ error: "This scholarship has been closed by the sponsor" });
     }
 
-    // Check if slots are available (only for non-draft submissions)
-    if (!isDraft && (scholarship.slotsFilled || 0) >= scholarship.slotsAvailable) {
-      return res.status(400).json({ error: "No slots available for this scholarship" });
-    }
+    // Note: We no longer block applications when slots are full
+    // Students can queue up and sponsor decides who to accept
 
     // Check if student already has an application (draft or submitted) for this scholarship
     const applicationsRef = collection(db, "applications");
