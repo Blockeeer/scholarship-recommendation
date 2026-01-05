@@ -30,7 +30,9 @@ async function createApplication(req, res) {
   }
 
   const studentUid = req.session.user.uid;
-  const { scholarshipId, applicationLetter, saveAsDraft } = req.body;
+  const { applicationLetter, saveAsDraft } = req.body;
+  // Get scholarshipId from body OR from URL params (route: /scholarships/:id/apply)
+  const scholarshipId = req.body.scholarshipId || req.params.id;
 
   if (!scholarshipId) {
     return res.status(400).json({ error: "Scholarship ID is required" });
