@@ -27,7 +27,9 @@ const {
   createApplication,
   withdrawApplication,
   getDraftApplication,
-  deleteDraftApplication
+  deleteDraftApplication,
+  studentRespondToOffer,
+  getApprovedOffers
 } = require('../controllers/applicationController');
 
 // Create uploads directory if it doesn't exist
@@ -122,6 +124,10 @@ router.get('/applications', requireStudent, getMyApplications);
 router.get('/applications/:id', requireStudent, viewApplicationDetails);
 router.post('/applications/:id/withdraw', requireStudent, withdrawApplication);
 router.delete('/applications/:id/draft', requireStudent, deleteDraftApplication);
+
+// Scholarship offers - student accept/decline approved offers
+router.get('/offers', requireStudent, getApprovedOffers);
+router.post('/applications/:id/respond', requireStudent, studentRespondToOffer);
 
 // Recommendations (GPT-powered) - require student role
 router.get('/recommendations', requireStudent, getRecommendations);

@@ -177,6 +177,28 @@
       font-size: 0.875rem;
       font-weight: 500;
     }
+    .status-reopen {
+      background: #e0e7ff;
+      color: #4338ca;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .scholarship-card.reopen {
+      border-left-color: #6366f1;
+    }
+    .btn-reopen {
+      background: #6366f1;
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-reopen:hover { background: #4f46e5; }
   </style>
 </head>
 <body>
@@ -207,13 +229,17 @@
             </div>
           <% } else { %>
             <% scholarships.forEach(s => { %>
-              <div class="scholarship-card">
+              <div class="scholarship-card <%= s.requestType === 'reopen' ? 'reopen' : '' %>">
                 <div class="scholarship-header">
                   <div>
                     <div class="scholarship-title"><%= s.scholarshipName %></div>
                     <div class="scholarship-org">by <%= s.organizationName %></div>
                   </div>
-                  <span class="status-pending">Pending Review</span>
+                  <% if (s.requestType === 'reopen') { %>
+                    <span class="status-reopen">Reopen Request</span>
+                  <% } else { %>
+                    <span class="status-pending">Pending Review</span>
+                  <% } %>
                 </div>
 
                 <div class="scholarship-meta">
@@ -234,15 +260,20 @@
                     <div class="meta-value"><%= new Date(s.endDate).toLocaleDateString() %></div>
                   </div>
                   <div class="meta-item">
-                    <div class="meta-label">Submitted</div>
-                    <div class="meta-value"><%= new Date(s.createdAt).toLocaleDateString() %></div>
+                    <div class="meta-label"><%= s.requestType === 'reopen' ? 'Requested' : 'Submitted' %></div>
+                    <div class="meta-value"><%= new Date(s.requestType === 'reopen' ? s.reopenRequestedAt : s.createdAt).toLocaleDateString() %></div>
                   </div>
                 </div>
 
                 <div class="scholarship-actions">
                   <button class="btn-view" onclick="viewDetails('<%= s.id %>')">View Details</button>
-                  <button class="btn-approve" onclick="approveScholarship('<%= s.id %>')">Approve</button>
-                  <button class="btn-reject" onclick="showRejectModal('<%= s.id %>', '<%= s.scholarshipName %>')">Reject</button>
+                  <% if (s.requestType === 'reopen') { %>
+                    <button class="btn-reopen" onclick="reopenScholarship('<%= s.id %>')">Approve Reopen</button>
+                    <button class="btn-reject" onclick="rejectReopen('<%= s.id %>', '<%= s.scholarshipName %>')">Deny</button>
+                  <% } else { %>
+                    <button class="btn-approve" onclick="approveScholarship('<%= s.id %>')">Approve</button>
+                    <button class="btn-reject" onclick="showRejectModal('<%= s.id %>', '<%= s.scholarshipName %>')">Reject</button>
+                  <% } %>
                 </div>
               </div>
             <% }) %>
@@ -414,6 +445,51 @@
         })
         .catch(err => alert('Error rejecting scholarship'));
     });
+
+    // Reopen scholarship functions
+    function reopenScholarship(id) {
+      if (!confirm('Are you sure you want to approve this reopen request? The scholarship will be visible to students again.')) return;
+
+      fetch('/admin/scholarships/' + id + '/reopen', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Scholarship reopened successfully!');
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to reopen'));
+          }
+        })
+        .catch(err => alert('Error reopening scholarship'));
+    }
+
+    function rejectReopen(id, name) {
+      if (!confirm('Are you sure you want to deny the reopen request for "' + name + '"? The scholarship will remain closed.')) return;
+
+      fetch('/admin/scholarships/' + id + '/reject-reopen', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Reopen request denied. The sponsor has been notified.');
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to deny reopen request'));
+          }
+        })
+        .catch(err => alert('Error denying reopen request'));
+    }
   </script>
 </body>
 </html>

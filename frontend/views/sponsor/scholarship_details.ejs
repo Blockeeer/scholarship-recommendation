@@ -62,6 +62,7 @@
     .status-open { background: #dcfce7; color: #166534; }
     .status-closed { background: #fee2e2; color: #991b1b; }
     .status-pending { background: #fef3c7; color: #92400e; }
+    .status-pending\ reopen { background: #e0e7ff; color: #4338ca; }
 
     .content-grid {
       display: grid;
@@ -481,13 +482,27 @@
                   View Applications
                 </a>
 
-                <form action="/sponsor/offers/<%= scholarship.id %>/status" method="POST" style="margin: 0;">
-                  <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-                  <input type="hidden" name="status" value="<%= scholarship.status === 'Open' ? 'Closed' : 'Open' %>">
-                  <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <%= scholarship.status === 'Open' ? 'Close Scholarship' : 'Reopen Scholarship' %>
+                <button class="btn btn-warning" style="width: 100%;" onclick="openAnnouncementModal()">
+                  Announcements
+                </button>
+
+                <a href="/sponsor/offers/<%= scholarship.id %>/report" class="btn btn-info" style="width: 100%;">
+                  Grantees Report
+                </a>
+
+                <% if (scholarship.status === 'Pending Reopen') { %>
+                  <button class="btn btn-secondary" style="width: 100%; cursor: not-allowed;" disabled>
+                    Pending Admin Approval
                   </button>
-                </form>
+                <% } else { %>
+                  <form action="/sponsor/offers/<%= scholarship.id %>/status" method="POST" style="margin: 0;">
+                    <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                    <input type="hidden" name="status" value="<%= scholarship.status === 'Open' ? 'Closed' : 'Open' %>">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                      <%= scholarship.status === 'Open' ? 'Close Scholarship' : 'Request to Reopen' %>
+                    </button>
+                  </form>
+                <% } %>
 
                 <a href="/sponsor/offers/<%= scholarship.id %>/edit" class="btn btn-secondary">
                   Edit Details
@@ -598,6 +613,62 @@
     </div>
   </div>
 
+  <!-- Announcement Modal -->
+  <div class="modal-overlay" id="announcementModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>Send Announcement</h3>
+        <button class="modal-close" onclick="closeAnnouncementModal()">&times;</button>
+      </div>
+      <form id="announcementForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="audience">Send To *</label>
+            <select id="audience" name="audience" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius);">
+              <option value="all">All Applicants</option>
+              <option value="grantees">Grantees / Approved Students Only</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="annTitle">Announcement Title *</label>
+            <input type="text" id="annTitle" name="title" placeholder="Enter announcement title" required>
+          </div>
+          <div class="form-group">
+            <label for="annMessage">Message *</label>
+            <textarea id="annMessage" name="message" placeholder="Enter your announcement message..." required style="min-height: 100px;"></textarea>
+          </div>
+
+          <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius); margin-top: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+              <input type="checkbox" id="isExam" name="isExam" style="width: 18px; height: 18px;">
+              <label for="isExam" style="margin: 0; font-weight: 500;">This is an exam schedule announcement</label>
+            </div>
+            <div id="examFields" style="display: none;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0.5rem;">
+                  <label for="annExamDate">Exam Date</label>
+                  <input type="date" id="annExamDate" name="examDate">
+                </div>
+                <div class="form-group" style="margin-bottom: 0.5rem;">
+                  <label for="annExamTime">Exam Time</label>
+                  <input type="time" id="annExamTime" name="examTime">
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="annExamLocation">Location/Venue</label>
+                <input type="text" id="annExamLocation" name="examLocation" placeholder="e.g., Room 101, Main Building">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeAnnouncementModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="sendAnnouncementBtn">Send Announcement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast" id="toast">
     <span id="toastMessage">Saved!</span>
@@ -664,6 +735,81 @@
     document.getElementById('examModal').addEventListener('click', function(e) {
       if (e.target === this) {
         closeExamModal();
+      }
+    });
+
+    // Announcement Modal Functions
+    function openAnnouncementModal() {
+      document.getElementById('announcementModal').classList.add('show');
+    }
+
+    function closeAnnouncementModal() {
+      document.getElementById('announcementModal').classList.remove('show');
+      document.getElementById('announcementForm').reset();
+      document.getElementById('examFields').style.display = 'none';
+    }
+
+    // Toggle exam fields
+    document.getElementById('isExam').addEventListener('change', function() {
+      const examFields = document.getElementById('examFields');
+      examFields.style.display = this.checked ? 'block' : 'none';
+      if (this.checked) {
+        document.getElementById('annExamDate').required = true;
+        document.getElementById('annExamTime').required = true;
+      } else {
+        document.getElementById('annExamDate').required = false;
+        document.getElementById('annExamTime').required = false;
+      }
+    });
+
+    // Submit announcement
+    document.getElementById('announcementForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('sendAnnouncementBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      const isExam = document.getElementById('isExam').checked;
+      const data = {
+        audience: document.getElementById('audience').value,
+        title: document.getElementById('annTitle').value,
+        message: document.getElementById('annMessage').value
+      };
+
+      if (isExam) {
+        data.examDate = document.getElementById('annExamDate').value;
+        data.examTime = document.getElementById('annExamTime').value;
+        data.examLocation = document.getElementById('annExamLocation').value;
+      }
+
+      try {
+        const response = await fetch('/sponsor/offers/<%= scholarship.id %>/announcements', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast(result.message || 'Announcement sent successfully!');
+          closeAnnouncementModal();
+        } else {
+          showToast(result.error || 'Failed to send announcement', true);
+        }
+      } catch (error) {
+        showToast('An error occurred', true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Announcement';
+      }
+    });
+
+    // Close announcement modal on outside click
+    document.getElementById('announcementModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeAnnouncementModal();
       }
     });
   </script>

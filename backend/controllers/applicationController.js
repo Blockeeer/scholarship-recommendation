@@ -61,8 +61,24 @@ async function createApplication(req, res) {
       return res.status(400).json({ error: "No slots available for this scholarship" });
     }
 
-    // Check if student already has an application (draft or submitted) for this scholarship
+    // Check if student already has an accepted scholarship (one scholarship per student rule)
     const applicationsRef = collection(db, "applications");
+    const acceptedQuery = query(
+      applicationsRef,
+      where("studentUid", "==", studentUid),
+      where("studentAccepted", "==", true)
+    );
+    const acceptedApps = await getDocs(acceptedQuery);
+
+    if (!acceptedApps.empty) {
+      const acceptedApp = acceptedApps.docs[0].data();
+      return res.status(400).json({
+        error: `You have already accepted a scholarship (${acceptedApp.scholarshipName}). You cannot apply to other scholarships.`,
+        hasAcceptedScholarship: true
+      });
+    }
+
+    // Check if student already has an application (draft or submitted) for this scholarship
     const existingQuery = query(
       applicationsRef,
       where("studentUid", "==", studentUid),
@@ -883,6 +899,235 @@ async function deleteDraftApplication(req, res) {
   }
 }
 
+/**
+ * Student accepts or declines an approved scholarship offer
+ * Once a student accepts one offer, they cannot accept others (one scholarship per student)
+ */
+async function studentRespondToOffer(req, res) {
+  const applicationId = req.params.id;
+  const { response } = req.body; // 'accept' or 'decline'
+
+  if (!req.session.user || req.session.user.role !== "student") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  if (!['accept', 'decline'].includes(response)) {
+    return res.status(400).json({ error: "Invalid response. Must be 'accept' or 'decline'" });
+  }
+
+  const studentUid = req.session.user.uid;
+
+  try {
+    const applicationRef = doc(db, "applications", applicationId);
+    const applicationDoc = await getDoc(applicationRef);
+
+    if (!applicationDoc.exists()) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    const application = applicationDoc.data();
+
+    // Check ownership
+    if (application.studentUid !== studentUid) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Can only respond to accepted/notified applications (approved by sponsor/admin)
+    if (!['accepted', 'notified'].includes(application.status)) {
+      return res.status(400).json({ error: "This scholarship offer is not available for response" });
+    }
+
+    // Check if already responded
+    if (application.studentAccepted !== undefined) {
+      return res.status(400).json({ error: "You have already responded to this offer" });
+    }
+
+    if (response === 'accept') {
+      // Check if student already accepted another scholarship
+      const applicationsRef = collection(db, "applications");
+      const acceptedQuery = query(
+        applicationsRef,
+        where("studentUid", "==", studentUid),
+        where("studentAccepted", "==", true)
+      );
+      const acceptedApps = await getDocs(acceptedQuery);
+
+      if (!acceptedApps.empty) {
+        const acceptedApp = acceptedApps.docs[0].data();
+        return res.status(400).json({
+          error: `You have already accepted another scholarship (${acceptedApp.scholarshipName}). You can only accept one scholarship.`,
+          hasAcceptedScholarship: true
+        });
+      }
+
+      // Accept this scholarship
+      await updateDoc(applicationRef, {
+        studentAccepted: true,
+        studentRespondedAt: new Date().toISOString(),
+        status: 'enrolled', // Final status - student is now a grantee
+        updatedAt: new Date().toISOString()
+      });
+
+      // Notify sponsor that student accepted
+      const notificationData = {
+        userId: application.sponsorUid,
+        type: "student_accepted_offer",
+        title: "Student Accepted Scholarship",
+        message: `${application.studentName} has accepted the scholarship "${application.scholarshipName}".`,
+        relatedId: applicationId,
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+      await addDoc(collection(db, "notifications"), notificationData);
+
+      // Auto-decline all other approved offers for this student
+      const otherOffersQuery = query(
+        applicationsRef,
+        where("studentUid", "==", studentUid),
+        where("status", "in", ["accepted", "notified"])
+      );
+      const otherOffers = await getDocs(otherOffersQuery);
+
+      for (const offerDoc of otherOffers.docs) {
+        if (offerDoc.id !== applicationId) {
+          const offerData = offerDoc.data();
+          await updateDoc(doc(db, "applications", offerDoc.id), {
+            studentAccepted: false,
+            studentRespondedAt: new Date().toISOString(),
+            status: 'student_declined',
+            declineReason: 'Student accepted another scholarship',
+            updatedAt: new Date().toISOString()
+          });
+
+          // Decrement slot count for declined scholarship
+          const scholarshipRef = doc(db, "scholarships", offerData.scholarshipId);
+          const scholarshipDoc = await getDoc(scholarshipRef);
+          if (scholarshipDoc.exists()) {
+            const scholarship = scholarshipDoc.data();
+            await updateDoc(scholarshipRef, {
+              slotsFilled: Math.max(0, (scholarship.slotsFilled || 1) - 1),
+              updatedAt: new Date().toISOString()
+            });
+          }
+
+          // Notify sponsor about decline
+          await addDoc(collection(db, "notifications"), {
+            userId: offerData.sponsorUid,
+            type: "student_declined_offer",
+            title: "Student Declined Scholarship",
+            message: `${offerData.studentName} has declined the scholarship "${offerData.scholarshipName}" (accepted another offer).`,
+            relatedId: offerDoc.id,
+            read: false,
+            createdAt: new Date().toISOString()
+          });
+        }
+      }
+
+      res.json({
+        success: true,
+        message: "Congratulations! You have accepted this scholarship offer. You are now enrolled as a grantee."
+      });
+
+    } else {
+      // Decline this scholarship
+      await updateDoc(applicationRef, {
+        studentAccepted: false,
+        studentRespondedAt: new Date().toISOString(),
+        status: 'student_declined',
+        updatedAt: new Date().toISOString()
+      });
+
+      // Decrement slot count
+      const scholarshipRef = doc(db, "scholarships", application.scholarshipId);
+      const scholarshipDoc = await getDoc(scholarshipRef);
+      if (scholarshipDoc.exists()) {
+        const scholarship = scholarshipDoc.data();
+        await updateDoc(scholarshipRef, {
+          slotsFilled: Math.max(0, (scholarship.slotsFilled || 1) - 1),
+          updatedAt: new Date().toISOString()
+        });
+      }
+
+      // Notify sponsor
+      const notificationData = {
+        userId: application.sponsorUid,
+        type: "student_declined_offer",
+        title: "Student Declined Scholarship",
+        message: `${application.studentName} has declined the scholarship "${application.scholarshipName}".`,
+        relatedId: applicationId,
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+      await addDoc(collection(db, "notifications"), notificationData);
+
+      res.json({
+        success: true,
+        message: "You have declined this scholarship offer."
+      });
+    }
+
+  } catch (error) {
+    console.error('Error responding to offer:', error);
+    res.status(500).json({ error: "Failed to process your response" });
+  }
+}
+
+/**
+ * Get all approved offers for a student to choose from
+ */
+async function getApprovedOffers(req, res) {
+  if (!req.session.user || req.session.user.role !== "student") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const studentUid = req.session.user.uid;
+
+  try {
+    const applicationsRef = collection(db, "applications");
+    const offersQuery = query(
+      applicationsRef,
+      where("studentUid", "==", studentUid),
+      where("status", "in", ["accepted", "notified"])
+    );
+    const snapshot = await getDocs(offersQuery);
+
+    const offers = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      // Only include offers that haven't been responded to yet
+      if (data.studentAccepted === undefined) {
+        offers.push({ id: doc.id, ...data });
+      }
+    });
+
+    // Check if student already has an accepted scholarship
+    const acceptedQuery = query(
+      applicationsRef,
+      where("studentUid", "==", studentUid),
+      where("studentAccepted", "==", true)
+    );
+    const acceptedSnapshot = await getDocs(acceptedQuery);
+    const hasAcceptedScholarship = !acceptedSnapshot.empty;
+
+    let acceptedScholarship = null;
+    if (hasAcceptedScholarship) {
+      const acceptedDoc = acceptedSnapshot.docs[0];
+      acceptedScholarship = { id: acceptedDoc.id, ...acceptedDoc.data() };
+    }
+
+    res.json({
+      success: true,
+      offers,
+      hasAcceptedScholarship,
+      acceptedScholarship
+    });
+
+  } catch (error) {
+    console.error('Error getting approved offers:', error);
+    res.status(500).json({ error: "Failed to get approved offers" });
+  }
+}
+
 module.exports = {
   createApplication,
   getStudentApplications,
@@ -894,5 +1139,7 @@ module.exports = {
   withdrawApplication,
   getAllApplications,
   getDraftApplication,
-  deleteDraftApplication
+  deleteDraftApplication,
+  studentRespondToOffer,
+  getApprovedOffers
 };

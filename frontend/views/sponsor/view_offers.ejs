@@ -190,6 +190,11 @@
       color: #92400e;
     }
 
+    .status-pending-reopen {
+      background: #e0e7ff;
+      color: #4338ca;
+    }
+
     .status-rejected {
       background: #fee2e2;
       color: #991b1b;
@@ -425,6 +430,7 @@
             <button class="filter-tab" onclick="filterScholarships('Draft')">Drafts (<%= scholarships.filter(s => s.status === 'Draft').length %>)</button>
             <button class="filter-tab" onclick="filterScholarships('Open')">Open (<%= scholarships.filter(s => s.status === 'Open').length %>)</button>
             <button class="filter-tab" onclick="filterScholarships('Pending')">Pending Review (<%= scholarships.filter(s => s.status === 'Pending').length %>)</button>
+            <button class="filter-tab" onclick="filterScholarships('Pending Reopen')">Pending Reopen (<%= scholarships.filter(s => s.status === 'Pending Reopen').length %>)</button>
             <button class="filter-tab" onclick="filterScholarships('Rejected')">Rejected (<%= scholarships.filter(s => s.status === 'Rejected').length %>)</button>
             <button class="filter-tab" onclick="filterScholarships('Closed')">Closed (<%= scholarships.filter(s => s.status === 'Closed').length %>)</button>
             <button class="filter-tab" onclick="filterScholarships('Archived')">Archived (<%= scholarships.filter(s => s.status === 'Archived').length %>)</button>
@@ -440,6 +446,7 @@
               let statusClass = '';
               if (scholarship.status === 'Draft') statusClass = 'status-draft';
               else if (scholarship.status === 'Pending') statusClass = 'status-pending';
+              else if (scholarship.status === 'Pending Reopen') statusClass = 'status-pending-reopen';
               else if (scholarship.status === 'Rejected') statusClass = 'status-rejected';
               else if (scholarship.status === 'Closed') statusClass = 'status-closed';
               else if (scholarship.status === 'Archived') statusClass = 'status-archived';
@@ -450,7 +457,7 @@
                     <h3 class="card-title"><%= scholarship.scholarshipName %></h3>
                     <p class="card-org"><%= scholarship.organizationName %></p>
                   </div>
-                  <span class="status-badge status-<%= scholarship.status.toLowerCase() %>">
+                  <span class="status-badge <%= statusClass %>">
                     <%= scholarship.status %>
                   </span>
                 </div>

@@ -65,16 +65,26 @@ router.use(requireAdmin);
 // Dashboard
 router.get('/dashboard', showAdminDashboard);
 
-// Pending Scholarships Page
+// Pending Scholarships Page (includes both Pending and Pending Reopen)
 router.get('/pending-scholarships', async (req, res) => {
   try {
     const scholarshipsRef = collection(db, 'scholarships');
-    const q = query(scholarshipsRef, where('status', '==', 'Pending'));
-    const snapshot = await getDocs(q);
+
+    // Get both Pending (new submissions) and Pending Reopen (reopen requests)
+    const pendingQuery = query(scholarshipsRef, where('status', '==', 'Pending'));
+    const reopenQuery = query(scholarshipsRef, where('status', '==', 'Pending Reopen'));
+
+    const [pendingSnapshot, reopenSnapshot] = await Promise.all([
+      getDocs(pendingQuery),
+      getDocs(reopenQuery)
+    ]);
 
     const scholarships = [];
-    snapshot.forEach(doc => {
-      scholarships.push({ id: doc.id, ...doc.data() });
+    pendingSnapshot.forEach(doc => {
+      scholarships.push({ id: doc.id, ...doc.data(), requestType: 'new' });
+    });
+    reopenSnapshot.forEach(doc => {
+      scholarships.push({ id: doc.id, ...doc.data(), requestType: 'reopen' });
     });
 
     scholarships.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -207,7 +217,7 @@ router.post('/scholarships/:id/close', async (req, res) => {
   }
 });
 
-// Reopen scholarship (admin)
+// Reopen scholarship (admin) - approves reopen requests from sponsors
 router.post('/scholarships/:id/reopen', async (req, res) => {
   try {
     const scholarshipRef = doc(db, 'scholarships', req.params.id);
@@ -221,6 +231,9 @@ router.post('/scholarships/:id/reopen', async (req, res) => {
 
     await updateDoc(scholarshipRef, {
       status: 'Open',
+      reopenRequested: false,
+      reopenRequestedAt: null,
+      previousStatus: null,
       reopenedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
@@ -230,13 +243,49 @@ router.post('/scholarships/:id/reopen', async (req, res) => {
       scholarship.sponsorUid,
       'scholarship_update',
       'Scholarship Reopened',
-      `Your scholarship "${scholarship.scholarshipName}" has been reopened by the administrator.`,
+      `Your scholarship "${scholarship.scholarshipName}" has been reopened and is now accepting applications.`,
       req.params.id
     );
 
     res.json({ success: true, message: 'Scholarship reopened' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to reopen scholarship' });
+  }
+});
+
+// Reject reopen request (admin)
+router.post('/scholarships/:id/reject-reopen', async (req, res) => {
+  try {
+    const scholarshipRef = doc(db, 'scholarships', req.params.id);
+    const scholarshipDoc = await getDoc(scholarshipRef);
+
+    if (!scholarshipDoc.exists()) {
+      return res.status(404).json({ error: 'Scholarship not found' });
+    }
+
+    const scholarship = scholarshipDoc.data();
+
+    // Revert to Closed status
+    await updateDoc(scholarshipRef, {
+      status: 'Closed',
+      reopenRequested: false,
+      reopenRequestedAt: null,
+      reopenDeniedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+
+    // Notify sponsor
+    await createNotification(
+      scholarship.sponsorUid,
+      'scholarship_update',
+      'Reopen Request Denied',
+      `Your request to reopen "${scholarship.scholarshipName}" has been denied by the administrator. The scholarship remains closed.`,
+      req.params.id
+    );
+
+    res.json({ success: true, message: 'Reopen request denied' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to deny reopen request' });
   }
 });
 

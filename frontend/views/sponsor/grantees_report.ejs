@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grantees Report - <%= scholarship.scholarshipName %></title>
+  <link rel="stylesheet" href="/css/global.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .report-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+      transition: all var(--transition);
+    }
+
+    .back-link:hover {
+      color: var(--primary-hover);
+    }
+
+    .report-header {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .report-header-info h1 {
+      color: var(--text-primary);
+      margin: 0 0 0.5rem 0;
+      font-size: 1.75rem;
+    }
+
+    .report-header-info p {
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .report-stats {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem 1.5rem;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius);
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition);
+      font-size: 0.9375rem;
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .btn-success {
+      background: var(--success-500);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: var(--success-600);
+    }
+
+    .report-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+    }
+
+    .report-table th,
+    .report-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .report-table th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .report-table tbody tr:hover {
+      background: var(--bg-secondary);
+    }
+
+    .report-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .cell-number {
+      font-weight: 600;
+      color: var(--text-muted);
+      width: 50px;
+    }
+
+    .cell-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .cell-status {
+      display: inline-flex;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+
+    .status-enrolled {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .status-accepted {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-approved {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-notified {
+      background: #e0e7ff;
+      color: #4338ca;
+    }
+
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      max-width: 250px;
+    }
+
+    .skill-tag {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      padding: 0.125rem 0.5rem;
+      border-radius: var(--radius);
+      font-size: 0.75rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .empty-state-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--bg-secondary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2.5rem;
+    }
+
+    .empty-state h3 {
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: var(--text-secondary);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    @media print {
+      .sidebar, .topbar, .back-link, .actions-bar, .footer {
+        display: none !important;
+      }
+
+      .main-wrapper {
+        margin-left: 0 !important;
+        padding: 0 !important;
+      }
+
+      .page-content {
+        padding: 1rem !important;
+      }
+
+      .report-header {
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+
+      .report-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+
+      .report-table th {
+        background: #f0f0f0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .report-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .report-stats {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .actions-bar {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/sidebar_sponsor') %>
+
+  <div class="main-wrapper">
+    <%- include('../partials/topbar', { pageTitle: 'Grantees Report' }) %>
+
+    <main class="page-content">
+      <div class="report-container">
+        <a href="/sponsor/offers/<%= scholarship.id %>" class="back-link">
+          <span>&larr;</span> Back to Scholarship Details
+        </a>
+
+        <div class="report-header">
+          <div class="report-header-info">
+            <h1>Grantees Report</h1>
+            <p><%= scholarship.scholarshipName %> - <%= scholarship.organizationName %></p>
+          </div>
+          <div class="report-stats">
+            <div class="stat-item">
+              <div class="stat-value"><%= totalGrantees %></div>
+              <div class="stat-label">Total Grantees</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-bar">
+          <button class="btn btn-success" onclick="exportCSV()">
+            <span>&#128196;</span> Export to CSV
+          </button>
+          <button class="btn btn-secondary" onclick="window.print()">
+            <span>&#128424;</span> Print Report
+          </button>
+        </div>
+
+        <div class="report-card">
+          <% if (grantees.length > 0) { %>
+            <div class="table-wrapper">
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Full Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Course/Program</th>
+                    <th>Year Level</th>
+                    <th>GPA/GWA</th>
+                    <th>Financial Information</th>
+                    <th>Preferred Scholarship Type</th>
+                    <th>Skills & Qualities</th>
+                    <th>Status</th>
+                    <th>Date Applied</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% grantees.forEach(grantee => { %>
+                    <tr>
+                      <td class="cell-number"><%= grantee.rowNumber %></td>
+                      <td class="cell-name"><%= grantee.fullName %></td>
+                      <td><%= grantee.age %></td>
+                      <td><%= grantee.gender %></td>
+                      <td><%= grantee.course %></td>
+                      <td><%= grantee.yearLevel %></td>
+                      <td><%= grantee.gpa %></td>
+                      <td><%= grantee.incomeRange %></td>
+                      <td><%= grantee.scholarshipType %></td>
+                      <td>
+                        <div class="skills-list">
+                          <%
+                            const allSkills = [
+                              ...(Array.isArray(grantee.skills) ? grantee.skills : []),
+                              ...(Array.isArray(grantee.involvement) ? grantee.involvement : [])
+                            ];
+                            allSkills.slice(0, 5).forEach(skill => {
+                          %>
+                            <span class="skill-tag"><%= skill %></span>
+                          <% }); %>
+                          <% if (allSkills.length > 5) { %>
+                            <span class="skill-tag">+<%= allSkills.length - 5 %> more</span>
+                          <% } %>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="cell-status status-<%= grantee.status %>">
+                          <%= grantee.status.charAt(0).toUpperCase() + grantee.status.slice(1) %>
+                        </span>
+                      </td>
+                      <td>
+                        <%= grantee.appliedAt ? new Date(grantee.appliedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A' %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="empty-state">
+              <div class="empty-state-icon">&#128101;</div>
+              <h3>No Grantees Yet</h3>
+              <p>There are no approved or enrolled students for this scholarship yet. Once you approve applicants, they will appear here.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </div>
+
+  <script src="/js/sidebar.js"></script>
+  <script>
+    function exportCSV() {
+      window.location.href = '/sponsor/offers/<%= scholarship.id %>/report/export';
+    }
+  </script>
+</body>
+</html>

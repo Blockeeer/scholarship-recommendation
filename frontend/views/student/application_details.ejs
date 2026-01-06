@@ -237,6 +237,50 @@
       background: #6c757d;
       color: white;
     }
+
+    .btn-success {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: white;
+    }
+
+    .offer-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .offer-actions .btn {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+    }
+
+    .status-header.accepted, .status-header.notified {
+      background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    }
+
+    .status-header.enrolled {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .status-header.student_declined {
+      background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    }
+
+    .enrolled-badge {
+      display: inline-block;
+      background: gold;
+      color: #333;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -247,11 +291,11 @@
 
     <main class="page-content">
       <div class="container">
-        <a href="/student/applications" class="back-link">ê Back to My Applications</a>
+        <a href="/student/applications" class="back-link">ÔøΩ Back to My Applications</a>
 
         <div class="status-header <%= application.status %>">
           <div class="status-icon">
-            <% if (application.status === 'pending') { %>Û
+            <% if (application.status === 'pending') { %>ÔøΩ
             <% } else if (application.status === 'under_review') { %>=
             <% } else if (application.status === 'approved') { %>
             <% } else { %>L<% } %>
@@ -393,14 +437,66 @@
           </div>
         <% } %>
 
-        <% if (application.status === 'approved') { %>
+        <% if (['approved', 'accepted', 'notified'].includes(application.status) && application.studentAccepted === undefined) { %>
           <div class="section" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; text-align: center;">
-            <h2 style="margin: 0 0 1rem 0;">Next Steps</h2>
-            <p>Congratulations on your scholarship approval! Please check your email for further instructions on how to claim your scholarship benefits.</p>
+            <h2 style="margin: 0 0 1rem 0;">Respond to This Offer</h2>
+            <p>Congratulations! You have been approved for this scholarship. Please accept or decline this offer.</p>
+            <p style="font-size: 0.9rem; opacity: 0.9; margin-top: 0.5rem;"><strong>Note:</strong> You can only accept ONE scholarship. If you accept this offer, all other pending offers will be automatically declined.</p>
+            <div class="offer-actions">
+              <button class="btn btn-success" onclick="respondToOffer('accept')">Accept Offer</button>
+              <button class="btn btn-danger" onclick="respondToOffer('decline')">Decline Offer</button>
+            </div>
+          </div>
+        <% } else if (application.status === 'enrolled') { %>
+          <div class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center;">
+            <h2 style="margin: 0 0 1rem 0;">You're a Grantee!</h2>
+            <p>Congratulations! You have accepted this scholarship and are now officially enrolled as a grantee.</p>
+            <p style="font-size: 0.9rem; opacity: 0.9;">Please check your email or contact the sponsor for further instructions.</p>
+          </div>
+        <% } else if (application.status === 'student_declined') { %>
+          <div class="section" style="background: #6c757d; color: white; text-align: center;">
+            <h2 style="margin: 0 0 1rem 0;">Offer Declined</h2>
+            <p>You have declined this scholarship offer.</p>
           </div>
         <% } %>
       </div>
     </main>
+
+  <script>
+    async function respondToOffer(response) {
+      if (response === 'accept') {
+        if (!confirm('Are you sure you want to ACCEPT this scholarship offer? This will decline all your other pending offers.')) {
+          return;
+        }
+      } else {
+        if (!confirm('Are you sure you want to DECLINE this scholarship offer?')) {
+          return;
+        }
+      }
+
+      try {
+        const res = await fetch('/student/applications/<%= application.id %>/respond', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ response })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          alert(data.message);
+          window.location.reload();
+        } else {
+          alert(data.error || 'Failed to process your response');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      }
+    }
+  </script>
 
     <%- include('../partials/footer') %>
   </div>

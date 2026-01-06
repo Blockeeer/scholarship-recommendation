@@ -1,3 +1,7 @@
+
+
+
+
 // Toggle mobile menu
 function toggleMenu() {
   const menu = document.getElementById('navbarMenu');

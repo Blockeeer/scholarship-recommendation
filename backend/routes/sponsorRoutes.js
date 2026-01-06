@@ -48,7 +48,11 @@ const {
   restoreScholarship,
   permanentlyDeleteScholarship,
   showEditScholarshipForm,
-  updateScholarship
+  updateScholarship,
+  createAnnouncement,
+  getScholarshipAnnouncements,
+  getGranteesReport,
+  exportGranteesReport
 } = require('../controllers/scholarshipController');
 const {
   getScholarshipApplications,
@@ -108,6 +112,14 @@ router.post('/offers/:id/restore', restoreScholarship);
 
 // Permanently delete archived scholarship
 router.post('/offers/:id/permanent-delete', permanentlyDeleteScholarship);
+
+// Announcement routes (modal-based, API only)
+router.post('/offers/:id/announcements', createAnnouncement);
+router.get('/offers/:id/announcements/list', getScholarshipAnnouncements);
+
+// Grantees report routes
+router.get('/offers/:id/report', getGranteesReport);
+router.get('/offers/:id/report/export', exportGranteesReport);
 
 // Save exam schedule for scholarship
 router.post('/offers/:id/exam-schedule', async (req, res) => {

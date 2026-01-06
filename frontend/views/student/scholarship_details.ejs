@@ -451,6 +451,13 @@
           <span class="scholarship-type"><%= scholarship.scholarshipType %> Scholarship</span>
         </div>
 
+        <% if (scholarship.description) { %>
+        <div class="section">
+          <h2 class="section-title">Scholarship Description</h2>
+          <p style="line-height: 1.7; color: var(--text-primary, #1f2937);"><%= scholarship.description %></p>
+        </div>
+        <% } %>
+
         <div class="section">
           <h2 class="section-title">Qualification Criteria</h2>
           <div class="info-grid">
