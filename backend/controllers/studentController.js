@@ -18,6 +18,8 @@ const { matchStudentToScholarships } = require("../services/gptMatchingService")
 const { getUserNotifications, getUnreadCount, markAsRead, markAllAsRead } = require("../services/notificationService");
 const { getPaginationParams, paginateArray, buildPaginationUI, getPaginationInfo } = require("../utils/pagination");
 const { generateScholarshipICS } = require("../utils/icalGenerator");
+const { uploadToCloudinary } = require("../config/cloudinaryConfig");
+const fs = require("fs");
 
 /**
  * Show student dashboard
@@ -709,8 +711,15 @@ async function uploadAvatar(req, res) {
   }
 
   try {
-    // Generate the URL path for the uploaded file
-    const profilePictureUrl = `/uploads/${req.file.filename}`;
+    // Upload to Cloudinary
+    const folder = `iskolarpath/avatars/${studentUid}`;
+    const result = await uploadToCloudinary(req.file.path, folder, `avatar_${Date.now()}`);
+    const profilePictureUrl = result.secure_url;
+
+    // Delete temp file
+    fs.unlink(req.file.path, (err) => {
+      if (err) console.error('Error deleting temp file:', err);
+    });
 
     const userRef = doc(db, "users", studentUid);
     await updateDoc(userRef, {
@@ -724,6 +733,11 @@ async function uploadAvatar(req, res) {
     res.json({ success: true, message: "Profile picture updated", url: profilePictureUrl });
 
   } catch (error) {
+    // Clean up temp file on error
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, () => {});
+    }
+    console.error('Avatar upload error:', error);
     res.status(500).json({ error: "Failed to upload profile picture" });
   }
 }
